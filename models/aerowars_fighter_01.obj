@@ -1,0 +1,77 @@
+# AeroWars Fighter Placeholder Model
+# Simple elongated box representing a fighter plane
+# Replace with proper model later
+
+# Vertices - elongated fuselage shape
+# Nose
+v  0.0  0.0  2.0
+# Fuselage top
+v -0.4  0.3  1.0
+v  0.4  0.3  1.0
+v -0.4  0.3 -1.0
+v  0.4  0.3 -1.0
+# Fuselage bottom
+v -0.4 -0.2  1.0
+v  0.4 -0.2  1.0
+v -0.4 -0.2 -1.0
+v  0.4 -0.2 -1.0
+# Tail
+v  0.0  0.0 -2.0
+# Wings
+v -2.0  0.0  0.0
+v  2.0  0.0  0.0
+v -1.5  0.0 -0.5
+v  1.5  0.0 -0.5
+# Tail fins
+v  0.0  0.8 -1.5
+v -0.8  0.0 -1.5
+v  0.8  0.0 -1.5
+
+# Texture coordinates
+vt 0.0 0.0
+vt 1.0 0.0
+vt 1.0 1.0
+vt 0.0 1.0
+
+# Normals
+vn 0.0 1.0 0.0
+vn 0.0 -1.0 0.0
+vn 0.0 0.0 1.0
+vn 0.0 0.0 -1.0
+vn 1.0 0.0 0.0
+vn -1.0 0.0 0.0
+
+# Faces - Fuselage top
+f 1/1/1 3/2/1 2/3/1
+f 2/1/1 3/2/1 5/3/1
+f 2/1/1 5/2/1 4/3/1
+f 4/1/4 5/2/4 10/3/4
+
+# Fuselage bottom
+f 1/1/2 6/2/2 7/3/2
+f 6/1/2 8/2/2 9/3/2
+f 6/1/2 9/2/2 7/3/2
+f 8/1/2 10/2/2 9/3/2
+
+# Fuselage sides
+f 1/1/6 2/2/6 6/3/6
+f 2/1/6 4/2/6 8/3/6
+f 2/1/6 8/2/6 6/3/6
+f 1/1/5 7/2/5 3/3/5
+f 3/1/5 7/2/5 9/3/5
+f 3/1/5 9/2/5 5/3/5
+f 4/1/4 10/2/4 8/3/4
+f 5/1/4 9/2/4 10/3/4
+
+# Wings (flat quads)
+f 6/1/1 11/2/1 13/3/1 8/4/1
+f 7/1/1 9/2/1 14/3/1 12/4/1
+
+# Tail fin (vertical)
+f 4/1/5 15/2/5 5/3/5
+f 10/1/6 15/2/6 4/3/6
+f 10/1/5 5/2/5 15/3/5
+
+# Tail fins (horizontal)
+f 8/1/1 16/2/1 10/3/1
+f 10/1/1 17/2/1 9/3/1
