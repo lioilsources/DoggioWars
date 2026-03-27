@@ -139,7 +139,7 @@ function aerowars.shoot_bullet(fighter_self)
     if not pos then return end
 
     local rot = fighter_self.object:get_rotation()
-    local dir = minetest.yaw_to_dir(rot.y)
+    local dir = minetest.yaw_to_dir(rot.y + math.pi)
     local pitch_angle = -(rot.x or 0)   -- rot.x is -pitch
     dir.y = math.sin(pitch_angle)
     -- Re-normalize horizontal component

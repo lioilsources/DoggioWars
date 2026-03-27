@@ -132,7 +132,7 @@ minetest.register_entity("aerowars:fighter", {
         self.object:set_rotation(rot)
 
         -- Velocity from direction + speed
-        local dir = minetest.yaw_to_dir(rot.y)
+        local dir = minetest.yaw_to_dir(rot.y + math.pi)
         local vel = {
             x = dir.x * self.speed,
             y = math.sin(self.pitch) * self.speed,
