@@ -12,6 +12,7 @@ dofile(MP .. "/biomes.lua")     -- Biome definitions
 dofile(MP .. "/mapgen.lua")     -- Island generator
 dofile(MP .. "/decorate.lua")   -- Post-gen decoration (trees, mushrooms, etc.)
 dofile(MP .. "/vehicle.lua")    -- Fighter plane entity
+dofile(MP .. "/weapons.lua")    -- Projectiles, explosions, damage
 dofile(MP .. "/sky.lua")        -- Sky, clouds, fog
 
 minetest.log("action", "[aerowars] Mod loaded successfully")

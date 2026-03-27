@@ -50,19 +50,35 @@ minetest.register_entity("aerowars:fighter", {
         stepheight        = 0,
     },
 
-    pilot     = nil,
-    speed     = 15,
-    pitch     = 0,
-    yaw_angle = 0,
+    pilot         = nil,
+    speed         = 15,
+    pitch         = 0,
+    yaw_angle     = 0,
     exhaust_timer = 0,
+    hp            = 100,
+    shoot_cooldown = 0,
+    smoke_timer   = 0,
+    is_dead       = false,
 
     on_activate = function(self, staticdata)
         self.object:set_armor_groups({immortal = 1})
         -- Disable gravity — plane handles its own physics
         self.object:set_acceleration({x = 0, y = 0, z = 0})
+        -- Restore persistent state
+        if staticdata and staticdata ~= "" then
+            local data = minetest.deserialize(staticdata)
+            if data then
+                self.speed = data.speed or self.speed
+                self.pitch = data.pitch or self.pitch
+                self.hp    = data.hp    or 100
+            end
+        else
+            self.hp = 100
+        end
     end,
 
-    on_step = function(self, dtime)
+    on_step = function(self, dtime, moveresult)
+        if self.is_dead then return end
         if not self.pilot then
             -- No pilot — slow drift down
             local vel = self.object:get_velocity()
@@ -124,6 +140,39 @@ minetest.register_entity("aerowars:fighter", {
         }
         self.object:set_velocity(vel)
 
+        -- Shooting (E / aux1 key) with 0.15s cooldown (~6 rounds/s)
+        self.shoot_cooldown = math.max(0, (self.shoot_cooldown or 0) - dtime)
+        if ctrl.aux1 and self.shoot_cooldown <= 0 then
+            self.shoot_cooldown = 0.15
+            aerowars.shoot_bullet(self)
+        end
+
+        -- Damage smoke: light at HP < 70, heavy fire at HP < 30
+        if (self.hp or 100) < 70 then
+            self.smoke_timer = (self.smoke_timer or 0) + dtime
+            local interval = (self.hp or 100) < 30 and 0.1 or 0.25
+            if self.smoke_timer >= interval then
+                self.smoke_timer = 0
+                local spos = self.object:get_pos()
+                minetest.add_particlespawner({
+                    amount     = (self.hp or 100) < 30 and 8 or 3,
+                    time       = interval,
+                    minpos     = {x = spos.x - 0.3, y = spos.y - 0.2, z = spos.z - 0.3},
+                    maxpos     = {x = spos.x + 0.3, y = spos.y + 0.5, z = spos.z + 0.3},
+                    minvel     = {x = -1, y = 1, z = -1},
+                    maxvel     = {x =  1, y = 4, z =  1},
+                    minacc     = {x = 0,  y = 0.5, z = 0},
+                    maxacc     = {x = 0,  y = 1,   z = 0},
+                    minexptime = 0.5,
+                    maxexptime = 2.0,
+                    minsize    = 2,
+                    maxsize    = 6,
+                    texture    = "aerowars_particle_engine.png",
+                    glow       = (self.hp or 100) < 30 and 5 or 0,
+                })
+            end
+        end
+
         -- Exhaust particles (throttled to every 0.1s)
         self.exhaust_timer = (self.exhaust_timer or 0) + dtime
         if self.exhaust_timer >= 0.1 then
@@ -175,10 +224,58 @@ minetest.register_entity("aerowars:fighter", {
         minetest.chat_send_player(pilot:get_player_name(), "You ejected from the fighter.")
     end,
 
+    damage_fighter = function(self, amount)
+        if self.is_dead then return end
+        self.hp = math.max(0, (self.hp or 100) - amount)
+        if self.pilot and self.pilot:is_player() then
+            minetest.chat_send_player(self.pilot:get_player_name(),
+                "Hull: " .. self.hp .. "%")
+        end
+        if self.hp <= 0 then
+            self:die()
+        end
+    end,
+
+    die = function(self)
+        if self.is_dead then return end
+        self.is_dead = true
+        local pos = self.object:get_pos()
+        -- Capture pilot name before ejecting (string survives entity removal)
+        local pilot_name = self.pilot and self.pilot:is_player()
+            and self.pilot:get_player_name() or nil
+        if self.pilot then
+            self:eject_pilot()
+        end
+        -- Big explosion at crash site
+        if pos then
+            aerowars.explode_voxels(pos, 5)
+        end
+        -- Schedule respawn
+        if pilot_name then
+            minetest.chat_send_player(pilot_name,
+                "Fighter destroyed! New fighter in 5 seconds...")
+            minetest.after(5, function()
+                local player = minetest.get_player_by_name(pilot_name)
+                if not player then return end
+                local ppos = player:get_pos()
+                local spawn_pos = ppos
+                    and {x = ppos.x, y = ppos.y + 5, z = ppos.z}
+                    or  {x = 0, y = 305, z = 0}
+                local obj = minetest.add_entity(spawn_pos, "aerowars:fighter")
+                if obj then
+                    minetest.chat_send_player(pilot_name,
+                        "New fighter ready — right-click to board.")
+                end
+            end)
+        end
+        self.object:remove()
+    end,
+
     get_staticdata = function(self)
         return minetest.serialize({
             speed = self.speed,
             pitch = self.pitch,
+            hp    = self.hp,
         })
     end,
 
