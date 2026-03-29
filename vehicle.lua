@@ -59,6 +59,7 @@ minetest.register_entity("aerowars:fighter", {
     shoot_cooldown = 0,
     smoke_timer   = 0,
     is_dead       = false,
+    roll          = 0,
 
     on_activate = function(self, staticdata)
         self.object:set_armor_groups({immortal = 1})
@@ -70,6 +71,7 @@ minetest.register_entity("aerowars:fighter", {
             if data then
                 self.speed = data.speed or self.speed
                 self.pitch = data.pitch or self.pitch
+                self.roll  = data.roll  or 0
                 self.hp    = data.hp    or 100
             end
         else
@@ -128,7 +130,21 @@ minetest.register_entity("aerowars:fighter", {
 
         -- Pitch decay toward neutral
         self.pitch = self.pitch * (1 - PITCH_DECAY * dtime)
+
+        -- Roll (LMB = left, RMB = right, auto-levels when released)
+        local ROLL_SPEED = 1.8
+        local ROLL_MAX   = math.pi
+        local ROLL_DECAY = 1.5
+        if ctrl.dig   then
+            self.roll = math.max((self.roll or 0) - ROLL_SPEED * dtime, -ROLL_MAX)
+        elseif ctrl.place then
+            self.roll = math.min((self.roll or 0) + ROLL_SPEED * dtime,  ROLL_MAX)
+        else
+            self.roll = (self.roll or 0) * (1 - ROLL_DECAY * dtime)
+        end
+
         rot.x = -self.pitch
+        rot.z = self.roll
         self.object:set_rotation(rot)
 
         -- Velocity from direction + speed
@@ -275,6 +291,7 @@ minetest.register_entity("aerowars:fighter", {
         return minetest.serialize({
             speed = self.speed,
             pitch = self.pitch,
+            roll  = self.roll,
             hp    = self.hp,
         })
     end,
