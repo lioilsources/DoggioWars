@@ -7,7 +7,7 @@ local CLOUD_DENSITY = 0.9
 local CLOUD_SPEED   = {x = 2, z = 0}
 
 -- Spawn point in the sky
-local SPAWN_HEIGHT  = 300
+local SPAWN_HEIGHT  = aerowars.const.SPAWN_HEIGHT
 
 -- Check if set_fog is available (Luanti 5.16+)
 local has_set_fog = minetest.features and minetest.features.object_step_has_moveresult ~= nil
@@ -45,17 +45,25 @@ minetest.register_on_joinplayer(function(player)
     })
 
     -- Teleport to sky spawn on first join
+    local name = player:get_player_name()
     local meta = player:get_meta()
     if meta:get_int("aerowars_spawned") == 0 then
         meta:set_int("aerowars_spawned", 1)
-        local spawn_pos = {x = 0, y = SPAWN_HEIGHT, z = 0}
-        player:set_pos(spawn_pos)
-        -- Grant fly + fast for testing
-        local privs = minetest.get_player_privs(player:get_player_name())
-        privs.fly = true
-        privs.fast = true
-        minetest.set_player_privs(player:get_player_name(), privs)
-        minetest.chat_send_player(player:get_player_name(),
-            "Welcome to AeroWars! Use /spawn_fighter to get a plane.")
+        player:set_pos({x = 0, y = SPAWN_HEIGHT, z = 0})
+        minetest.chat_send_player(name,
+            "Welcome to AeroWars! You ARE the fighter — fly!")
     end
+
+    -- Každý join: hráč rovnou letí (malé zpoždění, ať klient doinicializuje;
+    -- selhání pokryje watchdog ve vehicle.lua)
+    minetest.after(0.2, function()
+        local p = minetest.get_player_by_name(name)
+        if not p or aerowars.get_player_fighter(p) then return end
+        local pos = p:get_pos()
+        aerowars.mount_player(p, {
+            x = pos.x,
+            y = math.max(pos.y + 2, 100),
+            z = pos.z,
+        })
+    end)
 end)

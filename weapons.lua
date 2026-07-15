@@ -104,9 +104,8 @@ minetest.register_entity("aerowars:bullet", {
                 if ent and ent.name == "aerowars:fighter"
                         and ent.hp and ent.hp > 0 and not ent.is_dead then
                     -- Don't hit the shooter's own plane
-                    local pilot = ent.pilot
-                    local is_own = pilot and pilot:is_player()
-                        and pilot:get_player_name() == self._shooter_name
+                    local is_own = self._shooter_name ~= nil
+                        and ent.pilot_name == self._shooter_name
                     if not is_own then
                         ent:damage_fighter(BULLET_DAMAGE)
                         aerowars.explode_voxels(pos, EXPLODE_RADIUS_HIT)
@@ -150,11 +149,12 @@ function aerowars.shoot_bullet(fighter_self)
         dir.z = dir.z / hlen * cos_p
     end
 
-    -- Muzzle: 3 blocks in front of nose
+    -- Muzzle: 6 blocks in front of center — first-person kamera pilota sedí
+    -- ~4 jednotky před středem, muzzle musí být až před ní
     local muzzle = {
-        x = pos.x + dir.x * 3,
-        y = pos.y + dir.y * 3,
-        z = pos.z + dir.z * 3,
+        x = pos.x + dir.x * 6,
+        y = pos.y + dir.y * 6,
+        z = pos.z + dir.z * 6,
     }
 
     local bullet = minetest.add_entity(muzzle, "aerowars:bullet")
@@ -170,19 +170,16 @@ function aerowars.shoot_bullet(fighter_self)
 
     local ent = bullet:get_luaentity()
     if ent then
-        ent._shooter_name = fighter_self.pilot
-            and fighter_self.pilot:is_player()
-            and fighter_self.pilot:get_player_name()
-            or nil
+        ent._shooter_name = fighter_self.pilot_name
     end
 
-    -- Muzzle flash
+    -- Muzzle flash (malý — je přímo před first-person kamerou)
     minetest.add_particle({
         pos            = muzzle,
         velocity       = {x = 0, y = 0, z = 0},
         acceleration   = {x = 0, y = 0, z = 0},
         expirationtime = 0.08,
-        size           = 3.5,
+        size           = 2.0,
         texture        = "aerowars_particle_engine.png",
         glow           = 15,
     })
