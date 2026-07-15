@@ -25,6 +25,8 @@ dofile(MP .. "/nodes.lua")      -- Custom blocks (must be first for content IDs)
 dofile(MP .. "/biomes.lua")     -- Biome definitions
 dofile(MP .. "/mapgen.lua")     -- Island generator
 dofile(MP .. "/decorate.lua")   -- Post-gen decoration (trees, mushrooms, etc.)
+dofile(MP .. "/hud.lua")        -- HUD (statbary, flash, race widgety)
+dofile(MP .. "/tricks.lua")     -- Vstupní komba a skriptované triky
 dofile(MP .. "/vehicle.lua")    -- Fighter plane entity
 dofile(MP .. "/weapons.lua")    -- Projectiles, explosions, damage
 dofile(MP .. "/sky.lua")        -- Sky, clouds, fog

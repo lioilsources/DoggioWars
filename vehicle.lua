@@ -59,6 +59,7 @@ function aerowars.mount_player(player, pos)
     local self = obj:get_luaentity()
     self.pilot = player
     self.pilot_name = name
+    self.score = aerowars.tricks.scores[name] or 0
 
     player:set_attach(obj, "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
     player:set_eye_offset(EYE_OFFSET, EYE_OFFSET)
@@ -67,10 +68,12 @@ function aerowars.mount_player(player, pos)
         player:set_camera({mode = "first"})
     end
     player:set_physics_override({speed = 0, jump = 0, gravity = 0})
+    player:set_fov(0)
     player:hud_set_flags({
         hotbar = false, wielditem = false, healthbar = false,
         breathbar = false, crosshair = true,
     })
+    aerowars.hud.init(player)
     respawn_pending[name] = nil
     return obj
 end
@@ -125,6 +128,7 @@ minetest.register_entity("aerowars:fighter", {
         -- Disable gravity — plane handles its own physics
         self.object:set_acceleration({x = 0, y = 0, z = 0})
         self.hp = 100
+        aerowars.tricks.init(self)
     end,
 
     on_step = function(self, dtime, moveresult)
@@ -139,59 +143,104 @@ minetest.register_entity("aerowars:fighter", {
         end
 
         local ctrl = pilot:get_player_control()
-        local rot  = self.object:get_rotation()
+        local events = aerowars.tricks.update_input(self, ctrl)
+        self.iframes = math.max(0, (self.iframes or 0) - dtime)
 
-        -- Throttle
-        if ctrl.up then
-            self.speed = math.min(self.speed + 8 * dtime, C.SPEED_MAX)
-        end
-        if ctrl.down then
-            self.speed = math.max(self.speed - 5 * dtime, C.SPEED_MIN)
-        end
+        local rot, vel
 
-        -- Yaw (left/right)
-        if ctrl.left then
-            rot.y = rot.y + C.TURN_SPEED * dtime
-        end
-        if ctrl.right then
-            rot.y = rot.y - C.TURN_SPEED * dtime
-        end
-
-        -- Pitch (jump = nose up, sneak = nose down)
-        if ctrl.jump then
-            self.pitch = math.min(self.pitch + C.PITCH_RATE * dtime, C.PITCH_MAX)
-        elseif ctrl.sneak then
-            self.pitch = math.max(self.pitch - C.PITCH_RATE * dtime, -C.PITCH_MAX)
-        end
-
-        -- Pitch decay toward neutral
-        self.pitch = self.pitch * (1 - C.PITCH_DECAY * dtime)
-
-        -- Roll (LMB = left, RMB = right, auto-levels when released)
-        if ctrl.dig then
-            self.roll = math.max((self.roll or 0) - C.ROLL_SPEED * dtime, -C.ROLL_MAX)
-        elseif ctrl.place then
-            self.roll = math.min((self.roll or 0) + C.ROLL_SPEED * dtime,  C.ROLL_MAX)
+        if self.trick then
+            -- Skriptovaný trik přebírá řízení (looping potřebuje pitch
+            -- za clampem ±PITCH_MAX)
+            rot, vel = aerowars.tricks.step_active(self, dtime)
+            self.object:set_rotation(rot)
+            self.object:set_velocity(vel)
         else
-            self.roll = (self.roll or 0) * (1 - C.ROLL_DECAY * dtime)
+            rot = self.object:get_rotation()
+
+            -- Throttle (jen do SPEED_MAX — overspeed řeší dive/boost níže)
+            if ctrl.up and self.speed < C.SPEED_MAX then
+                self.speed = math.min(self.speed + 8 * dtime, C.SPEED_MAX)
+            end
+            if ctrl.down then
+                self.speed = math.max(self.speed - 5 * dtime, C.SPEED_MIN)
+            end
+
+            -- Airbrake drift: S + A/D = ostrá zatáčka za cenu rychlosti
+            local turn = C.TURN_SPEED
+            local drifting = ctrl.down and (ctrl.left or ctrl.right)
+            if drifting then
+                turn = C.TURN_SPEED * 2.2
+                self.speed = math.max(self.speed - 12 * dtime, C.SPEED_MIN)
+                aerowars.tricks.add_raw_score(self, 50 * dtime)
+            end
+
+            -- Yaw (left/right)
+            if ctrl.left then
+                rot.y = rot.y + turn * dtime
+            end
+            if ctrl.right then
+                rot.y = rot.y - turn * dtime
+            end
+
+            -- Pitch (jump = nose up, sneak = nose down)
+            if ctrl.jump then
+                self.pitch = math.min(self.pitch + C.PITCH_RATE * dtime, C.PITCH_MAX)
+            elseif ctrl.sneak then
+                self.pitch = math.max(self.pitch - C.PITCH_RATE * dtime, -C.PITCH_MAX)
+            end
+
+            -- Pitch decay toward neutral
+            self.pitch = self.pitch * (1 - C.PITCH_DECAY * dtime)
+
+            -- Roll (LMB = left, RMB = right, auto-levels when released)
+            if ctrl.dig then
+                self.roll = math.max((self.roll or 0) - C.ROLL_SPEED * dtime, -C.ROLL_MAX)
+            elseif ctrl.place then
+                self.roll = math.min((self.roll or 0) + C.ROLL_SPEED * dtime,  C.ROLL_MAX)
+            else
+                self.roll = (self.roll or 0) * (1 - C.ROLL_DECAY * dtime)
+            end
+
+            -- Boost (double-tap W) a dive overspeed (střemhlavý let zrychluje)
+            if (self.boost_time or 0) > 0 then
+                self.boost_time = self.boost_time - dtime
+                self.speed = 60
+                if self.boost_time <= 0 then
+                    pilot:set_fov(0)
+                end
+            elseif self.pitch < -0.4 then
+                self.speed = math.min(self.speed + 15 * dtime, C.SPEED_MAX * 1.5)
+            elseif self.speed > C.SPEED_MAX then
+                self.speed = math.max(C.SPEED_MAX, self.speed - 7 * dtime)
+            end
+
+            rot.x = -self.pitch
+            rot.z = self.roll
+            self.object:set_rotation(rot)
+
+            -- Velocity from direction + speed
+            local dir = minetest.yaw_to_dir(rot.y + math.pi)
+            vel = {
+                x = dir.x * self.speed,
+                y = math.sin(self.pitch) * self.speed,
+                z = dir.z * self.speed,
+            }
+            self.object:set_velocity(vel)
+
+            aerowars.tricks.check_triggers(self, events, pilot)
         end
 
-        rot.x = -self.pitch
-        rot.z = self.roll
-        self.object:set_rotation(rot)
+        -- Kamera: pohled pilota sleduje vektor letu — funguje i vzhůru
+        -- nohama v loopingu (v apexu se pohled překlopí přes yaw)
+        local hlen = math.sqrt(vel.x * vel.x + vel.z * vel.z)
+        if hlen > 0.05 then
+            pilot:set_look_horizontal(
+                minetest.dir_to_yaw({x = vel.x, y = 0, z = vel.z}))
+            pilot:set_look_vertical(-math.atan2(vel.y, hlen))
+        end
 
-        -- Zamknout pohled pilota do směru letu (first-person kamera)
-        pilot:set_look_horizontal(rot.y + math.pi)
-        pilot:set_look_vertical(-self.pitch)
-
-        -- Velocity from direction + speed
-        local dir = minetest.yaw_to_dir(rot.y + math.pi)
-        local vel = {
-            x = dir.x * self.speed,
-            y = math.sin(self.pitch) * self.speed,
-            z = dir.z * self.speed,
-        }
-        self.object:set_velocity(vel)
+        -- Proximity charge: let těsně kolem terénu nabíjí boost
+        aerowars.tricks.update_passive(self, dtime)
 
         -- Shooting (E / aux1 key) with 0.15s cooldown (~6 rounds/s)
         self.shoot_cooldown = math.max(0, (self.shoot_cooldown or 0) - dtime)
@@ -228,19 +277,26 @@ minetest.register_entity("aerowars:fighter", {
 
         -- Exhaust particles (throttled to every 0.1s)
         self.exhaust_timer = (self.exhaust_timer or 0) + dtime
-        if self.exhaust_timer >= 0.1 then
+        if self.exhaust_timer >= 0.1 and hlen > 0.05 then
             self.exhaust_timer = 0
             local pos = self.object:get_pos()
-            spawn_exhaust(pos, dir, self.speed)
+            spawn_exhaust(pos, {x = vel.x / hlen, z = vel.z / hlen}, self.speed)
+        end
+
+        -- HUD update (throttled to every 0.15s)
+        self.hud_timer = (self.hud_timer or 0) + dtime
+        if self.hud_timer >= 0.15 then
+            self.hud_timer = 0
+            aerowars.hud.update_flight(pilot, self)
         end
     end,
 
-    damage_fighter = function(self, amount)
+    damage_fighter = function(self, amount, bypass_iframes)
         if self.is_dead then return end
+        -- Barrel roll dává krátkou nesmrtelnost vůči střelám (náraz
+        -- do terénu ale bolí vždy)
+        if not bypass_iframes and (self.iframes or 0) > 0 then return end
         self.hp = math.max(0, (self.hp or 100) - amount)
-        if self.pilot_name then
-            minetest.chat_send_player(self.pilot_name, "Hull: " .. self.hp .. "%")
-        end
         if self.hp <= 0 then
             self:die()
         end
@@ -252,6 +308,11 @@ minetest.register_entity("aerowars:fighter", {
         local pos = self.object:get_pos()
         local pilot_name = self.pilot_name
         local player = pilot_name and minetest.get_player_by_name(pilot_name)
+
+        -- Session skóre přežívá zničení stíhačky
+        if pilot_name then
+            aerowars.tricks.scores[pilot_name] = self.score or 0
+        end
 
         -- Odpojit pilota — zůstává neviditelný na místě havárie (death cam),
         -- gravity 0 z physics_override ho drží na místě
@@ -338,6 +399,7 @@ minetest.register_on_leaveplayer(function(player)
     local fighter = aerowars.get_player_fighter(player)
     aerowars.dismount_player(player)
     if fighter then
+        aerowars.tricks.scores[name] = fighter.score or 0
         fighter.object:remove()
     end
     respawn_pending[name] = nil
