@@ -63,7 +63,9 @@ function aerowars.mount_player(player, pos)
 
     player:set_attach(obj, "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
     player:set_eye_offset(EYE_OFFSET, EYE_OFFSET)
-    player:set_properties({visual_size = {x = 0, y = 0}})
+    -- zoom_fov = 72 ≈ normální FOV: klient pak spolehlivě posílá zoom bit
+    -- (klávesa Z = boost) a vizuálně se nic nemění
+    player:set_properties({visual_size = {x = 0, y = 0}, zoom_fov = 72})
     if player.set_camera then
         player:set_camera({mode = "first"})
     end
@@ -83,7 +85,7 @@ function aerowars.dismount_player(player)
     if not player or not player:is_player() then return end
     player:set_detach()
     player:set_eye_offset({x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
-    player:set_properties({visual_size = {x = 1, y = 1}})
+    player:set_properties({visual_size = {x = 1, y = 1}, zoom_fov = 0})
     if player.set_camera then
         player:set_camera({mode = "any"})
     end

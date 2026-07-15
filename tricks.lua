@@ -15,7 +15,7 @@ local COMBO_MAX    = 5
 tricks.scores = {}
 
 local WATCHED_KEYS = {"up", "down", "left", "right", "jump", "sneak",
-    "dig", "place"}
+    "dig", "place", "zoom"}
 
 local function now_s()
     return minetest.get_us_time() / 1e6
@@ -46,6 +46,7 @@ function tricks.update_input(self, ctrl)
         local pressed = ctrl[k] and true or false
         if pressed and not inp.prev[k] then
             -- rising edge
+            events["tap_" .. k] = true
             if inp.last_tap[k] and now - inp.last_tap[k] < DOUBLE_TAP then
                 events["double_" .. k] = true
                 inp.last_tap[k] = nil
@@ -213,8 +214,9 @@ function tricks.check_triggers(self, events, pilot)
         return
     end
 
-    -- Boost: double-tap W, stojí 25 z boost metru
-    if events.double_up and (self.boost_meter or 0) >= 25
+    -- Boost: double-tap W nebo Z (na gamepadu tlačítko A), stojí 25 z metru
+    if (events.double_up or events.tap_zoom)
+            and (self.boost_meter or 0) >= 25
             and (self.boost_time or 0) <= 0 then
         self.boost_meter = self.boost_meter - 25
         self.boost_time = 2.0

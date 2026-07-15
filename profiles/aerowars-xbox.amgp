@@ -3,16 +3,29 @@
   AeroWars — AntiMicroX profil pro Xbox-kompatibilní ovladač
   Testováno s: Xbox 360, Xbox One, Xbox Series, 8BitDo (Xbox mode)
 
-  Ovládání:
-    Levá páčka    → pohled (kamera / myš)
-    Pravá páčka Y → pitch letadla (dopředu = nos dolů, dozadu = nos nahoru)
-    Pravá páčka X → yaw + roll (doleva / doprava)
-    RT (pravý trigger) → STŘELBA
-    LT (levý trigger)  → PLYN (throttle up)
-    LB (levý bumper)   → BRZDA (throttle down)
-    Tlačítko A         → Nastoupit / vystoupit (pravý klik)
-    Tlačítko B         → KATAPULTÁŽ (Shift+S)
-    Tlačítko X         → Spawn fighter (/spawn_fighter via klávesa F5)
+  Layout pro "hráč JE loď" update (first-person, triky, závod):
+
+    Levá páčka X  → yaw (A/D)            — hlavní zatáčení
+    Levá páčka Y  → pitch (dopředu = nos dolů Shift, dozadu = nos nahoru Space)
+    Pravá páčka X → roll (LMB/RMB)       — double-flick do strany = BARREL ROLL
+    Pravá páčka Y → pitch (záloha, stejně jako levá)
+    LT (levý trigger)  → PLYN (W)
+    RT (pravý trigger) → STŘELBA (E)
+    LB (levý bumper)   → BRZDA (S)       — LB + páčka do strany = AIRBRAKE DRIFT
+    Tlačítko A → BOOST (Z)               — okamžitě, žere 25 z boost metru
+    Tlačítko B → Space                   — podržet ≥ 0.8 s = LOOPING
+    Tlačítko X → S                       — double-tap = IMMELMANN (otočka 180°)
+    Tlačítko Y → Shift                   — držet ve střemhlavu = DIVE BOOST
+
+  Triky z padu (bez maker — vše čte přímo hra):
+    Barrel roll  = rychlý double-flick pravé páčky doleva/doprava
+    Looping      = podržet B (nebo páčku dozadu) aspoň 0.8 s při rychlosti
+    Immelmann    = double-tap X
+    Boost        = A (na klávesnici Z nebo double-tap W)
+    Drift        = LB + levá páčka do strany
+
+  Pozn.: pohled je zamčený na směr letu, mapování kamery na myš už
+  není potřeba. Nasedání/katapultáž z minulé verze neexistují.
 
   Jak načíst:
     1. Otevřít AntiMicroX
@@ -32,67 +45,13 @@
         <set index="1">
 
             <!-- ═══════════════════════════════════════════
-                 LEVÁ PÁČKA → POHLED KAMERY (pohyb myši)
+                 LEVÁ PÁČKA → HLAVNÍ ŘÍZENÍ (yaw + pitch)
                  Osy 1 (X) + 2 (Y)
                  ═══════════════════════════════════════════ -->
             <stick index="1">
                 <stickAxisAssociation stickAxesIndex="1" stickAxesIndex2="2"/>
 
-                <!-- Nahoru → myš nahoru -->
-                <stickbutton index="1">
-                    <slots>
-                        <slot>
-                            <code>1</code>
-                            <mode>mousemovement</mode>
-                        </slot>
-                    </slots>
-                </stickbutton>
-
-                <!-- Doprava → myš doprava -->
-                <stickbutton index="2">
-                    <slots>
-                        <slot>
-                            <code>4</code>
-                            <mode>mousemovement</mode>
-                        </slot>
-                    </slots>
-                </stickbutton>
-
-                <!-- Dolů → myš dolů -->
-                <stickbutton index="3">
-                    <slots>
-                        <slot>
-                            <code>2</code>
-                            <mode>mousemovement</mode>
-                        </slot>
-                    </slots>
-                </stickbutton>
-
-                <!-- Doleva → myš doleva -->
-                <stickbutton index="4">
-                    <slots>
-                        <slot>
-                            <code>3</code>
-                            <mode>mousemovement</mode>
-                        </slot>
-                    </slots>
-                </stickbutton>
-
-                <deadZone>6000</deadZone>
-                <maxZone>32767</maxZone>
-                <diagonalRange>45</diagonalRange>
-                <mousespeedx>20</mousespeedx>
-                <mousespeedy>20</mousespeedy>
-            </stick>
-
-            <!-- ═══════════════════════════════════════════
-                 PRAVÁ PÁČKA → ŘÍZENÍ LETADLA
-                 Osy 4 (X) + 5 (Y) — nebo 3+4 viz poznámka
-                 ═══════════════════════════════════════════ -->
-            <stick index="2">
-                <stickAxisAssociation stickAxesIndex="4" stickAxesIndex2="5"/>
-
-                <!-- Pravá páčka NAHORU → nos dolů (Shift = pitch down) -->
+                <!-- Nahoru (páčka dopředu) → nos dolů (Shift) -->
                 <stickbutton index="1">
                     <slots>
                         <slot>
@@ -102,21 +61,17 @@
                     </slots>
                 </stickbutton>
 
-                <!-- Pravá páčka DOPRAVA → yaw vpravo (D) + roll vpravo (RMB) -->
+                <!-- Doprava → yaw vpravo (D) -->
                 <stickbutton index="2">
                     <slots>
                         <slot>
                             <code>68</code>
                             <mode>keyboard</mode>
                         </slot>
-                        <slot>
-                            <code>3</code>
-                            <mode>mousebutton</mode>
-                        </slot>
                     </slots>
                 </stickbutton>
 
-                <!-- Pravá páčka DOLŮ → nos nahoru (Space = pitch up) -->
+                <!-- Dolů (páčka dozadu) → nos nahoru (Space); hold = looping -->
                 <stickbutton index="3">
                     <slots>
                         <slot>
@@ -126,13 +81,62 @@
                     </slots>
                 </stickbutton>
 
-                <!-- Pravá páčka DOLEVA → yaw vlevo (A) + roll vlevo (LMB) -->
+                <!-- Doleva → yaw vlevo (A) -->
                 <stickbutton index="4">
                     <slots>
                         <slot>
                             <code>65</code>
                             <mode>keyboard</mode>
                         </slot>
+                    </slots>
+                </stickbutton>
+
+                <deadZone>8000</deadZone>
+                <maxZone>32767</maxZone>
+                <diagonalRange>45</diagonalRange>
+            </stick>
+
+            <!-- ═══════════════════════════════════════════
+                 PRAVÁ PÁČKA → ROLL (X) + záložní PITCH (Y)
+                 Osy 4 (X) + 5 (Y)
+                 Double-flick do strany = barrel roll
+                 ═══════════════════════════════════════════ -->
+            <stick index="2">
+                <stickAxisAssociation stickAxesIndex="4" stickAxesIndex2="5"/>
+
+                <!-- Nahoru → nos dolů (Shift) -->
+                <stickbutton index="1">
+                    <slots>
+                        <slot>
+                            <code>16777248</code>
+                            <mode>keyboard</mode>
+                        </slot>
+                    </slots>
+                </stickbutton>
+
+                <!-- Doprava → roll vpravo (RMB) -->
+                <stickbutton index="2">
+                    <slots>
+                        <slot>
+                            <code>3</code>
+                            <mode>mousebutton</mode>
+                        </slot>
+                    </slots>
+                </stickbutton>
+
+                <!-- Dolů → nos nahoru (Space) -->
+                <stickbutton index="3">
+                    <slots>
+                        <slot>
+                            <code>32</code>
+                            <mode>keyboard</mode>
+                        </slot>
+                    </slots>
+                </stickbutton>
+
+                <!-- Doleva → roll vlevo (LMB) -->
+                <stickbutton index="4">
+                    <slots>
                         <slot>
                             <code>1</code>
                             <mode>mousebutton</mode>
@@ -177,7 +181,7 @@
                  BUMPERY
                  ═══════════════════════════════════════════ -->
 
-            <!-- LB (levý bumper, index 5) → S (throttle down / brzda) -->
+            <!-- LB (levý bumper, index 5) → S (brzda; + páčka = drift) -->
             <button index="5">
                 <slots>
                     <slot>
@@ -194,23 +198,29 @@
                  TLAČÍTKA
                  ═══════════════════════════════════════════ -->
 
-            <!-- Tlačítko A (index 1) → pravý klik (nastoupit / vystoupit) -->
+            <!-- Tlačítko A (index 1) → Z (BOOST) -->
             <button index="1">
                 <slots>
                     <slot>
-                        <code>3</code>
-                        <mode>mousebutton</mode>
+                        <code>90</code>
+                        <mode>keyboard</mode>
                     </slot>
                 </slots>
             </button>
 
-            <!-- Tlačítko B (index 2) → Shift + S (katapultáž) -->
+            <!-- Tlačítko B (index 2) → Space (hold ≥ 0.8 s = LOOPING) -->
             <button index="2">
                 <slots>
                     <slot>
-                        <code>16777248</code>
+                        <code>32</code>
                         <mode>keyboard</mode>
                     </slot>
+                </slots>
+            </button>
+
+            <!-- Tlačítko X (index 3) → S (double-tap = IMMELMANN) -->
+            <button index="3">
+                <slots>
                     <slot>
                         <code>83</code>
                         <mode>keyboard</mode>
@@ -218,21 +228,11 @@
                 </slots>
             </button>
 
-            <!-- Tlačítko X (index 3) → F1 (lze přepsat na chat příkaz) -->
-            <button index="3">
-                <slots>
-                    <slot>
-                        <code>16777264</code>
-                        <mode>keyboard</mode>
-                    </slot>
-                </slots>
-            </button>
-
-            <!-- Tlačítko Y (index 4) → Tab (inventář) -->
+            <!-- Tlačítko Y (index 4) → Shift (dive boost ve střemhlavu) -->
             <button index="4">
                 <slots>
                     <slot>
-                        <code>16777217</code>
+                        <code>16777248</code>
                         <mode>keyboard</mode>
                     </slot>
                 </slots>
