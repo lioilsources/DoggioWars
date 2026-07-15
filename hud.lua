@@ -74,10 +74,55 @@ function hud.flash(player, text, color)
 end
 
 ---------------------------------------------------------------------------
+-- Kompasová páska — sever = +Z, klouzavé okno ±60° kolem kurzu
+---------------------------------------------------------------------------
+
+local CARDINALS = {
+    [0] = "S", [45] = "SV", [90] = "V", [135] = "JV",
+    [180] = "J", [225] = "JZ", [270] = "Z", [315] = "SZ",
+}
+
+local function compass_tape(heading)
+    local base = math.floor(heading / 15 + 0.5) * 15
+    local parts = {}
+    for off = -60, 60, 15 do
+        local a = (base + off) % 360
+        local label = CARDINALS[a] or "·"
+        if #label == 1 then label = label .. " " end
+        if off == 0 then
+            label = "[" .. label .. "]"
+        else
+            label = " " .. label .. " "
+        end
+        table.insert(parts, label)
+    end
+    return table.concat(parts)
+end
+
+---------------------------------------------------------------------------
 -- Letový HUD
 ---------------------------------------------------------------------------
 
 function hud.init(player)
+    hud.add(player, "compass", {
+        type      = "text",
+        position  = {x = 0.5, y = 0.02},
+        alignment = {x = 0, y = 1},
+        text      = "",
+        number    = 0xFFFFFF,
+        size      = {x = 2},
+        style     = 4,   -- mono, ať páska neposkakuje
+        z_index   = 50,
+    })
+    hud.add(player, "heading", {
+        type      = "text",
+        position  = {x = 0.5, y = 0.055},
+        alignment = {x = 0, y = 1},
+        text      = "",
+        number    = 0x9FD8FF,
+        size      = {x = 1},
+        style     = 4,
+    })
     hud.add(player, "speed", {
         type      = "text",
         position  = {x = 0.02, y = 0.94},
@@ -122,7 +167,23 @@ end
 
 -- Volá fighter on_step (throttle 0.15 s); f = luaentity stíhačky
 function hud.update_flight(player, f)
-    hud.set(player, "speed", {text = string.format("SPD %d", f.speed or 0)})
+    -- levý panel: rychlost · výška · variometr (stoupání/klesání m/s)
+    local pos = f.object and f.object:get_pos()
+    local vel = f.object and f.object:get_velocity() or {x = 0, y = 0, z = 0}
+    local alt = pos and math.floor(pos.y) or 0
+    local vy = vel.y or 0
+    local vs = "VS  0"
+    if vy > 1 or vy < -1 then
+        vs = string.format("VS %+d", math.floor(vy + 0.5))
+    end
+    hud.set(player, "speed", {text = string.format(
+        "SPD %d   ALT %d   %s", f.speed or 0, alt, vs)})
+
+    -- kompas: kurz z pohledu (0° = sever = +Z, po směru hodin)
+    local heading = (360 - math.deg(player:get_look_horizontal() or 0)) % 360
+    hud.set(player, "compass", {text = compass_tape(heading)})
+    hud.set(player, "heading", {text = string.format("%03d°", heading)})
+
     hud.set(player, "hull", {number = math.max(0, math.ceil((f.hp or 100) / 5))})
     hud.set(player, "boost", {number = math.floor((f.boost_meter or 0) / 10 + 0.5)})
 
@@ -133,10 +194,20 @@ function hud.update_flight(player, f)
     end
     hud.set(player, "score", {text = score_text})
 
+    -- podélný sklon (▲ stoupání / ▼ klesání) + náklon
+    local pdeg = math.deg(f.pitch or 0)
     local bank = math.deg(f.roll or 0)
-    hud.set(player, "bank", {
-        text = math.abs(bank) > 5 and string.format("BANK %+d°", bank) or "",
-    })
+    local att = ""
+    if pdeg > 3 then
+        att = string.format("▲ %d°", pdeg)
+    elseif pdeg < -3 then
+        att = string.format("▼ %d°", -pdeg)
+    end
+    if math.abs(bank) > 5 then
+        att = att .. (att ~= "" and "    " or "")
+            .. string.format("BANK %+d°", bank)
+    end
+    hud.set(player, "bank", {text = att})
 end
 
 minetest.register_on_leaveplayer(function(player)

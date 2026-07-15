@@ -548,12 +548,12 @@ minetest.register_chatcommand("race", {
         }
 
         hud.add(player, "race_timer", {
-            type = "text", position = {x = 0.5, y = 0.04},
+            type = "text", position = {x = 0.5, y = 0.09},
             alignment = {x = 0, y = 0}, text = "0:00.0",
             number = 0xFFFFFF, size = {x = 2},
         })
         hud.add(player, "race_info", {
-            type = "text", position = {x = 0.5, y = 0.08},
+            type = "text", position = {x = 0.5, y = 0.125},
             alignment = {x = 0, y = 0}, text = "",
             number = 0xFFD75E, size = {x = 1},
         })
