@@ -10,6 +10,12 @@ local EYE_OFFSET = {x = 0, y = 0.5, z = 4}
 -- Hráči čekající na naplánovaný respawn — watchdog je nesmí remountovat dřív
 local respawn_pending = {}
 
+local function wrap_angle(a)
+    while a > math.pi do a = a - 2 * math.pi end
+    while a < -math.pi do a = a + 2 * math.pi end
+    return a
+end
+
 ---------------------------------------------------------------------------
 -- Exhaust particle spawner
 ---------------------------------------------------------------------------
@@ -62,6 +68,10 @@ function aerowars.mount_player(player, pos)
     self.score = aerowars.tricks.scores[name] or 0
 
     player:set_attach(obj, "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
+    -- srovnat zaměřovač se směrem letu (letadlo se pak dotáčí za pohledem)
+    local ryaw = (obj:get_rotation() or {y = 0}).y
+    player:set_look_horizontal(ryaw + math.pi)
+    player:set_look_vertical(0)
     player:set_eye_offset(EYE_OFFSET, EYE_OFFSET)
     -- zoom_fov = 72 ≈ normální FOV: klient pak spolehlivě posílá zoom bit
     -- (klávesa Z = boost) a vizuálně se nic nemění
@@ -168,6 +178,13 @@ minetest.register_entity("aerowars:fighter", {
             rot, vel = aerowars.tricks.step_active(self, dtime)
             self.object:set_rotation(rot)
             self.object:set_velocity(vel)
+            -- kamera sleduje trik (v apexu loopingu se překlopí přes yaw)
+            local th = math.sqrt(vel.x * vel.x + vel.z * vel.z)
+            if th > 0.05 then
+                pilot:set_look_horizontal(
+                    minetest.dir_to_yaw({x = vel.x, y = 0, z = vel.z}))
+                pilot:set_look_vertical(-math.atan2(vel.y, th))
+            end
         else
             rot = self.object:get_rotation()
 
@@ -188,23 +205,43 @@ minetest.register_entity("aerowars:fighter", {
                 aerowars.tricks.add_raw_score(self, 50 * dtime)
             end
 
-            -- Yaw (left/right)
+            -- Mouse-flight: myš míří zaměřovačem, letadlo se za ním dotáčí.
+            -- Klávesy A/D a Space/Shift otáčejí pohledem stejně jako myš,
+            -- takže gamepad (AntiMicroX) funguje beze změny.
+            local look_h = pilot:get_look_horizontal()
+            local look_v = pilot:get_look_vertical()
+            local keys_steered = false
             if ctrl.left then
-                rot.y = rot.y + turn * dtime
+                look_h = look_h + turn * dtime
+                keys_steered = true
             end
             if ctrl.right then
-                rot.y = rot.y - turn * dtime
+                look_h = look_h - turn * dtime
+                keys_steered = true
             end
-
-            -- Pitch (jump = nose up, sneak = nose down)
             if ctrl.jump then
-                self.pitch = math.min(self.pitch + C.PITCH_RATE * dtime, C.PITCH_MAX)
+                look_v = math.max(look_v - C.PITCH_RATE * dtime, -1.25)
+                keys_steered = true
             elseif ctrl.sneak then
-                self.pitch = math.max(self.pitch - C.PITCH_RATE * dtime, -C.PITCH_MAX)
+                look_v = math.min(look_v + C.PITCH_RATE * dtime, 1.25)
+                keys_steered = true
+            end
+            if keys_steered then
+                pilot:set_look_horizontal(look_h)
+                pilot:set_look_vertical(look_v)
             end
 
-            -- Pitch decay toward neutral
-            self.pitch = self.pitch * (1 - C.PITCH_DECAY * dtime)
+            -- yaw: dotáčení za zaměřovačem nejkratší cestou
+            local chase = math.max(turn * 1.3, 2.0) * dtime
+            local dy = wrap_angle(look_h + math.pi - rot.y)
+            rot.y = rot.y + math.max(-chase, math.min(chase, dy))
+
+            -- pitch: cíl z vertikálního pohledu (look_v kladné = dolů)
+            local target_pitch = math.max(-C.PITCH_MAX,
+                math.min(C.PITCH_MAX, -look_v))
+            local pstep = C.PITCH_RATE * 1.5 * dtime
+            self.pitch = self.pitch + math.max(-pstep,
+                math.min(pstep, target_pitch - self.pitch))
 
             -- Roll (LMB = left, RMB = right, auto-levels when released)
             if ctrl.dig then
@@ -244,14 +281,7 @@ minetest.register_entity("aerowars:fighter", {
             aerowars.tricks.check_triggers(self, events, pilot)
         end
 
-        -- Kamera: pohled pilota sleduje vektor letu — funguje i vzhůru
-        -- nohama v loopingu (v apexu se pohled překlopí přes yaw)
         local hlen = math.sqrt(vel.x * vel.x + vel.z * vel.z)
-        if hlen > 0.05 then
-            pilot:set_look_horizontal(
-                minetest.dir_to_yaw({x = vel.x, y = 0, z = vel.z}))
-            pilot:set_look_vertical(-math.atan2(vel.y, hlen))
-        end
 
         -- Proximity charge: let těsně kolem terénu nabíjí boost
         aerowars.tricks.update_passive(self, dtime)
