@@ -29,6 +29,8 @@ dofile(MP .. "/hud.lua")        -- HUD (statbary, flash, race widgety)
 dofile(MP .. "/tricks.lua")     -- Vstupní komba a skriptované triky
 dofile(MP .. "/vehicle.lua")    -- Fighter plane entity
 dofile(MP .. "/weapons.lua")    -- Projectiles, explosions, damage
+dofile(MP .. "/rabbit.lua")     -- Zajíc — AI loď pro chrtí závod
+dofile(MP .. "/race.lua")       -- Chrtí závod: trať, tunely, checkpointy
 dofile(MP .. "/sky.lua")        -- Sky, clouds, fog
 
 minetest.log("action", "[aerowars] Mod loaded successfully")

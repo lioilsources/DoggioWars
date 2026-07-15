@@ -146,6 +146,18 @@ minetest.register_entity("aerowars:fighter", {
         local events = aerowars.tricks.update_input(self, ctrl)
         self.iframes = math.max(0, (self.iframes or 0) - dtime)
 
+        -- Kolizní poškození: náraz do terénu v rychlosti bolí (pomalé
+        -- škrtnutí pod ~15 m/s je zdarma — učí opatrné létání)
+        self.crash_cooldown = math.max(0, (self.crash_cooldown or 0) - dtime)
+        if moveresult and moveresult.collides and self.crash_cooldown <= 0
+                and (self.speed or 0) > 15 then
+            self.crash_cooldown = 0.5
+            local dmg = math.floor((self.speed - 10) * 2.5)
+            self.speed = C.SPEED_MIN
+            self:damage_fighter(dmg, true)
+            if self.is_dead then return end
+        end
+
         local rot, vel
 
         if self.trick then

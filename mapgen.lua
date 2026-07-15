@@ -66,6 +66,42 @@ local function hash_2d(cx, cz, seed)
 end
 
 ---------------------------------------------------------------------------
+-- Deterministic island for a single grid cell (hash chain must stay
+-- byte-identical — existing worlds depend on it)
+---------------------------------------------------------------------------
+
+local function island_for_cell(cx, cz, seed)
+    local h = hash_2d(cx, cz, seed)
+
+    -- Island center position within its grid cell
+    local ox = (h % ISLAND_GRID) + cx * ISLAND_GRID
+    h = (h * 1103515245 + 12345) % 2147483648
+    local oz = (h % ISLAND_GRID) + cz * ISLAND_GRID
+    h = (h * 1103515245 + 12345) % 2147483648
+    local oy = ISLAND_LAYER_MIN + (h % (ISLAND_LAYER_MAX - ISLAND_LAYER_MIN))
+
+    -- Radius
+    h = (h * 1103515245 + 12345) % 2147483648
+    local radius = RADIUS_MIN + (h % (RADIUS_MAX - RADIUS_MIN))
+
+    -- Biome (6 types)
+    h = (h * 1103515245 + 12345) % 2147483648
+    local biome_idx = h % 6
+
+    local biome = aerowars.biomes[biome_idx]
+    if not biome then return nil end
+
+    return {
+        x = ox,
+        y = oy,
+        z = oz,
+        radius = radius,
+        biome_idx = biome_idx,
+        biome = biome,
+    }
+end
+
+---------------------------------------------------------------------------
 -- Get all islands whose bounding box overlaps a chunk
 ---------------------------------------------------------------------------
 
@@ -81,41 +117,19 @@ local function get_islands_for_chunk(minp, maxp, seed)
 
     for cx = cx0, cx1 do
         for cz = cz0, cz1 do
-            local h = hash_2d(cx, cz, seed)
-
-            -- Island center position within its grid cell
-            local ox = (h % ISLAND_GRID) + cx * ISLAND_GRID
-            h = (h * 1103515245 + 12345) % 2147483648
-            local oz = (h % ISLAND_GRID) + cz * ISLAND_GRID
-            h = (h * 1103515245 + 12345) % 2147483648
-            local oy = ISLAND_LAYER_MIN + (h % (ISLAND_LAYER_MAX - ISLAND_LAYER_MIN))
-
-            -- Radius
-            h = (h * 1103515245 + 12345) % 2147483648
-            local radius = RADIUS_MIN + (h % (RADIUS_MAX - RADIUS_MIN))
-
-            -- Biome (6 types)
-            h = (h * 1103515245 + 12345) % 2147483648
-            local biome_idx = h % 6
-
-            -- Y extent for this island shape
-            local biome = aerowars.biomes[biome_idx]
-            if biome then
-                local y_extent_up   = radius * 0.6  -- dome top
-                local y_extent_down = radius * 1.5   -- tail / cone extent
+            local island = island_for_cell(cx, cz, seed)
+            if island then
+                local y_extent_up   = island.radius * 0.6  -- dome top
+                local y_extent_down = island.radius * 1.5   -- tail / cone extent
 
                 -- Only include if this island overlaps the chunk
-                if ox + radius >= minp.x and ox - radius <= maxp.x
-                   and oz + radius >= minp.z and oz - radius <= maxp.z
-                   and oy + y_extent_up >= minp.y and oy - y_extent_down <= maxp.y then
-                    table.insert(islands, {
-                        x = ox,
-                        y = oy,
-                        z = oz,
-                        radius = radius,
-                        biome_idx = biome_idx,
-                        biome = biome,
-                    })
+                if island.x + island.radius >= minp.x
+                   and island.x - island.radius <= maxp.x
+                   and island.z + island.radius >= minp.z
+                   and island.z - island.radius <= maxp.z
+                   and island.y + y_extent_up >= minp.y
+                   and island.y - y_extent_down <= maxp.y then
+                    table.insert(islands, island)
                 end
             end
         end
@@ -151,15 +165,19 @@ end
 
 local mapgen_seed = nil
 
-minetest.register_on_generated(function(minp, maxp, blockseed)
-    -- Only generate in the relevant altitude band
-    if maxp.y < CLOUD_FLOOR or minp.y > CLOUD_CEIL then return end
-
-    -- Get the world seed once
+function aerowars.get_world_seed()
     if not mapgen_seed then
         mapgen_seed = minetest.get_mapgen_setting("seed") or 42
         mapgen_seed = tonumber(mapgen_seed) or 42
     end
+    return mapgen_seed
+end
+
+minetest.register_on_generated(function(minp, maxp, blockseed)
+    -- Only generate in the relevant altitude band
+    if maxp.y < CLOUD_FLOOR or minp.y > CLOUD_CEIL then return end
+
+    aerowars.get_world_seed()
 
     local vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
     local data = vm:get_data()
@@ -236,5 +254,6 @@ end)
 ---------------------------------------------------------------------------
 
 aerowars.get_islands_for_chunk = get_islands_for_chunk
+aerowars.island_for_cell = island_for_cell
 aerowars.island_profile = island_profile
 aerowars.ISLAND_GRID = ISLAND_GRID
