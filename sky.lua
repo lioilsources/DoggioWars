@@ -1,7 +1,7 @@
 -- aerowars/sky.lua
 -- Sky, clouds, and fog setup for the aerial world
 
-local SKY_COLOR     = "#1a1a2e"
+local SKY_COLOR     = "#2e3155"
 local CLOUD_HEIGHT  = 750
 local CLOUD_DENSITY = 0.9
 local CLOUD_SPEED   = {x = 2, z = 0}
@@ -11,6 +11,23 @@ local SPAWN_HEIGHT  = aerowars.const.SPAWN_HEIGHT
 
 -- Check if set_fog is available (Luanti 5.16+)
 local has_set_fog = minetest.features and minetest.features.object_step_has_moveresult ~= nil
+
+---------------------------------------------------------------------------
+-- Zafixované poledne — ostrovy jsou vždy plně nasvícené, hvězdy nad nimi
+-- (neměníme time_speed v globálním configu, jen periodicky vracíme čas)
+---------------------------------------------------------------------------
+
+minetest.after(0, function()
+    minetest.set_timeofday(0.5)
+end)
+
+local noon_timer = 0
+minetest.register_globalstep(function(dtime)
+    noon_timer = noon_timer + dtime
+    if noon_timer < 5 then return end
+    noon_timer = 0
+    minetest.set_timeofday(0.5)
+end)
 
 minetest.register_on_joinplayer(function(player)
     -- Dark blue skybox
