@@ -2,8 +2,10 @@
 -- Sky, clouds, and fog setup for the aerial world
 
 local SKY_COLOR     = "#2e3155"
-local CLOUD_HEIGHT  = 750
-local CLOUD_DENSITY = 0.9
+-- Mraky jen jako řídká, vysoká clona NAD hracím pásmem (ostrovy jsou
+-- ve výšce ~ -400..1400). Hustá deka uprostřed vypadala jako hladina moře.
+local CLOUD_HEIGHT  = 1500
+local CLOUD_DENSITY = 0.2
 local CLOUD_SPEED   = {x = 2, z = 0}
 
 -- Spawn point in the sky
@@ -41,9 +43,9 @@ minetest.register_on_joinplayer(function(player)
     player:set_clouds({
         density   = CLOUD_DENSITY,
         height    = CLOUD_HEIGHT,
-        thickness = 30,
+        thickness = 12,
         speed     = CLOUD_SPEED,
-        color     = "#e8e8f0e0",
+        color     = "#e8e8f0a0",
     })
 
     -- Set sun/moon for atmosphere
@@ -66,7 +68,9 @@ minetest.register_on_joinplayer(function(player)
     local meta = player:get_meta()
     if meta:get_int("aerowars_spawned") == 0 then
         meta:set_int("aerowars_spawned", 1)
-        player:set_pos({x = 0, y = SPAWN_HEIGHT, z = 0})
+        local sp = aerowars.spawn_pos and aerowars.spawn_pos()
+            or {x = 0, y = SPAWN_HEIGHT, z = 0}
+        player:set_pos(sp)
         minetest.chat_send_player(name,
             "Welcome to AeroWars! You ARE the fighter — fly!")
     end

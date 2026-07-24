@@ -9,14 +9,94 @@ local BULLET_DAMAGE       = 25    -- damage per hit (4 shots to kill)
 local EXPLODE_RADIUS      = 3     -- blocks destroyed on node hit
 local EXPLODE_RADIUS_HIT  = 1     -- blocks destroyed on entity hit
 local ENTITY_HIT_RADIUS   = 1.5   -- proximity check radius for entity hits
+local DEBRIS_MAX_ACTIVE   = 140   -- perf guard: cap of live debris chunks
 
 ---------------------------------------------------------------------------
--- Voxel explosion — destroys blocks in sphere, spawns fire particles
+-- Falling debris — odlomený kus ostrova s gravitací
+---------------------------------------------------------------------------
+
+local debris_active = 0
+
+-- Textura první strany nodu (aby sutina vypadala jako zasažený materiál)
+local function node_tile(name)
+    local def = minetest.registered_nodes[name]
+    local t = def and def.tiles and def.tiles[1]
+    if type(t) == "table" then t = t.name end
+    if type(t) ~= "string" then return "default_stone.png" end
+    return t
+end
+
+minetest.register_entity("aerowars:debris", {
+    initial_properties = {
+        visual            = "cube",
+        visual_size       = {x = 0.8, y = 0.8, z = 0.8},
+        textures          = {"default_stone.png", "default_stone.png",
+                             "default_stone.png", "default_stone.png",
+                             "default_stone.png", "default_stone.png"},
+        physical          = true,
+        collide_with_objects = false,
+        collisionbox      = {-0.35, -0.35, -0.35, 0.35, 0.35, 0.35},
+        static_save       = false,
+        pointable         = false,
+    },
+
+    _ttl  = 0,
+    _spin = nil,
+
+    on_activate = function(self, staticdata)
+        debris_active = debris_active + 1
+        self._ttl = 2.5 + math.random() * 1.5
+        self.object:set_acceleration({x = 0, y = -10, z = 0})
+        self._spin = {
+            x = (math.random() - 0.5) * 9,
+            y = (math.random() - 0.5) * 9,
+            z = (math.random() - 0.5) * 9,
+        }
+        if staticdata and staticdata ~= "" then
+            self.object:set_properties({
+                textures = {staticdata, staticdata, staticdata,
+                            staticdata, staticdata, staticdata},
+            })
+        end
+    end,
+
+    on_step = function(self, dtime, moveresult)
+        self._ttl = self._ttl - dtime
+        local landed = moveresult and moveresult.collides
+        if self._ttl <= 0 or landed then
+            local pos = self.object:get_pos()
+            if pos then
+                minetest.add_particle({
+                    pos            = pos,
+                    velocity       = {x = 0, y = 0, z = 0},
+                    acceleration   = {x = 0, y = -6, z = 0},
+                    expirationtime = 0.4,
+                    size           = 2.5,
+                    texture        = "aerowars_particle_engine.png",
+                    glow           = 3,
+                })
+            end
+            debris_active = math.max(0, debris_active - 1)
+            self.object:remove()
+            return
+        end
+        local rot = self.object:get_rotation()
+        self.object:set_rotation({
+            x = rot.x + self._spin.x * dtime,
+            y = rot.y + self._spin.y * dtime,
+            z = rot.z + self._spin.z * dtime,
+        })
+    end,
+})
+
+---------------------------------------------------------------------------
+-- Voxel explosion — vyhloubí kráter, odlomí sutinu, částice ohně
 ---------------------------------------------------------------------------
 
 function aerowars.explode_voxels(pos, radius)
     local ir = math.ceil(radius)
     local r2 = radius * radius
+    local removed = {}
 
     for dx = -ir, ir do
         for dy = -ir, ir do
@@ -26,13 +106,40 @@ function aerowars.explode_voxels(pos, radius)
                     local node = minetest.get_node(npos)
                     if node.name ~= "air" and node.name ~= "ignore" then
                         minetest.remove_node(npos)
+                        removed[#removed + 1] = {p = npos, n = node.name}
                     end
                 end
             end
         end
     end
 
-    -- Fire + debris particles
+    -- Odlomit část zasažených bloků jako padající sutinu (kus odpadne)
+    if #removed > 0 and debris_active < DEBRIS_MAX_ACTIVE then
+        local want = math.min(#removed, 3 + math.floor(radius * 2))
+        for _ = 1, want do
+            if debris_active >= DEBRIS_MAX_ACTIVE then break end
+            local pick = removed[math.random(1, #removed)]
+            local dx = pick.p.x - pos.x
+            local dy = pick.p.y - pos.y
+            local dz = pick.p.z - pos.z
+            local len = math.sqrt(dx*dx + dy*dy + dz*dz)
+            if len < 0.1 then dx, dy, dz, len = 0, 1, 0, 1 end
+            local sp = 3 + math.random() * 5
+            local obj = minetest.add_entity(pick.p, "aerowars:debris", node_tile(pick.n))
+            if obj then
+                obj:set_velocity({
+                    x = dx / len * sp + (math.random() - 0.5) * 3,
+                    y = math.abs(dy / len) * sp * 0.5 + 2 + math.random() * 3,
+                    z = dz / len * sp + (math.random() - 0.5) * 3,
+                })
+            end
+        end
+    end
+
+    -- Nechat sesypat sypké okraje kráteru (písek/sníh/popel)
+    minetest.check_for_falling({x = pos.x, y = pos.y + ir + 1, z = pos.z})
+
+    -- Oheň + sutinové částice
     minetest.add_particlespawner({
         amount     = 60,
         time       = 0.5,

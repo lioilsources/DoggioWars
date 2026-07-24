@@ -382,11 +382,10 @@ minetest.register_entity("aerowars:fighter", {
                 local p = minetest.get_player_by_name(pilot_name)
                 if not p then return end
                 local ppos = p:get_pos()
-                aerowars.mount_player(p, {
-                    x = ppos.x,
-                    y = C.SPAWN_HEIGHT,
-                    z = ppos.z,
-                })
+                local sp = aerowars.spawn_pos_near
+                    and aerowars.spawn_pos_near(ppos.x, ppos.z)
+                    or {x = ppos.x, y = C.SPAWN_HEIGHT, z = ppos.z}
+                aerowars.mount_player(p, sp)
             end)
         end
 
@@ -432,7 +431,9 @@ minetest.register_on_respawnplayer(function(player)
     minetest.after(0.1, function()
         local p = minetest.get_player_by_name(name)
         if p and not aerowars.get_player_fighter(p) then
-            aerowars.mount_player(p, {x = 0, y = C.SPAWN_HEIGHT, z = 0})
+            local sp = aerowars.spawn_pos and aerowars.spawn_pos()
+                or {x = 0, y = C.SPAWN_HEIGHT, z = 0}
+            aerowars.mount_player(p, sp)
         end
     end)
     return true
@@ -472,5 +473,53 @@ minetest.register_chatcommand("respawn_fighter", {
         local pos = player:get_pos()
         aerowars.mount_player(player, {x = pos.x, y = pos.y + 2, z = pos.z})
         return true, "Fighter respawned!"
+    end,
+})
+
+-- Přesun k nejbližšímu ostrovu (funguje v jakémkoli světě — chunk se
+-- v případě potřeby dogeneruje). Řeší "nevidím žádné ostrovy".
+local function fly_player_to(player, sp)
+    -- zajistit vygenerování cílové oblasti, ať tam ostrov opravdu je
+    if minetest.emerge_area then
+        minetest.emerge_area(
+            {x = sp.x - 48, y = sp.y - 96, z = sp.z - 48},
+            {x = sp.x + 48, y = sp.y + 48,  z = sp.z + 48})
+    end
+    local f = aerowars.get_player_fighter(player)
+    if f and f.object then
+        f.object:set_pos(sp)
+        f.speed = 12
+    else
+        player:set_pos(sp)
+    end
+end
+
+minetest.register_chatcommand("island", {
+    description = "Přeletět k nejbližšímu ostrovu",
+    privs = {interact = true},
+    func = function(name)
+        local player = minetest.get_player_by_name(name)
+        if not player then return false, "Player not found" end
+        local pos = player:get_pos()
+        local isl, dist = aerowars.nearest_island(pos.x, pos.z)
+        local sp = aerowars.spawn_pos_near(pos.x, pos.z)
+        fly_player_to(player, sp)
+        if isl then
+            return true, string.format(
+                "%s ostrov, r=%d, byl %d bloků daleko — jsi u něj. Chvilku počkej, než se dogeneruje.",
+                isl.biome and isl.biome.name or "?", isl.radius, math.floor(dist or 0))
+        end
+        return true, "Přesun k ostrovu."
+    end,
+})
+
+minetest.register_chatcommand("domu", {
+    description = "Přeletět na domovský ostrov u počátku světa",
+    privs = {interact = true},
+    func = function(name)
+        local player = minetest.get_player_by_name(name)
+        if not player then return false, "Player not found" end
+        fly_player_to(player, aerowars.spawn_pos())
+        return true, "Přesun na domovský ostrov (0,0)."
     end,
 })
