@@ -1,18 +1,38 @@
 -- aerowars/mapgen.lua
--- Generátor vzdušných ostrovů s profily a biomy
+-- Generátor vzdušných ostrovů: tvary, biomy, kopce/údolí (šum),
+-- nepravidelné pobřeží a přírodní tunely provrtané skrz masiv.
 
 aerowars = aerowars or {}
 
 -- Parametry světa
-local ISLAND_LAYER_MIN = 50
-local ISLAND_LAYER_MAX = 600
-local CLOUD_FLOOR      = -200
-local CLOUD_CEIL       = 800
-local ISLAND_GRID      = 256   -- grid cell size for island placement
-local RADIUS_MIN       = 20
-local RADIUS_MAX       = 100
+local ISLAND_LAYER_MIN = 140
+local ISLAND_LAYER_MAX = 760
+local CLOUD_FLOOR      = -500
+local CLOUD_CEIL       = 1500
+-- Pozor: aby se sousední ostrovy NEPŘEKRÝVALY a nepohlcovaly se navzájem,
+-- musí platit 2*RADIUS_MAX <= ISLAND_GRID (max ostrovy se pak nanejvýš dotknou).
+local ISLAND_GRID      = 340   -- velikost buňky mřížky (větší rozestup = bez slévání)
+local RADIUS_MIN       = 72    -- i nejmenší ostrov je pořádný
+local RADIUS_MAX       = 165   -- velké ostrovy, ale ne tak, aby prorůstaly sousedy
+local ISLAND_DENSITY   = 82    -- % buněk, které nesou ostrov (zbytek = volné nebe)
 
--- Content ID cache (populated after all nodes registered)
+-- Tunely
+local TUNNEL_MIN_R     = 36    -- menší ostrovy tunely nemají
+local TUNNEL_CHANCE    = 55    -- % velkých ostrovů má tunely
+local TUNNEL_R2        = 0.055 -- poloměr trubice (a^2 + b^2 < R2)
+
+-- Kopce / rezerva výšky nad profilem
+local HILL_AMP_MAX     = 42
+
+-- Domovský ostrov u počátku — je tu VŽDY (nezávisle na seedu), aby hráč
+-- spawnoval přímo nad terénem a hned viděl ostrovy.
+local HOME = {
+    x = 0, y = 320, z = 0, radius = 190,
+    biome_idx = 0,          -- verdant (les, řeka, květiny)
+    height_scale = 1.0, cap_frac = 0.6, tail_frac = 0.6,
+}
+
+-- Content ID cache
 local c_air
 local c_stone
 
@@ -24,56 +44,196 @@ end
 minetest.after(0, init_mapgen_ids)
 
 ---------------------------------------------------------------------------
--- Island shape profiles
+-- Šumová pole (kopce, pobřeží, tunely). Vytvoří se líně, až je znám seed.
 ---------------------------------------------------------------------------
 
-local function island_profile(base_r, y_rel, style)
+local np_edge, np_hills, np_t1, np_t2
+
+local function init_noise()
+    if np_edge then return end
+    local get = minetest.get_value_noise or minetest.get_perlin
+    np_hills = get({offset = 0, scale = 1, spread = {x = 56, y = 56, z = 56},
+                    seed = 4771, octaves = 3, persistence = 0.5, lacunarity = 2.0})
+    np_edge  = get({offset = 0, scale = 1, spread = {x = 34, y = 34, z = 34},
+                    seed = 9123, octaves = 2, persistence = 0.5, lacunarity = 2.0})
+    np_t1    = get({offset = 0, scale = 1, spread = {x = 30, y = 26, z = 30},
+                    seed = 2207, octaves = 2, persistence = 0.5, lacunarity = 2.0})
+    np_t2    = get({offset = 0, scale = 1, spread = {x = 30, y = 26, z = 30},
+                    seed = 8842, octaves = 2, persistence = 0.5, lacunarity = 2.0})
+end
+
+---------------------------------------------------------------------------
+-- Tvary ostrovů — vrací horizontální poloměr masivu ve výšce y_rel
+---------------------------------------------------------------------------
+
+local function island_profile(isl, y_rel)
+    local base_r = isl.radius
+    local hs   = isl.height_scale or 1.0
+    local style = isl.shape
+
     if style == "avatar" then
-        -- Rounded dome on top, exponential tail below
+        -- Kupole nahoře, exponenciální ocas dolů
         if y_rel >= 0 then
-            local cap_h = base_r * 0.6
+            local cap_h = base_r * (isl.cap_frac or 0.6) * hs
             if cap_h <= 0 then return 0 end
             return base_r * math.max(0, 1 - (y_rel / cap_h) ^ 2)
         else
-            local tail_len = base_r * 0.5
+            local tail_len = base_r * (isl.tail_frac or 0.6)
             if tail_len <= 0 then return 0 end
             return base_r * math.exp(y_rel / tail_len)
         end
 
     elseif style == "disc" then
-        -- Flat disc / atoll shape
-        local half_h = math.max(base_r * 0.12, 3)
+        -- Placatý disk / atol
+        local half_h = math.max(base_r * 0.12 * hs, 3)
         return base_r * math.max(0, 1 - math.abs(y_rel) / half_h)
 
     elseif style == "cone" then
-        -- Inverted cone (volcano hanging point-down)
-        return base_r * math.max(0, 1 - math.abs(y_rel) / base_r)
+        -- Hora: kužel vzhůru (široká základna → špička), krátký ocas dolů
+        if y_rel >= 0 then
+            local h_up = math.max(base_r * 1.0 * hs, 1)
+            return base_r * math.max(0, 1 - y_rel / h_up)
+        else
+            local h_dn = math.max(base_r * 0.6 * hs, 1)
+            return base_r * math.max(0, 1 - math.abs(y_rel) / h_dn)
+        end
+
+    elseif style == "mesa" then
+        -- Plošina s plochým vrškem a strmými stěnami; mírně se zužující základna
+        local top_h = base_r * 0.30 * hs
+        if y_rel >= 0 then
+            if y_rel <= top_h then return base_r end
+            local over = y_rel - top_h
+            return base_r * math.max(0, 1 - over / math.max(base_r * 0.25, 1))
+        else
+            return base_r * math.max(0.15, 1 - math.abs(y_rel) / math.max(base_r * 1.1, 1))
+        end
+
+    elseif style == "spire" then
+        -- Vysoká věž / horský štít
+        local peak_h = math.max(base_r * 1.15 * hs, 1)
+        if y_rel >= 0 then
+            return base_r * math.max(0, 1 - y_rel / peak_h)
+        else
+            return base_r * math.max(0.1, 1 - math.abs(y_rel) / math.max(base_r * 0.8, 1))
+        end
     end
     return 0
 end
 
+-- Vertikální rozsah masivu (nahoru/dolů od středu) — pro ohraničení chunku
+local function y_extents(isl)
+    local r = isl.radius
+    local up, down
+    local shape = isl.shape
+    if shape == "spire" then
+        up, down = r * 1.6 * (isl.height_scale or 1), r * 0.9
+    elseif shape == "cone" then
+        up, down = r * 1.1 * (isl.height_scale or 1), r * 0.7 * (isl.height_scale or 1)
+    elseif shape == "mesa" then
+        up, down = r * 0.5, r * 1.2
+    elseif shape == "disc" then
+        up, down = r * 0.4, r * 0.4
+    else -- avatar
+        up   = r * (isl.cap_frac or 0.6) * (isl.height_scale or 1) + 8
+        down = r * (isl.tail_frac or 0.6) + 4
+    end
+    return up + HILL_AMP_MAX, down
+end
+
 ---------------------------------------------------------------------------
--- Deterministic hash for island placement
+-- Deterministický hash pro rozmístění ostrovů
 ---------------------------------------------------------------------------
 
 local function hash_2d(cx, cz, seed)
-    -- Simple integer hash — deterministic per grid cell
     local h = cx * 73856093 + cz * 19349663 + seed
-    -- Lua 5.1 compatible bit mixing via arithmetic
     h = math.abs(h)
     h = (h * 1103515245 + 12345) % 2147483648
     return h
 end
 
+local function nexth(h)
+    return (h * 1103515245 + 12345) % 2147483648
+end
+
+-- Rovnoměrné [0,1) z horních bitů hashe (nízké bity LCG jsou málo náhodné)
+local function unit(h)
+    return math.floor(h / 32768) / 65536
+end
+
 ---------------------------------------------------------------------------
--- Get all islands whose bounding box overlaps a chunk
+-- Deterministický ostrov pro jednu buňku mřížky
+---------------------------------------------------------------------------
+
+local function island_for_cell(cx, cz, seed)
+    -- Domovská buňka — pevný ostrov u počátku
+    if cx == 0 and cz == 0 then
+        local b = aerowars.biomes[HOME.biome_idx] or aerowars.biomes[0]
+        if not b then return nil end
+        return {
+            x = HOME.x, y = HOME.y, z = HOME.z, radius = HOME.radius,
+            biome_idx = HOME.biome_idx, biome = b, shape = b.shape,
+            height_scale = HOME.height_scale, cap_frac = HOME.cap_frac,
+            tail_frac = HOME.tail_frac, tunnels = false,
+        }
+    end
+
+    local h = hash_2d(cx, cz, seed)
+
+    -- Hustota — část buněk zůstane prázdná (volné nebe)
+    if unit(h) * 100 >= ISLAND_DENSITY then return nil end
+    h = nexth(h)
+
+    -- Poloměr (nelineární — mírná převaha středních, ale i pořádní obři)
+    local frac = unit(h)
+    local radius = math.floor(RADIUS_MIN + (frac ^ 1.2) * (RADIUS_MAX - RADIUS_MIN))
+    h = nexth(h)
+
+    -- Biom
+    local biome_idx = math.floor(unit(h) * (aerowars.biome_count or 6))
+    h = nexth(h)
+    local biome = aerowars.biomes[biome_idx]
+    if not biome then return nil end
+
+    -- Střed v rámci buňky (necháme okraj = radius, ať se ostrovy moc nepřekrývají)
+    local pad = math.min(radius, math.floor(ISLAND_GRID / 2) - 4)
+    local span = math.max(1, ISLAND_GRID - 2 * pad)
+    local ox = cx * ISLAND_GRID + pad + math.floor(unit(h) * span); h = nexth(h)
+    local oz = cz * ISLAND_GRID + pad + math.floor(unit(h) * span); h = nexth(h)
+
+    -- Výška vrstvy
+    local oy = ISLAND_LAYER_MIN + math.floor(unit(h) * (ISLAND_LAYER_MAX - ISLAND_LAYER_MIN))
+    h = nexth(h)
+
+    -- Per-ostrov parametry tvaru
+    local height_scale = 0.7 + unit(h) * 0.7     -- 0.70 .. 1.40
+    h = nexth(h)
+    local cap_frac = 0.45 + unit(h) * 0.5        -- 0.45 .. 0.95
+    h = nexth(h)
+    local tail_frac = 0.40 + unit(h) * 0.6       -- 0.40 .. 1.00
+    h = nexth(h)
+    local tunnels = radius >= TUNNEL_MIN_R and (unit(h) * 100 < TUNNEL_CHANCE)
+
+    return {
+        x = ox, y = oy, z = oz,
+        radius = radius,
+        biome_idx = biome_idx,
+        biome = biome,
+        shape = biome.shape,
+        height_scale = height_scale,
+        cap_frac = cap_frac,
+        tail_frac = tail_frac,
+        tunnels = tunnels,
+    }
+end
+
+---------------------------------------------------------------------------
+-- Ostrovy, jejichž bounding box zasahuje do chunku
 ---------------------------------------------------------------------------
 
 local function get_islands_for_chunk(minp, maxp, seed)
     local islands = {}
-    -- We need to check neighboring grid cells too, because large islands
-    -- can extend beyond their own cell
-    local margin = RADIUS_MAX * 2
+    local margin = RADIUS_MAX * 1.4
     local cx0 = math.floor((minp.x - margin) / ISLAND_GRID)
     local cx1 = math.floor((maxp.x + margin) / ISLAND_GRID)
     local cz0 = math.floor((minp.z - margin) / ISLAND_GRID)
@@ -81,41 +241,17 @@ local function get_islands_for_chunk(minp, maxp, seed)
 
     for cx = cx0, cx1 do
         for cz = cz0, cz1 do
-            local h = hash_2d(cx, cz, seed)
-
-            -- Island center position within its grid cell
-            local ox = (h % ISLAND_GRID) + cx * ISLAND_GRID
-            h = (h * 1103515245 + 12345) % 2147483648
-            local oz = (h % ISLAND_GRID) + cz * ISLAND_GRID
-            h = (h * 1103515245 + 12345) % 2147483648
-            local oy = ISLAND_LAYER_MIN + (h % (ISLAND_LAYER_MAX - ISLAND_LAYER_MIN))
-
-            -- Radius
-            h = (h * 1103515245 + 12345) % 2147483648
-            local radius = RADIUS_MIN + (h % (RADIUS_MAX - RADIUS_MIN))
-
-            -- Biome (6 types)
-            h = (h * 1103515245 + 12345) % 2147483648
-            local biome_idx = h % 6
-
-            -- Y extent for this island shape
-            local biome = aerowars.biomes[biome_idx]
-            if biome then
-                local y_extent_up   = radius * 0.6  -- dome top
-                local y_extent_down = radius * 1.5   -- tail / cone extent
-
-                -- Only include if this island overlaps the chunk
-                if ox + radius >= minp.x and ox - radius <= maxp.x
-                   and oz + radius >= minp.z and oz - radius <= maxp.z
-                   and oy + y_extent_up >= minp.y and oy - y_extent_down <= maxp.y then
-                    table.insert(islands, {
-                        x = ox,
-                        y = oy,
-                        z = oz,
-                        radius = radius,
-                        biome_idx = biome_idx,
-                        biome = biome,
-                    })
+            local isl = island_for_cell(cx, cz, seed)
+            if isl then
+                local r_ext = isl.radius * 1.2   -- rezerva na pobřežní šum
+                local up, down = y_extents(isl)
+                if isl.x + r_ext >= minp.x
+                   and isl.x - r_ext <= maxp.x
+                   and isl.z + r_ext >= minp.z
+                   and isl.z - r_ext <= maxp.z
+                   and isl.y + up >= minp.y
+                   and isl.y - down <= maxp.y then
+                    table.insert(islands, isl)
                 end
             end
         end
@@ -124,19 +260,21 @@ local function get_islands_for_chunk(minp, maxp, seed)
 end
 
 ---------------------------------------------------------------------------
--- Surface depth calculation — how many solid blocks above this one
+-- Efektivní poloměr masivu ve výšce y (s posunem kopců)
 ---------------------------------------------------------------------------
 
-local function calc_surface_depth(x, y, z, island, area, data)
-    -- Check upward from current position to find how deep we are from surface
+local function surf_limit(isl, y_rel, hill_shift, edge_boost)
+    local prof_y = y_rel
+    if y_rel >= 0 then prof_y = y_rel - hill_shift end
+    return island_profile(isl, prof_y) + edge_boost
+end
+
+-- Hloubka pod povrchem (0 = povrch) — konzistentní s výplní sloupce
+local function calc_depth(x, y, z, isl, dist_xz, hill_shift, edge_boost)
     local depth = 0
-    for check_y = y + 1, y + 5 do
-        local dx = x - island.x
-        local dz = z - island.z
-        local dist = math.sqrt(dx * dx + dz * dz)
-        local y_rel = check_y - island.y
-        local limit = island_profile(island.radius, y_rel, island.biome.shape)
-        if dist <= limit then
+    for check_y = y + 1, y + 6 do
+        local yr = check_y - isl.y
+        if dist_xz <= surf_limit(isl, yr, hill_shift, edge_boost) then
             depth = depth + 1
         else
             break
@@ -146,46 +284,53 @@ local function calc_surface_depth(x, y, z, island, area, data)
 end
 
 ---------------------------------------------------------------------------
--- Main mapgen callback
+-- Hlavní mapgen callback
 ---------------------------------------------------------------------------
 
 local mapgen_seed = nil
 
-minetest.register_on_generated(function(minp, maxp, blockseed)
-    -- Only generate in the relevant altitude band
-    if maxp.y < CLOUD_FLOOR or minp.y > CLOUD_CEIL then return end
-
-    -- Get the world seed once
+function aerowars.get_world_seed()
     if not mapgen_seed then
         mapgen_seed = minetest.get_mapgen_setting("seed") or 42
         mapgen_seed = tonumber(mapgen_seed) or 42
     end
+    return mapgen_seed
+end
+
+minetest.register_on_generated(function(minp, maxp, blockseed)
+    if maxp.y < CLOUD_FLOOR or minp.y > CLOUD_CEIL then return end
+
+    aerowars.get_world_seed()
+    init_noise()
 
     local vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
     local data = vm:get_data()
     local area = VoxelArea:new({MinEdge = emin, MaxEdge = emax})
 
     local islands = get_islands_for_chunk(minp, maxp, mapgen_seed)
-
     if #islands == 0 then return end
 
     local modified = false
 
     for _, island in ipairs(islands) do
         local biome = island.biome
-        local shape = biome.shape
+        local up, down = y_extents(island)
 
-        -- Vertical bounds for this island within the chunk
-        local y_extent_up   = island.radius * 0.6
-        local y_extent_down = island.radius * 1.5
-        local y_min = math.max(minp.y, math.floor(island.y - y_extent_down))
-        local y_max = math.min(maxp.y, math.ceil(island.y + y_extent_up))
+        local y_min = math.max(minp.y, math.floor(island.y - down))
+        local y_max = math.min(maxp.y, math.ceil(island.y + up))
 
-        -- Horizontal bounds
-        local x_min = math.max(minp.x, math.floor(island.x - island.radius))
-        local x_max = math.min(maxp.x, math.ceil(island.x + island.radius))
-        local z_min = math.max(minp.z, math.floor(island.z - island.radius))
-        local z_max = math.min(maxp.z, math.ceil(island.z + island.radius))
+        local r_ext = island.radius * 1.2
+        local x_min = math.max(minp.x, math.floor(island.x - r_ext))
+        local x_max = math.min(maxp.x, math.ceil(island.x + r_ext))
+        local z_min = math.max(minp.z, math.floor(island.z - r_ext))
+        local z_max = math.min(maxp.z, math.ceil(island.z + r_ext))
+
+        local edge_amp = island.radius * 0.14
+        local hill_amp = math.max(4, island.radius * 0.16)
+        local mid_band = island.radius * 0.5
+        -- Nejzazší horizontální dosah masivu (poloměr + max. pobřežní šum).
+        -- Sloupce za ním nemůžou být nikdy plné → přeskočíme (kruh ve čtverci).
+        local max_reach = island.radius + edge_amp + 1
 
         for z = z_min, z_max do
             local dz = z - island.z
@@ -193,18 +338,33 @@ minetest.register_on_generated(function(minp, maxp, blockseed)
                 local dx = x - island.x
                 local dist_xz = math.sqrt(dx * dx + dz * dz)
 
-                for y = y_max, y_min, -1 do
-                    local y_rel = y - island.y
-                    local limit = island_profile(island.radius, y_rel, shape)
+                if dist_xz <= max_reach then
+                    local edge_boost = np_edge:get_2d({x = x, y = z}) * edge_amp
+                    local hill_shift = np_hills:get_2d({x = x, y = z}) * hill_amp
 
-                    if dist_xz <= limit then
-                        local vi = area:index(x, y, z)
-                        -- Only place if currently air (don't overwrite other islands)
-                        if data[vi] == c_air then
-                            -- Determine surface depth
-                            local depth = calc_surface_depth(x, y, z, island, area, data)
-                            data[vi] = biome.surface(depth)
-                            modified = true
+                    for y = y_max, y_min, -1 do
+                        local y_rel = y - island.y
+                        local limit = surf_limit(island, y_rel, hill_shift, edge_boost)
+
+                        if limit > 0 and dist_xz <= limit then
+                            local vi = area:index(x, y, z)
+                            if data[vi] == c_air then
+                                -- Přírodní tunel (trubice ze dvou šumů)
+                                local carve = false
+                                if island.tunnels and math.abs(y_rel) < mid_band then
+                                    local a = np_t1:get_3d({x = x, y = y, z = z})
+                                    local b = np_t2:get_3d({x = x, y = y, z = z})
+                                    if a * a + b * b < TUNNEL_R2 then
+                                        carve = true
+                                    end
+                                end
+                                if not carve then
+                                    local depth = calc_depth(x, y, z, island,
+                                        dist_xz, hill_shift, edge_boost)
+                                    data[vi] = biome.surface(depth)
+                                    modified = true
+                                end
+                            end
                         end
                     end
                 end
@@ -214,14 +374,17 @@ minetest.register_on_generated(function(minp, maxp, blockseed)
 
     if modified then
         vm:set_data(data)
-        vm:calc_lighting()
+        -- Plné denní světlo na ostrovy ze všech stran (svět je zamčený na
+        -- poledne). Bez tohohle mají spodky a stinné strany světlo 0 =
+        -- vypadají úplně černé.
+        vm:set_lighting({day = 15, night = 15})
         vm:write_to_map()
         vm:update_liquids()
     end
 end)
 
 ---------------------------------------------------------------------------
--- Disable default mapgen (no caves, no ores, no decorations underground)
+-- Vypnout defaultní mapgen (singlenode) — jen naše ostrovy
 ---------------------------------------------------------------------------
 
 minetest.register_on_mapgen_init(function(mgparams)
@@ -232,9 +395,80 @@ minetest.register_on_mapgen_init(function(mgparams)
 end)
 
 ---------------------------------------------------------------------------
--- Export for decoration system
+-- Spawn nad ostrovem — aby hráč vždy startoval u terénu
+---------------------------------------------------------------------------
+
+local function island_top(isl)
+    local up = y_extents(isl)          -- horní rozsah (vč. rezervy na kopce)
+    return isl.y + up
+end
+
+-- Spawn tak, aby ostrov byl PŘED hráčem, ne pod ním.
+-- Čerstvě nasazená stíhačka má yaw 0 → letí i kouká směrem -Z, takže
+-- hráče posadíme na +Z stranu ostrova, mírně nad jeho povrch.
+local function frame_spawn(isl)
+    local surf = isl.y + isl.radius * 0.55        -- ~ výška povrchu kupole
+    return {
+        x = isl.x,
+        y = surf + 18,
+        z = isl.z + isl.radius + 40,              -- kus za ostrovem na +Z
+    }
+end
+
+-- Pozice u nejbližšího ostrova k (x,z); fallback = domovský ostrov
+function aerowars.spawn_pos_near(x, z, seed)
+    seed = seed or aerowars.get_world_seed()
+    local ccx = math.floor(x / ISLAND_GRID)
+    local ccz = math.floor(z / ISLAND_GRID)
+    local best, bestd
+    for dcx = -2, 2 do
+        for dcz = -2, 2 do
+            local isl = island_for_cell(ccx + dcx, ccz + dcz, seed)
+            if isl then
+                local ddx, ddz = isl.x - x, isl.z - z
+                local d = ddx * ddx + ddz * ddz
+                if not bestd or d < bestd then bestd, best = d, isl end
+            end
+        end
+    end
+    if not best then best = island_for_cell(0, 0, seed) end
+    if not best then return {x = 0, y = ISLAND_LAYER_MIN + 60, z = 0} end
+    return frame_spawn(best)
+end
+
+-- Domovský spawn (počátek světa)
+function aerowars.spawn_pos()
+    local home = island_for_cell(0, 0, aerowars.get_world_seed())
+    if not home then return {x = 0, y = 260, z = 0} end
+    return frame_spawn(home)
+end
+
+-- Nejbližší ostrov k bodu (pro info / navigaci): vrací isl, vzdálenost
+function aerowars.nearest_island(x, z, seed)
+    seed = seed or aerowars.get_world_seed()
+    local ccx = math.floor(x / ISLAND_GRID)
+    local ccz = math.floor(z / ISLAND_GRID)
+    local best, bestd
+    for dcx = -3, 3 do
+        for dcz = -3, 3 do
+            local isl = island_for_cell(ccx + dcx, ccz + dcz, seed)
+            if isl then
+                local ddx, ddz = isl.x - x, isl.z - z
+                local d = math.sqrt(ddx * ddx + ddz * ddz)
+                if not bestd or d < bestd then bestd, best = d, isl end
+            end
+        end
+    end
+    return best, bestd
+end
+
+---------------------------------------------------------------------------
+-- Export pro dekorace / závod
 ---------------------------------------------------------------------------
 
 aerowars.get_islands_for_chunk = get_islands_for_chunk
+aerowars.island_for_cell = island_for_cell
 aerowars.island_profile = island_profile
 aerowars.ISLAND_GRID = ISLAND_GRID
+aerowars.CLOUD_FLOOR = CLOUD_FLOOR
+aerowars.CLOUD_CEIL = CLOUD_CEIL
