@@ -10,6 +10,23 @@ local EYE_OFFSET = {x = 0, y = 0.5, z = 4}
 -- Hráči čekající na naplánovaný respawn — watchdog je nesmí remountovat dřív
 local respawn_pending = {}
 
+-- Gamepad diagnostika (přepíná /gp): živě ukazuje páčky a stisknutá tlačítka,
+-- aby šlo namapovat konkrétní ovladač (Xbox/PS4) na herní akce.
+aerowars.gp_debug = aerowars.gp_debug or {}
+local GP_KEYS = {"up", "down", "left", "right", "jump", "aux1",
+                 "sneak", "dig", "place", "zoom"}
+local function gp_debug_str(ctrl, look_v)
+    local on = {}
+    for _, k in ipairs(GP_KEYS) do
+        if ctrl[k] then on[#on + 1] = k end
+    end
+    -- pitch = kam koukáš (pravá páčka). Když se sám plazí nahoru bez doteku,
+    -- je to drift pravé páčky; když svítí `jump`, drží se tlačítko.
+    return string.format("GAMEPAD  L(%+.2f,%+.2f)  pitch=%+.0f\194\176  [ %s ]",
+        ctrl.movement_x or 0, ctrl.movement_y or 0, math.deg(look_v or 0),
+        #on > 0 and table.concat(on, " ") or "—")
+end
+
 local function wrap_angle(a)
     while a > math.pi do a = a - 2 * math.pi end
     while a < -math.pi do a = a + 2 * math.pi end
@@ -158,6 +175,11 @@ minetest.register_entity("aerowars:fighter", {
         local events = aerowars.tricks.update_input(self, ctrl)
         self.iframes = math.max(0, (self.iframes or 0) - dtime)
 
+        if aerowars.gp_debug[self.pilot_name or ""] then
+            aerowars.hud.set(pilot, "gpdebug",
+                {text = gp_debug_str(ctrl, pilot:get_look_vertical())})
+        end
+
         -- Kolizní poškození: náraz do terénu v rychlosti bolí (pomalé
         -- škrtnutí pod ~15 m/s je zdarma — učí opatrné létání)
         self.crash_cooldown = math.max(0, (self.crash_cooldown or 0) - dtime)
@@ -188,12 +210,15 @@ minetest.register_entity("aerowars:fighter", {
         else
             rot = self.object:get_rotation()
 
-            -- Throttle (jen do SPEED_MAX — overspeed řeší dive/boost níže)
+            -- Throttle (jen do SPEED_MAX — overspeed řeší dive/boost níže).
+            -- Analog: síla podle výchylky páčky (klávesnice = plná ±1).
+            local ymag = math.abs(ctrl.movement_y or 1)
+            if ymag < 0.001 then ymag = 1 end
             if ctrl.up and self.speed < C.SPEED_MAX then
-                self.speed = math.min(self.speed + 8 * dtime, C.SPEED_MAX)
+                self.speed = math.min(self.speed + 8 * dtime * ymag, C.SPEED_MAX)
             end
             if ctrl.down then
-                self.speed = math.max(self.speed - 5 * dtime, C.SPEED_MIN)
+                self.speed = math.max(self.speed - 5 * dtime * ymag, C.SPEED_MIN)
             end
 
             -- Airbrake drift: S + A/D = ostrá zatáčka za cenu rychlosti
@@ -205,18 +230,21 @@ minetest.register_entity("aerowars:fighter", {
                 aerowars.tricks.add_raw_score(self, 50 * dtime)
             end
 
-            -- Mouse-flight: myš míří zaměřovačem, letadlo se za ním dotáčí.
-            -- Klávesy A/D a Space/Shift otáčejí pohledem stejně jako myš,
-            -- takže gamepad (AntiMicroX) funguje beze změny.
+            -- Mouse-flight: myš (nebo pravá páčka gamepadu) míří zaměřovačem,
+            -- letadlo se za ním dotáčí. Levá páčka / A-D / Space-Shift natáčí
+            -- pohledem stejně jako myš — nativní joystick tak funguje přímo.
+            -- Zatáčení je proporcionální podle výchylky páčky (klávesnice = ±1).
+            local xmag = math.abs(ctrl.movement_x or 1)
+            if xmag < 0.001 then xmag = 1 end
             local look_h = pilot:get_look_horizontal()
             local look_v = pilot:get_look_vertical()
             local keys_steered = false
             if ctrl.left then
-                look_h = look_h + turn * dtime
+                look_h = look_h + turn * dtime * xmag
                 keys_steered = true
             end
             if ctrl.right then
-                look_h = look_h - turn * dtime
+                look_h = look_h - turn * dtime * xmag
                 keys_steered = true
             end
             if ctrl.jump then
@@ -521,5 +549,22 @@ minetest.register_chatcommand("domu", {
         if not player then return false, "Player not found" end
         fly_player_to(player, aerowars.spawn_pos())
         return true, "Přesun na domovský ostrov (0,0)."
+    end,
+})
+
+minetest.register_chatcommand("gp", {
+    description = "Gamepad diagnostika: ukáže živě páčky a stisknutá tlačítka",
+    privs = {interact = true},
+    func = function(name)
+        aerowars.gp_debug[name] = not aerowars.gp_debug[name]
+        local p = minetest.get_player_by_name(name)
+        if p and not aerowars.gp_debug[name] then
+            aerowars.hud.set(p, "gpdebug", {text = ""})
+        end
+        if aerowars.gp_debug[name] then
+            return true, "Gamepad diagnostika ZAP — mačkej tlačítka/páčky a "
+                .. "sleduj, co se rozsvítí uprostřed obrazovky."
+        end
+        return true, "Gamepad diagnostika VYP."
     end,
 })

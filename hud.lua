@@ -163,6 +163,17 @@ function hud.init(player)
         number    = 0xFFFFFF,
         size      = {x = 1},
     })
+    -- Gamepad diagnostika (zap/vyp přes /gp) — jinak prázdné
+    hud.add(player, "gpdebug", {
+        type      = "text",
+        position  = {x = 0.5, y = 0.5},
+        alignment = {x = 0, y = 0},
+        text      = "",
+        number    = 0x66FF99,
+        size      = {x = 1},
+        style     = 4,
+        z_index   = 60,
+    })
 end
 
 -- Volá fighter on_step (throttle 0.15 s); f = luaentity stíhačky
