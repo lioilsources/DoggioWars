@@ -194,9 +194,10 @@ end
 function tricks.check_triggers(self, events, pilot)
     if self.trick then return end
 
-    -- Barrel roll: double-tap LMB (vlevo) / RMB (vpravo) + krátká nesmrtelnost
-    if events.double_dig or events.double_place then
-        tricks.start(self, "barrel_roll", 0.6, events.double_dig and -1 or 1)
+    -- Barrel roll: dvojšvih doleva/doprava (A/D nebo levá páčka)
+    -- + krátká nesmrtelnost
+    if events.double_left or events.double_right then
+        tricks.start(self, "barrel_roll", 0.6, events.double_left and -1 or 1)
         self.iframes = 1.0
         return
     end
@@ -214,8 +215,9 @@ function tricks.check_triggers(self, events, pilot)
         return
     end
 
-    -- Boost: double-tap W nebo Z (na gamepadu tlačítko A), stojí 25 z metru
-    if (events.double_up or events.tap_zoom)
+    -- Boost: L2/RMB (place) nebo double-tap W — stojí 25 z metru.
+    -- (zoom NE — na gamepadu sdílí tlačítko s minimapou, žral boost omylem)
+    if (events.tap_place or events.double_up)
             and (self.boost_meter or 0) >= 25
             and (self.boost_time or 0) <= 0 then
         self.boost_meter = self.boost_meter - 25

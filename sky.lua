@@ -65,6 +65,22 @@ minetest.register_on_joinplayer(function(player)
 
     -- Teleport to sky spawn on first join
     local name = player:get_player_name()
+
+    -- Minimapa = radar na ostrovy, trvale zapnutá s JEDINÝM režimem.
+    -- Klient opakuje držené joystick tlačítko po 0.17 s
+    -- (repeat_joystick_button_time), takže tlačítko minimapy na D-padu
+    -- přepínalo/blikalo — s jediným režimem a prázdným popiskem nemá co
+    -- cyklit ani zobrazit. Vypnutí radaru: příkaz /radar.
+    -- Dalekohled (zoom_fov) vypnout: D-pad vlevo ho tiskl spolu s minimapou.
+    player:hud_set_flags({minimap = true, minimap_radar = false})
+    player:set_minimap_modes({
+        {type = "surface", label = "", size = 256},
+    }, 0)
+    minetest.after(0.5, function()
+        local p = minetest.get_player_by_name(name)
+        -- až PO minetest_game (binoculars mod si zoom_fov nastavuje na joinu)
+        if p then p:set_properties({zoom_fov = 0}) end
+    end)
     local meta = player:get_meta()
     if meta:get_int("aerowars_spawned") == 0 then
         meta:set_int("aerowars_spawned", 1)
@@ -88,3 +104,17 @@ minetest.register_on_joinplayer(function(player)
         })
     end)
 end)
+
+-- Radar (minimapu) zapíná/vypíná příkaz — tlačítko minimapy na gamepadu
+-- kvůli auto-repeatu klienta blikalo, tak je záměrně bez funkce
+minetest.register_chatcommand("radar", {
+    description = "Toggle the island radar (minimap)",
+    privs = {interact = true},
+    func = function(name)
+        local p = minetest.get_player_by_name(name)
+        if not p then return false, "Player not found" end
+        local on = p:hud_get_flags().minimap
+        p:hud_set_flags({minimap = not on})
+        return true, on and "Radar OFF." or "Radar ON."
+    end,
+})
