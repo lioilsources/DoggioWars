@@ -25,10 +25,10 @@ local TUNNEL_R2        = 0.055 -- poloměr trubice (a^2 + b^2 < R2)
 local HILL_AMP_MAX     = 42
 
 -- Domovský ostrov u počátku — je tu VŽDY (nezávisle na seedu), aby hráč
--- spawnoval přímo nad terénem a hned viděl ostrovy.
+-- spawnoval přímo nad terénem a hned viděl ostrovy. Biom je náhodný podle
+-- seedu (viz island_for_cell); tvar drží "avatar" kvůli spawnu.
 local HOME = {
     x = 0, y = 320, z = 0, radius = 190,
-    biome_idx = 0,          -- verdant (les, řeka, květiny)
     height_scale = 1.0, cap_frac = 0.6, tail_frac = 0.6,
 }
 
@@ -166,13 +166,17 @@ end
 ---------------------------------------------------------------------------
 
 local function island_for_cell(cx, cz, seed)
-    -- Domovská buňka — pevný ostrov u počátku
+    -- Domovská buňka — pevný ostrov u počátku. Biom je NÁHODNÝ podle seedu
+    -- světa (různý svět = jiný biom domova), ale tvar držíme "avatar" (rovná
+    -- kupole), ať spawn sedí u jakéhokoli biomu.
     if cx == 0 and cz == 0 then
-        local b = aerowars.biomes[HOME.biome_idx] or aerowars.biomes[0]
+        local hidx = math.floor(unit(nexth(hash_2d(777, 333, seed)))
+            * (aerowars.biome_count or 6))
+        local b = aerowars.biomes[hidx] or aerowars.biomes[0]
         if not b then return nil end
         return {
             x = HOME.x, y = HOME.y, z = HOME.z, radius = HOME.radius,
-            biome_idx = HOME.biome_idx, biome = b, shape = b.shape,
+            biome_idx = hidx, biome = b, shape = "avatar",
             height_scale = HOME.height_scale, cap_frac = HOME.cap_frac,
             tail_frac = HOME.tail_frac, tunnels = false,
         }
@@ -460,6 +464,32 @@ function aerowars.nearest_island(x, z, seed)
         end
     end
     return best, bestd
+end
+
+-- Nejbližší ostrov daného biomu (pro /island <biom>). Prohledá box cca
+-- max_cells buněk kolem hráče a vrátí nejbližší shodu + vzdálenost.
+function aerowars.nearest_island_of_biome(x, z, biome_name, seed, max_cells)
+    seed = seed or aerowars.get_world_seed()
+    max_cells = max_cells or 12
+    local ccx = math.floor(x / ISLAND_GRID)
+    local ccz = math.floor(z / ISLAND_GRID)
+    local best, bestd
+    for dcx = -max_cells, max_cells do
+        for dcz = -max_cells, max_cells do
+            local isl = island_for_cell(ccx + dcx, ccz + dcz, seed)
+            if isl and isl.biome and isl.biome.name == biome_name then
+                local ddx, ddz = isl.x - x, isl.z - z
+                local d = math.sqrt(ddx * ddx + ddz * ddz)
+                if not bestd or d < bestd then bestd, best = d, isl end
+            end
+        end
+    end
+    return best, bestd
+end
+
+-- Spawn rámec (pozice nad okrajem ostrova) pro konkrétní ostrov
+function aerowars.island_spawn(isl)
+    return frame_spawn(isl)
 end
 
 ---------------------------------------------------------------------------

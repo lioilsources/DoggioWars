@@ -15,15 +15,20 @@ local respawn_pending = {}
 aerowars.gp_debug = aerowars.gp_debug or {}
 local GP_KEYS = {"up", "down", "left", "right", "jump", "aux1",
                  "sneak", "dig", "place", "zoom"}
-local function gp_debug_str(ctrl, look_v)
+local function gp_debug_str(ctrl, look_v, f)
     local on = {}
     for _, k in ipairs(GP_KEYS) do
         if ctrl[k] then on[#on + 1] = k end
     end
-    -- pitch = kam koukáš (pravá páčka). Když se sám plazí nahoru bez doteku,
-    -- je to drift pravé páčky; když svítí `jump`, drží se tlačítko.
-    return string.format("GAMEPAD  L(%+.2f,%+.2f)  pitch=%+.0f\194\176  [ %s ]",
-        ctrl.movement_x or 0, ctrl.movement_y or 0, math.deg(look_v or 0),
+    -- Klíč ke čtení: když SPD roste bez doteku páček — thr>0 = plyn (drift
+    -- levé páčky / špatná osa movement_y), thr=0 = dive fyzika (let < -26°).
+    -- pitch = kam koukáš (pravá páčka), let = skutečný sklon letadla.
+    return string.format(
+        "GAMEPAD  L(%+.2f,%+.2f)  thr=%+.2f  SPD=%.0f  pitch=%+.0f\194\176"
+            .. "  let=%+.0f\194\176  [ %s ]",
+        ctrl.movement_x or 0, ctrl.movement_y or 0,
+        f and f.dbg_thr or 0, f and f.speed or 0, math.deg(look_v or 0),
+        math.deg(f and f.pitch or 0),
         #on > 0 and table.concat(on, " ") or "—")
 end
 
@@ -177,7 +182,7 @@ minetest.register_entity("aerowars:fighter", {
 
         if aerowars.gp_debug[self.pilot_name or ""] then
             aerowars.hud.set(pilot, "gpdebug",
-                {text = gp_debug_str(ctrl, pilot:get_look_vertical())})
+                {text = gp_debug_str(ctrl, pilot:get_look_vertical(), self)})
         end
 
         -- Kolizní poškození: náraz do terénu v rychlosti bolí (pomalé
@@ -210,15 +215,20 @@ minetest.register_entity("aerowars:fighter", {
         else
             rot = self.object:get_rotation()
 
-            -- Throttle (jen do SPEED_MAX — overspeed řeší dive/boost níže).
-            -- Analog: síla podle výchylky páčky (klávesnice = plná ±1).
-            local ymag = math.abs(ctrl.movement_y or 1)
-            if ymag < 0.001 then ymag = 1 end
-            if ctrl.up and self.speed < C.SPEED_MAX then
-                self.speed = math.min(self.speed + 8 * dtime * ymag, C.SPEED_MAX)
+            -- Plyn: čistě analogově z levé páčky (movement_y: +1 dopředu,
+            -- -1 dozadu; klávesnice W/S dává plné ±1). Rychlost DRŽÍ tam,
+            -- kam ji hráč nastaví — žádné samovolné vracení. Bity up/down
+            -- jen jako záloha (klient je z páčky spíná až při velké výchylce,
+            -- proto dřív jemný plyn "nereagoval").
+            local thr = math.max(-1, math.min(1, ctrl.movement_y or 0))
+            if math.abs(thr) < 0.25 then
+                thr = (ctrl.up and 1 or 0) - (ctrl.down and 1 or 0)
             end
-            if ctrl.down then
-                self.speed = math.max(self.speed - 5 * dtime * ymag, C.SPEED_MIN)
+            self.dbg_thr = thr
+            if thr > 0 and self.speed < C.SPEED_MAX then
+                self.speed = math.min(self.speed + 8 * dtime * thr, C.SPEED_MAX)
+            elseif thr < 0 then
+                self.speed = math.max(self.speed + 10 * dtime * thr, C.SPEED_MIN)
             end
 
             -- Airbrake drift: S + A/D = ostrá zatáčka za cenu rychlosti
@@ -271,26 +281,37 @@ minetest.register_entity("aerowars:fighter", {
             self.pitch = self.pitch + math.max(-pstep,
                 math.min(pstep, target_pitch - self.pitch))
 
-            -- Roll (LMB = left, RMB = right, auto-levels when released)
-            if ctrl.dig then
-                self.roll = math.max((self.roll or 0) - C.ROLL_SPEED * dtime, -C.ROLL_MAX)
-            elseif ctrl.place then
-                self.roll = math.min((self.roll or 0) + C.ROLL_SPEED * dtime,  C.ROLL_MAX)
-            else
-                self.roll = (self.roll or 0) * (1 - C.ROLL_DECAY * dtime)
-            end
+            -- Náklon: automaticky do zatáčky (podle toho, jak ostře se
+            -- letadlo dotáčí za zaměřovačem); po srovnání kurzu se vyrovná
+            local target_roll = math.max(-1, math.min(1, -dy * 2.0))
+                * C.ROLL_MAX * 0.7
+            local rstep = C.ROLL_SPEED * dtime
+            self.roll = (self.roll or 0)
+                + math.max(-rstep, math.min(rstep, target_roll - self.roll))
 
-            -- Boost (double-tap W) a dive overspeed (střemhlavý let zrychluje)
+            -- Boost + gravitační fyzika: strmý střemhlavý let zrychluje
+            -- (úměrně sklonu, až od ~26° dolů), stoupání rychlost ubírá.
+            -- Mírný pohled dolů (prohlížení ostrova) už NEzrychluje.
             if (self.boost_time or 0) > 0 then
                 self.boost_time = self.boost_time - dtime
                 self.speed = 60
                 if self.boost_time <= 0 then
                     pilot:set_fov(0)
                 end
-            elseif self.pitch < -0.4 then
-                self.speed = math.min(self.speed + 15 * dtime, C.SPEED_MAX * 1.5)
-            elseif self.speed > C.SPEED_MAX then
-                self.speed = math.max(C.SPEED_MAX, self.speed - 7 * dtime)
+            elseif self.pitch < -0.45 then
+                self.speed = math.min(
+                    self.speed + 80 * dtime * (-self.pitch - 0.45),
+                    C.SPEED_MAX * 1.5)
+            else
+                if self.pitch > 0.3 then
+                    self.speed = math.max(
+                        self.speed - 40 * dtime * (self.pitch - 0.3),
+                        C.SPEED_MIN)
+                end
+                -- overspeed z dive/boostu se po srovnání rychle vyčerpá
+                if self.speed > C.SPEED_MAX then
+                    self.speed = math.max(C.SPEED_MAX, self.speed - 12 * dtime)
+                end
             end
 
             rot.x = -self.pitch
@@ -314,9 +335,9 @@ minetest.register_entity("aerowars:fighter", {
         -- Proximity charge: let těsně kolem terénu nabíjí boost
         aerowars.tricks.update_passive(self, dtime)
 
-        -- Shooting (E / aux1 key) with 0.15s cooldown (~6 rounds/s)
+        -- Střelba: dig (LMB / gamepad R2) nebo aux1 (E), cooldown 0.15 s
         self.shoot_cooldown = math.max(0, (self.shoot_cooldown or 0) - dtime)
-        if ctrl.aux1 and self.shoot_cooldown <= 0 then
+        if (ctrl.dig or ctrl.aux1) and self.shoot_cooldown <= 0 then
             self.shoot_cooldown = 0.15
             aerowars.shoot_bullet(self)
         end
@@ -522,35 +543,72 @@ local function fly_player_to(player, sp)
     end
 end
 
+-- Aliasy pro /island <biome> — plné názvy biomů (glacial, volcanic, desert,
+-- jungle, savanna, swamp, crystal, verdant, atoll, barren, ashen, mycelial)
+-- fungují přímo, tohle jsou intuitivní zkratky
+local BIOME_ALIAS = {
+    ice = "glacial", snow = "glacial",
+    volcano = "volcanic", lava = "volcanic", fire = "volcanic",
+    sand = "desert",
+    green = "verdant", forest = "verdant",
+    mushroom = "mycelial", shroom = "mycelial",
+    ash = "ashen", burnt = "ashen",
+    dead = "barren", rock = "barren",
+}
+
 minetest.register_chatcommand("island", {
-    description = "Přeletět k nejbližšímu ostrovu",
+    description = "Fly to the nearest island; /island <biome> = nearest of that biome",
+    params = "[biome]",
     privs = {interact = true},
-    func = function(name)
+    func = function(name, param)
         local player = minetest.get_player_by_name(name)
         if not player then return false, "Player not found" end
         local pos = player:get_pos()
+        param = (param or ""):gsub("%s+", ""):lower()
+
+        if param ~= "" then
+            local target = BIOME_ALIAS[param] or param
+            local isl, dist = aerowars.nearest_island_of_biome(pos.x, pos.z, target)
+            if not isl then
+                local names = {}
+                for i = 0, (aerowars.biome_count or 1) - 1 do
+                    names[#names + 1] = aerowars.biomes[i].name
+                end
+                return false, "Unknown biome '" .. param .. "' (or none nearby). Biomes: "
+                    .. table.concat(names, ", ")
+            end
+            fly_player_to(player, aerowars.island_spawn(isl))
+            return true, string.format(
+                "%s island, r=%d, %d blocks away - flying there. Give it a moment to generate.",
+                isl.biome.name, isl.radius, math.floor(dist or 0))
+        end
+
         local isl, dist = aerowars.nearest_island(pos.x, pos.z)
         local sp = aerowars.spawn_pos_near(pos.x, pos.z)
         fly_player_to(player, sp)
         if isl then
             return true, string.format(
-                "%s ostrov, r=%d, byl %d bloků daleko — jsi u něj. Chvilku počkej, než se dogeneruje.",
+                "%s island, r=%d, was %d blocks away - you are there. Give it a moment to generate.",
                 isl.biome and isl.biome.name or "?", isl.radius, math.floor(dist or 0))
         end
-        return true, "Přesun k ostrovu."
+        return true, "Moving to island."
     end,
 })
 
-minetest.register_chatcommand("domu", {
-    description = "Přeletět na domovský ostrov u počátku světa",
-    privs = {interact = true},
-    func = function(name)
-        local player = minetest.get_player_by_name(name)
-        if not player then return false, "Player not found" end
-        fly_player_to(player, aerowars.spawn_pos())
-        return true, "Přesun na domovský ostrov (0,0)."
-    end,
-})
+-- Registrace až po načtení všech modů — minetest_game má vlastní /home
+-- (sethome) a přepsal by nás, kdybychom se registrovali dřív než on
+minetest.register_on_mods_loaded(function()
+    minetest.register_chatcommand("home", {
+        description = "Fly to the home island at the world origin",
+        privs = {interact = true},
+        func = function(name)
+            local player = minetest.get_player_by_name(name)
+            if not player then return false, "Player not found" end
+            fly_player_to(player, aerowars.spawn_pos())
+            return true, "Flying to the home island (0,0)."
+        end,
+    })
+end)
 
 minetest.register_chatcommand("gp", {
     description = "Gamepad diagnostika: ukáže živě páčky a stisknutá tlačítka",
