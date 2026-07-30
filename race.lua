@@ -1,11 +1,11 @@
--- aerowars/race.lua
+-- doggiowars/race.lua
 -- Chrtí závod: generátor trati z deterministických ostrovů, Catmull-Rom
 -- splajna, kutání tunelů, checkpointy, HUD a lifecycle. Králíka (AI loď,
 -- která trať letí) definuje rabbit.lua.
 
-aerowars.race = {}
-local race = aerowars.race
-local hud = aerowars.hud
+doggiowars.race = {}
+local race = doggiowars.race
+local hud = doggiowars.hud
 
 race.active = {}  -- [player_name] = race state
 
@@ -119,7 +119,7 @@ function race.build_route(start_pos, heading, seed)
         z = start_pos.z + uz * 80,
     })
 
-    local G = aerowars.ISLAND_GRID
+    local G = doggiowars.ISLAND_GRID
     local fx = start_pos.x / G
     local fz = start_pos.z / G
     local cur_alt = start_pos.y
@@ -140,7 +140,7 @@ function race.build_route(start_pos, heading, seed)
                 local cx, cz = base_cx + dx, base_cz + dz
                 local key = cx .. ":" .. cz
                 if not visited[key] then
-                    local isl = aerowars.island_for_cell(cx, cz, seed)
+                    local isl = doggiowars.island_for_cell(cx, cz, seed)
                     if isl then
                         local score = math.abs(isl.y - cur_alt)
                             + math.random() * 30
@@ -379,7 +379,7 @@ local function spawn_ring(route, idx)
             acceleration   = {x = 0, y = 0, z = 0},
             expirationtime = 2.0,
             size           = 2.5,
-            texture        = "aerowars_particle_engine.png^[colorize:#66ff88:180",
+            texture        = "doggiowars_particle_engine.png^[colorize:#66ff88:180",
             glow           = 14,
         })
     end
@@ -446,9 +446,9 @@ function race.finish(name, st, player)
     race.active[name] = nil
 
     local elapsed = (minetest.get_us_time() - st.t0) / 1e6
-    local fighter = aerowars.get_player_fighter(player)
+    local fighter = doggiowars.get_player_fighter(player)
     if fighter then
-        aerowars.tricks.add_raw_score(fighter, 500)
+        doggiowars.tricks.add_raw_score(fighter, 500)
     end
     local score = fighter and math.floor(fighter.score or 0) or 0
 
@@ -474,7 +474,7 @@ function race.finish(name, st, player)
 end
 
 -- Hook z vehicle.lua — smrt během závodu (zbraně/kolize aktivní) = FAIL
-function aerowars.race_on_pilot_died(name)
+function doggiowars.race_on_pilot_died(name)
     local st = race.active[name]
     if not st then return end
     race.notify(name, "RACE FAILED", 0xFF5040)
@@ -482,7 +482,7 @@ function aerowars.race_on_pilot_died(name)
     race.cleanup(name)
 end
 
-function aerowars.race_on_player_left(name)
+function doggiowars.race_on_player_left(name)
     race.cleanup(name)
 end
 
@@ -508,7 +508,7 @@ minetest.register_chatcommand("race", {
         end
 
         local player = minetest.get_player_by_name(name)
-        local fighter = player and aerowars.get_player_fighter(player)
+        local fighter = player and doggiowars.get_player_fighter(player)
         if not fighter then
             return false, "Nejsi ve stíhačce."
         end
@@ -516,12 +516,12 @@ minetest.register_chatcommand("race", {
         local pos = fighter.object:get_pos()
         local yaw = fighter.object:get_rotation().y
         local heading = minetest.yaw_to_dir(yaw + math.pi)
-        local route = race.build_route(pos, heading, aerowars.get_world_seed())
+        local route = race.build_route(pos, heading, doggiowars.get_world_seed())
 
         -- spawn králíka 40 m před hráčem na trati
         local rseg, rt = race.advance(route, 1, 0, 40)
         local obj = minetest.add_entity(race.eval(route, rseg, rt),
-            "aerowars:rabbit")
+            "doggiowars:rabbit")
         if not obj then
             return false, "Nepodařilo se spawnout zajíce."
         end
@@ -592,7 +592,7 @@ minetest.register_globalstep(function(dtime)
         if not player then
             race.cleanup(name)
         else
-            local fighter = aerowars.get_player_fighter(player)
+            local fighter = doggiowars.get_player_fighter(player)
             if fighter then
                 local fpos = fighter.object:get_pos()
 
@@ -602,7 +602,7 @@ minetest.register_globalstep(function(dtime)
                     if vector.distance(fpos, st.route.points[cp_idx])
                             < CHECKPOINT_RADIUS then
                         st.cp_hit = st.cp_hit + 1
-                        aerowars.tricks.add_raw_score(fighter, 50)
+                        doggiowars.tricks.add_raw_score(fighter, 50)
                         hud.flash(player, string.format("CHECKPOINT %d/%d",
                             st.cp_hit, #st.cp_indices), 0x66FF88)
                         local nxt = st.cp_indices[st.cp_hit + 1]

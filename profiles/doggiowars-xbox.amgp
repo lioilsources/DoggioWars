@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  AeroWars — AntiMicroX profil pro Xbox-kompatibilní ovladač
+  DoggioWars — AntiMicroX profil pro Xbox-kompatibilní ovladač
   Testováno s: Xbox 360, Xbox One, Xbox Series, 8BitDo (Xbox mode)
 
   Layout pro "hráč JE loď" update (mouse-flight, triky, závod):
@@ -37,7 +37,7 @@
 <gamecontroller configversion="19" appversion="3.3.4">
     <sdlname>Xbox 360 Controller</sdlname>
     <guid>030000005e040000a102000000007801</guid>
-    <profilename>AeroWars Flight</profilename>
+    <profilename>DoggioWars Flight</profilename>
     <keyPressTime>10</keyPressTime>
 
     <sets>

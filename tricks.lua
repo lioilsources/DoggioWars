@@ -1,11 +1,11 @@
--- aerowars/tricks.lua
+-- doggiowars/tricks.lua
 -- Detekce vstupních komb (double-tap/hold) a skriptované triky.
 -- Step funkce operují nad "airframe" tabulkou {yaw, pitch, speed} —
 -- stejnou matematiku používá hráčova stíhačka i závodní králík (race).
 
-aerowars.tricks = {}
-local tricks = aerowars.tricks
-local C = aerowars.const
+doggiowars.tricks = {}
+local tricks = doggiowars.tricks
+local C = doggiowars.const
 
 local DOUBLE_TAP   = 0.35  -- max rozestup double-tapu (s)
 local COMBO_WINDOW = 4.0   -- okno pro řetězení triků (s)
@@ -89,7 +89,7 @@ function tricks.award(self, label, points, boost_add)
         if self.combo > 1 then
             text = text .. "  ×" .. self.combo
         end
-        aerowars.hud.flash(player, text, 0xFFD75E)
+        doggiowars.hud.flash(player, text, 0xFFD75E)
     end
 end
 
@@ -224,7 +224,7 @@ function tricks.check_triggers(self, events, pilot)
         self.boost_time = 2.0
         if pilot then
             pilot:set_fov(1.25, true, 0.15)
-            aerowars.hud.flash(pilot, "BOOST!", 0x66CCFF)
+            doggiowars.hud.flash(pilot, "BOOST!", 0x66CCFF)
         end
         return
     end

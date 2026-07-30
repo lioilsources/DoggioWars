@@ -1,9 +1,9 @@
--- aerowars/hud.lua
+-- doggiowars/hud.lua
 -- HUD systém: letové údaje, statbary, trick flash, race widgety.
 -- Generické API (add/set/remove_key) používá i race.lua.
 
-aerowars.hud = {}
-local hud = aerowars.hud
+doggiowars.hud = {}
+local hud = doggiowars.hud
 
 -- [player_name] = {ids = {key = hud_id}, flash_token = n}
 local state = {}
@@ -134,7 +134,7 @@ function hud.init(player)
     hud.add(player, "hull", {
         type      = "statbar",
         position  = {x = 0.02, y = 0.88},
-        text      = "aerowars_particle_engine.png^[colorize:#ff5040:200",
+        text      = "doggiowars_particle_engine.png^[colorize:#ff5040:200",
         number    = 20,
         size      = {x = 20, y = 20},
         direction = 0,
@@ -142,7 +142,7 @@ function hud.init(player)
     hud.add(player, "boost", {
         type      = "statbar",
         position  = {x = 0.02, y = 0.84},
-        text      = "aerowars_particle_engine.png^[colorize:#ffd75e:200",
+        text      = "doggiowars_particle_engine.png^[colorize:#ffd75e:200",
         number    = 10,
         size      = {x = 20, y = 20},
         direction = 0,

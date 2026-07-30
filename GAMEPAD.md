@@ -1,6 +1,6 @@
 # Gamepad (Xbox 360 / PS4 DualShock) — nativní joystick
 
-AeroWars používá **nativní podporu joysticku v Luanti** (přes SDL2) — žádný
+DoggioWars používá **nativní podporu joysticku v Luanti** (přes SDL2) — žádný
 externí mapovač (AntiMicroX apod.) není potřeba. Funguje s Xbox 360 (drát)
 i PS4 DualShock (Bluetooth) na macOS.
 
@@ -80,5 +80,5 @@ akce dělá — takže to jde doladit bez externího nástroje).
 - **Otáčení moc rychlé/pomalé** → uprav `joystick_frustum_sensitivity`.
 - Přepínání ovladačů: `joystick_id` (0 = první).
 
-> Starý `profiles/aerowars-xbox.amgp` (AntiMicroX) zůstává pro platformy, kde
+> Starý `profiles/doggiowars-xbox.amgp` (AntiMicroX) zůstává pro platformy, kde
 > nativní joystick nestačí — na macOS ale používej nativní cestu výše.

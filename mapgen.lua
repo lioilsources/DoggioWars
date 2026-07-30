@@ -1,8 +1,8 @@
--- aerowars/mapgen.lua
+-- doggiowars/mapgen.lua
 -- Generátor vzdušných ostrovů: tvary, biomy, kopce/údolí (šum),
 -- nepravidelné pobřeží a přírodní tunely provrtané skrz masiv.
 
-aerowars = aerowars or {}
+doggiowars = doggiowars or {}
 
 -- Parametry světa
 local ISLAND_LAYER_MIN = 140
@@ -171,8 +171,8 @@ local function island_for_cell(cx, cz, seed)
     -- kupole), ať spawn sedí u jakéhokoli biomu.
     if cx == 0 and cz == 0 then
         local hidx = math.floor(unit(nexth(hash_2d(777, 333, seed)))
-            * (aerowars.biome_count or 6))
-        local b = aerowars.biomes[hidx] or aerowars.biomes[0]
+            * (doggiowars.biome_count or 6))
+        local b = doggiowars.biomes[hidx] or doggiowars.biomes[0]
         if not b then return nil end
         return {
             x = HOME.x, y = HOME.y, z = HOME.z, radius = HOME.radius,
@@ -194,9 +194,9 @@ local function island_for_cell(cx, cz, seed)
     h = nexth(h)
 
     -- Biom
-    local biome_idx = math.floor(unit(h) * (aerowars.biome_count or 6))
+    local biome_idx = math.floor(unit(h) * (doggiowars.biome_count or 6))
     h = nexth(h)
-    local biome = aerowars.biomes[biome_idx]
+    local biome = doggiowars.biomes[biome_idx]
     if not biome then return nil end
 
     -- Střed v rámci buňky (necháme okraj = radius, ať se ostrovy moc nepřekrývají)
@@ -293,7 +293,7 @@ end
 
 local mapgen_seed = nil
 
-function aerowars.get_world_seed()
+function doggiowars.get_world_seed()
     if not mapgen_seed then
         mapgen_seed = minetest.get_mapgen_setting("seed") or 42
         mapgen_seed = tonumber(mapgen_seed) or 42
@@ -304,7 +304,7 @@ end
 minetest.register_on_generated(function(minp, maxp, blockseed)
     if maxp.y < CLOUD_FLOOR or minp.y > CLOUD_CEIL then return end
 
-    aerowars.get_world_seed()
+    doggiowars.get_world_seed()
     init_noise()
 
     local vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
@@ -420,8 +420,8 @@ local function frame_spawn(isl)
 end
 
 -- Pozice u nejbližšího ostrova k (x,z); fallback = domovský ostrov
-function aerowars.spawn_pos_near(x, z, seed)
-    seed = seed or aerowars.get_world_seed()
+function doggiowars.spawn_pos_near(x, z, seed)
+    seed = seed or doggiowars.get_world_seed()
     local ccx = math.floor(x / ISLAND_GRID)
     local ccz = math.floor(z / ISLAND_GRID)
     local best, bestd
@@ -441,15 +441,15 @@ function aerowars.spawn_pos_near(x, z, seed)
 end
 
 -- Domovský spawn (počátek světa)
-function aerowars.spawn_pos()
-    local home = island_for_cell(0, 0, aerowars.get_world_seed())
+function doggiowars.spawn_pos()
+    local home = island_for_cell(0, 0, doggiowars.get_world_seed())
     if not home then return {x = 0, y = 260, z = 0} end
     return frame_spawn(home)
 end
 
 -- Nejbližší ostrov k bodu (pro info / navigaci): vrací isl, vzdálenost
-function aerowars.nearest_island(x, z, seed)
-    seed = seed or aerowars.get_world_seed()
+function doggiowars.nearest_island(x, z, seed)
+    seed = seed or doggiowars.get_world_seed()
     local ccx = math.floor(x / ISLAND_GRID)
     local ccz = math.floor(z / ISLAND_GRID)
     local best, bestd
@@ -468,8 +468,8 @@ end
 
 -- Nejbližší ostrov daného biomu (pro /island <biom>). Prohledá box cca
 -- max_cells buněk kolem hráče a vrátí nejbližší shodu + vzdálenost.
-function aerowars.nearest_island_of_biome(x, z, biome_name, seed, max_cells)
-    seed = seed or aerowars.get_world_seed()
+function doggiowars.nearest_island_of_biome(x, z, biome_name, seed, max_cells)
+    seed = seed or doggiowars.get_world_seed()
     max_cells = max_cells or 12
     local ccx = math.floor(x / ISLAND_GRID)
     local ccz = math.floor(z / ISLAND_GRID)
@@ -488,7 +488,7 @@ function aerowars.nearest_island_of_biome(x, z, biome_name, seed, max_cells)
 end
 
 -- Spawn rámec (pozice nad okrajem ostrova) pro konkrétní ostrov
-function aerowars.island_spawn(isl)
+function doggiowars.island_spawn(isl)
     return frame_spawn(isl)
 end
 
@@ -496,9 +496,9 @@ end
 -- Export pro dekorace / závod
 ---------------------------------------------------------------------------
 
-aerowars.get_islands_for_chunk = get_islands_for_chunk
-aerowars.island_for_cell = island_for_cell
-aerowars.island_profile = island_profile
-aerowars.ISLAND_GRID = ISLAND_GRID
-aerowars.CLOUD_FLOOR = CLOUD_FLOOR
-aerowars.CLOUD_CEIL = CLOUD_CEIL
+doggiowars.get_islands_for_chunk = get_islands_for_chunk
+doggiowars.island_for_cell = island_for_cell
+doggiowars.island_profile = island_profile
+doggiowars.ISLAND_GRID = ISLAND_GRID
+doggiowars.CLOUD_FLOOR = CLOUD_FLOOR
+doggiowars.CLOUD_CEIL = CLOUD_CEIL

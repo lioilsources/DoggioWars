@@ -1,25 +1,25 @@
--- aerowars/nodes.lua
+-- doggiowars/nodes.lua
 -- Custom bloky pro biomy
 
-minetest.register_node("aerowars:spore_block", {
+minetest.register_node("doggiowars:spore_block", {
     description = "Spore Block",
-    tiles = {"aerowars_spore.png"},
+    tiles = {"doggiowars_spore.png"},
     groups = {crumbly = 2, soil = 1},
     sounds = default.node_sound_dirt_defaults(),
 })
 
-minetest.register_node("aerowars:magma_block", {
+minetest.register_node("doggiowars:magma_block", {
     description = "Magma Block",
-    tiles = {"aerowars_magma.png"},
+    tiles = {"doggiowars_magma.png"},
     light_source = 8,
     damage_per_second = 2,
     groups = {cracky = 2},
     sounds = default.node_sound_stone_defaults(),
 })
 
-minetest.register_node("aerowars:ice_crystal", {
+minetest.register_node("doggiowars:ice_crystal", {
     description = "Ice Crystal",
-    tiles = {"aerowars_ice_crystal.png"},
+    tiles = {"doggiowars_ice_crystal.png"},
     use_texture_alpha = "blend",
     drawtype = "glasslike",
     paramtype = "light",
@@ -28,17 +28,17 @@ minetest.register_node("aerowars:ice_crystal", {
     sounds = default.node_sound_glass_defaults(),
 })
 
-minetest.register_node("aerowars:dead_stone", {
+minetest.register_node("doggiowars:dead_stone", {
     description = "Dead Stone",
-    tiles = {"aerowars_dead_stone.png"},
+    tiles = {"doggiowars_dead_stone.png"},
     groups = {cracky = 2},
     sounds = default.node_sound_stone_defaults(),
 })
 
 -- Žhavé uhlíky — svítí, lehce pálí (spálené / ohnivé ostrovy)
-minetest.register_node("aerowars:embers", {
+minetest.register_node("doggiowars:embers", {
     description = "Embers",
-    tiles = {"aerowars_embers.png"},
+    tiles = {"doggiowars_embers.png"},
     light_source = 10,
     damage_per_second = 1,
     groups = {crumbly = 2, cracky = 3},
@@ -46,25 +46,25 @@ minetest.register_node("aerowars:embers", {
 })
 
 -- Popel — sypká vrstva po požáru
-minetest.register_node("aerowars:ash", {
+minetest.register_node("doggiowars:ash", {
     description = "Ash",
-    tiles = {"aerowars_ash.png"},
+    tiles = {"doggiowars_ash.png"},
     groups = {crumbly = 3, falling_node = 1},
     sounds = default.node_sound_sand_defaults(),
 })
 
 -- Bahno — bažinné ostrovy
-minetest.register_node("aerowars:mud", {
+minetest.register_node("doggiowars:mud", {
     description = "Mud",
-    tiles = {"aerowars_mud.png"},
+    tiles = {"doggiowars_mud.png"},
     groups = {crumbly = 3, soil = 1},
     sounds = default.node_sound_dirt_defaults(),
 })
 
 -- Svítící krystal — krystalové ostrovy
-minetest.register_node("aerowars:crystal", {
+minetest.register_node("doggiowars:crystal", {
     description = "Glowing Crystal",
-    tiles = {"aerowars_crystal.png"},
+    tiles = {"doggiowars_crystal.png"},
     light_source = 12,
     use_texture_alpha = "opaque",
     paramtype = "light",
@@ -73,17 +73,17 @@ minetest.register_node("aerowars:crystal", {
 })
 
 -- Čedič — sopečné / spálené jádro
-minetest.register_node("aerowars:basalt", {
+minetest.register_node("doggiowars:basalt", {
     description = "Basalt",
-    tiles = {"aerowars_basalt.png"},
+    tiles = {"doggiowars_basalt.png"},
     groups = {cracky = 2},
     sounds = default.node_sound_stone_defaults(),
 })
 
 -- Mechový kámen — bažiny, vlhké oblasti
-minetest.register_node("aerowars:mossy_stone", {
+minetest.register_node("doggiowars:mossy_stone", {
     description = "Mossy Stone",
-    tiles = {"aerowars_mossy_stone.png"},
+    tiles = {"doggiowars_mossy_stone.png"},
     groups = {cracky = 2},
     sounds = default.node_sound_stone_defaults(),
 })

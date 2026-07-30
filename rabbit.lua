@@ -1,4 +1,4 @@
--- aerowars/rabbit.lua
+-- doggiowars/rabbit.lua
 -- "Zajíc" — zlatá AI loď, která letí trať závodu před hráčem.
 -- Sleduje Catmull-Rom splajnu (race.lua), rubber-banduje rychlost podle
 -- vzdálenosti hráče a když se hráč moc vzdálí, krouží a čeká (tutoriál).
@@ -31,7 +31,7 @@ local function trail(self, dtime)
         maxexptime = 1.2,
         minsize    = 1.0,
         maxsize    = 2.5,
-        texture    = "aerowars_particle_engine.png^[colorize:#ffd75e:180",
+        texture    = "doggiowars_particle_engine.png^[colorize:#ffd75e:180",
         glow       = 14,
     })
 end
@@ -74,11 +74,11 @@ local function fly_toward(self, target, speed, dtime)
     set_flight_rotation(self, vel, dtime)
 end
 
-minetest.register_entity("aerowars:rabbit", {
+minetest.register_entity("doggiowars:rabbit", {
     initial_properties = {
         visual            = "mesh",
-        mesh              = "aerowars_fighter_01.obj",
-        textures          = {"aerowars_fighter_01.png^[multiply:#ffd75e"},
+        mesh              = "doggiowars_fighter_01.obj",
+        textures          = {"doggiowars_fighter_01.png^[multiply:#ffd75e"},
         physical          = false,
         collide_with_objects = false,
         collisionbox      = {-1.5, -0.5, -1.5, 1.5, 0.5, 1.5},
@@ -102,13 +102,13 @@ minetest.register_entity("aerowars:rabbit", {
     end,
 
     on_step = function(self, dtime)
-        local race = aerowars.race
+        local race = doggiowars.race
 
         -- oslavné loopingy v cíli (než ho race.finish odklidí)
         if self.celebrate then
             self.cel_trick = self.cel_trick
                 or {name = "loop", t = 0, dur = 2.0, dir = 1}
-            local rot, vel, done = aerowars.tricks.step_trick(self.cel_trick,
+            local rot, vel, done = doggiowars.tricks.step_trick(self.cel_trick,
                 {yaw = self.cel_yaw or 0, pitch = 0, speed = 18}, dtime)
             if done then self.cel_trick.t = 0 end
             self.object:set_rotation(rot)
@@ -129,7 +129,7 @@ minetest.register_entity("aerowars:rabbit", {
 
         local pos = self.object:get_pos()
         if not pos then return end
-        local pfighter = aerowars.get_player_fighter(player)
+        local pfighter = doggiowars.get_player_fighter(player)
         local ppos = pfighter and pfighter.object:get_pos() or player:get_pos()
         local d = vector.distance(pos, ppos)
 

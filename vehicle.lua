@@ -1,7 +1,7 @@
--- aerowars/vehicle.lua
+-- doggiowars/vehicle.lua
 -- Entita stíhačky. Hráč JE loď — mount při joinu, žádné nasedání/vysedání.
 
-local C = aerowars.const
+local C = doggiowars.const
 
 -- Kamera "na nose": mesh (visual_size 2, collisionbox ±1.5) končí ~3 jednotky
 -- od středu entity, offset 4 dopředu drží celý mesh za near plane kamery
@@ -12,7 +12,7 @@ local respawn_pending = {}
 
 -- Gamepad diagnostika (přepíná /gp): živě ukazuje páčky a stisknutá tlačítka,
 -- aby šlo namapovat konkrétní ovladač (Xbox/PS4) na herní akce.
-aerowars.gp_debug = aerowars.gp_debug or {}
+doggiowars.gp_debug = doggiowars.gp_debug or {}
 local GP_KEYS = {"up", "down", "left", "right", "jump", "aux1",
                  "sneak", "dig", "place", "zoom"}
 local function gp_debug_str(ctrl, look_v, f)
@@ -57,7 +57,7 @@ local function spawn_exhaust(pos, dir, speed)
         maxexptime = 0.8,
         minsize  = 0.5,
         maxsize  = 1.5,
-        texture  = "aerowars_particle_engine.png",
+        texture  = "doggiowars_particle_engine.png",
         glow     = math.floor(8 * intensity),
     })
 end
@@ -66,28 +66,28 @@ end
 -- Mount / dismount — hráč je vždy pilotem své stíhačky
 ---------------------------------------------------------------------------
 
-function aerowars.get_player_fighter(player)
+function doggiowars.get_player_fighter(player)
     local parent = player and player:get_attach()
     local ent = parent and parent:get_luaentity()
-    if ent and ent.name == "aerowars:fighter" and not ent.is_dead then
+    if ent and ent.name == "doggiowars:fighter" and not ent.is_dead then
         return ent
     end
     return nil
 end
 
-function aerowars.mount_player(player, pos)
+function doggiowars.mount_player(player, pos)
     if not player or not player:is_player() then return end
     local name = player:get_player_name()
     if not pos then
         local ppos = player:get_pos()
         pos = {x = ppos.x, y = ppos.y + 2, z = ppos.z}
     end
-    local obj = minetest.add_entity(pos, "aerowars:fighter")
+    local obj = minetest.add_entity(pos, "doggiowars:fighter")
     if not obj then return end
     local self = obj:get_luaentity()
     self.pilot = player
     self.pilot_name = name
-    self.score = aerowars.tricks.scores[name] or 0
+    self.score = doggiowars.tricks.scores[name] or 0
 
     player:set_attach(obj, "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
     -- srovnat zaměřovač se směrem letu (letadlo se pak dotáčí za pohledem)
@@ -107,13 +107,13 @@ function aerowars.mount_player(player, pos)
         hotbar = false, wielditem = false, healthbar = false,
         breathbar = false, crosshair = true,
     })
-    aerowars.hud.init(player)
+    doggiowars.hud.init(player)
     respawn_pending[name] = nil
     return obj
 end
 
 -- Interní úklid (odchod ze hry) — není to herní akce, vysedání neexistuje
-function aerowars.dismount_player(player)
+function doggiowars.dismount_player(player)
     if not player or not player:is_player() then return end
     player:set_detach()
     player:set_eye_offset({x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
@@ -132,11 +132,11 @@ end
 -- Fighter entity definition
 ---------------------------------------------------------------------------
 
-minetest.register_entity("aerowars:fighter", {
+minetest.register_entity("doggiowars:fighter", {
     initial_properties = {
         visual            = "mesh",
-        mesh              = "aerowars_fighter_01.obj",
-        textures          = {"aerowars_fighter_01.png"},
+        mesh              = "doggiowars_fighter_01.obj",
+        textures          = {"doggiowars_fighter_01.png"},
         physical          = true,
         collide_with_objects = false,
         collisionbox      = {-1.5, -0.5, -1.5, 1.5, 0.5, 1.5},
@@ -162,7 +162,7 @@ minetest.register_entity("aerowars:fighter", {
         -- Disable gravity — plane handles its own physics
         self.object:set_acceleration({x = 0, y = 0, z = 0})
         self.hp = 100
-        aerowars.tricks.init(self)
+        doggiowars.tricks.init(self)
     end,
 
     on_step = function(self, dtime, moveresult)
@@ -177,11 +177,11 @@ minetest.register_entity("aerowars:fighter", {
         end
 
         local ctrl = pilot:get_player_control()
-        local events = aerowars.tricks.update_input(self, ctrl)
+        local events = doggiowars.tricks.update_input(self, ctrl)
         self.iframes = math.max(0, (self.iframes or 0) - dtime)
 
-        if aerowars.gp_debug[self.pilot_name or ""] then
-            aerowars.hud.set(pilot, "gpdebug",
+        if doggiowars.gp_debug[self.pilot_name or ""] then
+            doggiowars.hud.set(pilot, "gpdebug",
                 {text = gp_debug_str(ctrl, pilot:get_look_vertical(), self)})
         end
 
@@ -202,7 +202,7 @@ minetest.register_entity("aerowars:fighter", {
         if self.trick then
             -- Skriptovaný trik přebírá řízení (looping potřebuje pitch
             -- za clampem ±PITCH_MAX)
-            rot, vel = aerowars.tricks.step_active(self, dtime)
+            rot, vel = doggiowars.tricks.step_active(self, dtime)
             self.object:set_rotation(rot)
             self.object:set_velocity(vel)
             -- kamera sleduje trik (v apexu loopingu se překlopí přes yaw)
@@ -237,7 +237,7 @@ minetest.register_entity("aerowars:fighter", {
             if drifting then
                 turn = C.TURN_SPEED * 2.2
                 self.speed = math.max(self.speed - 12 * dtime, C.SPEED_MIN)
-                aerowars.tricks.add_raw_score(self, 50 * dtime)
+                doggiowars.tricks.add_raw_score(self, 50 * dtime)
             end
 
             -- Mouse-flight: myš (nebo pravá páčka gamepadu) míří zaměřovačem,
@@ -327,19 +327,19 @@ minetest.register_entity("aerowars:fighter", {
             }
             self.object:set_velocity(vel)
 
-            aerowars.tricks.check_triggers(self, events, pilot)
+            doggiowars.tricks.check_triggers(self, events, pilot)
         end
 
         local hlen = math.sqrt(vel.x * vel.x + vel.z * vel.z)
 
         -- Proximity charge: let těsně kolem terénu nabíjí boost
-        aerowars.tricks.update_passive(self, dtime)
+        doggiowars.tricks.update_passive(self, dtime)
 
         -- Střelba: dig (LMB / gamepad R2) nebo aux1 (E), cooldown 0.15 s
         self.shoot_cooldown = math.max(0, (self.shoot_cooldown or 0) - dtime)
         if (ctrl.dig or ctrl.aux1) and self.shoot_cooldown <= 0 then
             self.shoot_cooldown = 0.15
-            aerowars.shoot_bullet(self)
+            doggiowars.shoot_bullet(self)
         end
 
         -- Damage smoke: light at HP < 70, heavy fire at HP < 30
@@ -362,7 +362,7 @@ minetest.register_entity("aerowars:fighter", {
                     maxexptime = 2.0,
                     minsize    = 2,
                     maxsize    = 6,
-                    texture    = "aerowars_particle_engine.png",
+                    texture    = "doggiowars_particle_engine.png",
                     glow       = (self.hp or 100) < 30 and 5 or 0,
                 })
             end
@@ -380,7 +380,7 @@ minetest.register_entity("aerowars:fighter", {
         self.hud_timer = (self.hud_timer or 0) + dtime
         if self.hud_timer >= 0.15 then
             self.hud_timer = 0
-            aerowars.hud.update_flight(pilot, self)
+            doggiowars.hud.update_flight(pilot, self)
         end
     end,
 
@@ -404,7 +404,7 @@ minetest.register_entity("aerowars:fighter", {
 
         -- Session skóre přežívá zničení stíhačky
         if pilot_name then
-            aerowars.tricks.scores[pilot_name] = self.score or 0
+            doggiowars.tricks.scores[pilot_name] = self.score or 0
         end
 
         -- Odpojit pilota — zůstává neviditelný na místě havárie (death cam),
@@ -415,13 +415,13 @@ minetest.register_entity("aerowars:fighter", {
 
         -- Big explosion at crash site
         if pos then
-            aerowars.explode_voxels(pos, 5)
+            doggiowars.explode_voxels(pos, 5)
         end
 
         if pilot_name then
             -- Hook pro race.lua — smrt během závodu = RACE FAILED
-            if aerowars.race_on_pilot_died then
-                aerowars.race_on_pilot_died(pilot_name)
+            if doggiowars.race_on_pilot_died then
+                doggiowars.race_on_pilot_died(pilot_name)
             end
             respawn_pending[pilot_name] = true
             minetest.chat_send_player(pilot_name,
@@ -431,10 +431,10 @@ minetest.register_entity("aerowars:fighter", {
                 local p = minetest.get_player_by_name(pilot_name)
                 if not p then return end
                 local ppos = p:get_pos()
-                local sp = aerowars.spawn_pos_near
-                    and aerowars.spawn_pos_near(ppos.x, ppos.z)
+                local sp = doggiowars.spawn_pos_near
+                    and doggiowars.spawn_pos_near(ppos.x, ppos.z)
                     or {x = ppos.x, y = C.SPAWN_HEIGHT, z = ppos.z}
-                aerowars.mount_player(p, sp)
+                doggiowars.mount_player(p, sp)
             end)
         end
 
@@ -463,9 +463,9 @@ minetest.register_globalstep(function(dtime)
     for _, player in ipairs(minetest.get_connected_players()) do
         local name = player:get_player_name()
         if not respawn_pending[name]
-                and not aerowars.get_player_fighter(player) then
+                and not doggiowars.get_player_fighter(player) then
             local pos = player:get_pos()
-            aerowars.mount_player(player, {
+            doggiowars.mount_player(player, {
                 x = pos.x,
                 y = math.max(pos.y + 2, 100),
                 z = pos.z,
@@ -479,10 +479,10 @@ minetest.register_on_respawnplayer(function(player)
     respawn_pending[name] = nil
     minetest.after(0.1, function()
         local p = minetest.get_player_by_name(name)
-        if p and not aerowars.get_player_fighter(p) then
-            local sp = aerowars.spawn_pos and aerowars.spawn_pos()
+        if p and not doggiowars.get_player_fighter(p) then
+            local sp = doggiowars.spawn_pos and doggiowars.spawn_pos()
                 or {x = 0, y = C.SPAWN_HEIGHT, z = 0}
-            aerowars.mount_player(p, sp)
+            doggiowars.mount_player(p, sp)
         end
     end)
     return true
@@ -490,15 +490,15 @@ end)
 
 minetest.register_on_leaveplayer(function(player)
     local name = player:get_player_name()
-    local fighter = aerowars.get_player_fighter(player)
-    aerowars.dismount_player(player)
+    local fighter = doggiowars.get_player_fighter(player)
+    doggiowars.dismount_player(player)
     if fighter then
-        aerowars.tricks.scores[name] = fighter.score or 0
+        doggiowars.tricks.scores[name] = fighter.score or 0
         fighter.object:remove()
     end
     respawn_pending[name] = nil
-    if aerowars.race_on_player_left then
-        aerowars.race_on_player_left(name)
+    if doggiowars.race_on_player_left then
+        doggiowars.race_on_player_left(name)
     end
 end)
 
@@ -514,13 +514,13 @@ minetest.register_chatcommand("respawn_fighter", {
         if not player then
             return false, "Player not found"
         end
-        local fighter = aerowars.get_player_fighter(player)
+        local fighter = doggiowars.get_player_fighter(player)
         if fighter then
             player:set_detach()
             fighter.object:remove()
         end
         local pos = player:get_pos()
-        aerowars.mount_player(player, {x = pos.x, y = pos.y + 2, z = pos.z})
+        doggiowars.mount_player(player, {x = pos.x, y = pos.y + 2, z = pos.z})
         return true, "Fighter respawned!"
     end,
 })
@@ -534,7 +534,7 @@ local function fly_player_to(player, sp)
             {x = sp.x - 48, y = sp.y - 96, z = sp.z - 48},
             {x = sp.x + 48, y = sp.y + 48,  z = sp.z + 48})
     end
-    local f = aerowars.get_player_fighter(player)
+    local f = doggiowars.get_player_fighter(player)
     if f and f.object then
         f.object:set_pos(sp)
         f.speed = 12
@@ -568,23 +568,23 @@ minetest.register_chatcommand("island", {
 
         if param ~= "" then
             local target = BIOME_ALIAS[param] or param
-            local isl, dist = aerowars.nearest_island_of_biome(pos.x, pos.z, target)
+            local isl, dist = doggiowars.nearest_island_of_biome(pos.x, pos.z, target)
             if not isl then
                 local names = {}
-                for i = 0, (aerowars.biome_count or 1) - 1 do
-                    names[#names + 1] = aerowars.biomes[i].name
+                for i = 0, (doggiowars.biome_count or 1) - 1 do
+                    names[#names + 1] = doggiowars.biomes[i].name
                 end
                 return false, "Unknown biome '" .. param .. "' (or none nearby). Biomes: "
                     .. table.concat(names, ", ")
             end
-            fly_player_to(player, aerowars.island_spawn(isl))
+            fly_player_to(player, doggiowars.island_spawn(isl))
             return true, string.format(
                 "%s island, r=%d, %d blocks away - flying there. Give it a moment to generate.",
                 isl.biome.name, isl.radius, math.floor(dist or 0))
         end
 
-        local isl, dist = aerowars.nearest_island(pos.x, pos.z)
-        local sp = aerowars.spawn_pos_near(pos.x, pos.z)
+        local isl, dist = doggiowars.nearest_island(pos.x, pos.z)
+        local sp = doggiowars.spawn_pos_near(pos.x, pos.z)
         fly_player_to(player, sp)
         if isl then
             return true, string.format(
@@ -604,7 +604,7 @@ minetest.register_on_mods_loaded(function()
         func = function(name)
             local player = minetest.get_player_by_name(name)
             if not player then return false, "Player not found" end
-            fly_player_to(player, aerowars.spawn_pos())
+            fly_player_to(player, doggiowars.spawn_pos())
             return true, "Flying to the home island (0,0)."
         end,
     })
@@ -614,12 +614,12 @@ minetest.register_chatcommand("gp", {
     description = "Gamepad diagnostika: ukáže živě páčky a stisknutá tlačítka",
     privs = {interact = true},
     func = function(name)
-        aerowars.gp_debug[name] = not aerowars.gp_debug[name]
+        doggiowars.gp_debug[name] = not doggiowars.gp_debug[name]
         local p = minetest.get_player_by_name(name)
-        if p and not aerowars.gp_debug[name] then
-            aerowars.hud.set(p, "gpdebug", {text = ""})
+        if p and not doggiowars.gp_debug[name] then
+            doggiowars.hud.set(p, "gpdebug", {text = ""})
         end
-        if aerowars.gp_debug[name] then
+        if doggiowars.gp_debug[name] then
             return true, "Gamepad diagnostika ZAP — mačkej tlačítka/páčky a "
                 .. "sleduj, co se rozsvítí uprostřed obrazovky."
         end

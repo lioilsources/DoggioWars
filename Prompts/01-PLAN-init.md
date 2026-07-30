@@ -1,4 +1,4 @@
-# AeroWars — Fáze 1: Nekonečný létající svět
+# DoggioWars — Fáze 1: Nekonečný létající svět
 ### Luanti Mod Development Plan · 4 Týdny
 
 ---
@@ -32,7 +32,7 @@ Výstupní stav: Funkční protoletový sandbox — "wow moment" při prvním pr
 ## Struktura modu
 
 ```
-aerowars/
+doggiowars/
   mod.conf          ← název, verze, závislosti
   init.lua          ← entry point, načte vše
   mapgen.lua        ← generátor ostrovů
@@ -148,8 +148,8 @@ brew install luanti
 ~/Library/Application Support/luanti/
 
 # Mod — doporučeno přes symlink:
-ln -s ~/Projects/aerowars \
-  ~/Library/Application\ Support/luanti/mods/aerowars
+ln -s ~/Projects/doggiowars \
+  ~/Library/Application\ Support/luanti/mods/doggiowars
 ```
 
 ### 3. Dev server config
@@ -166,7 +166,7 @@ default_privs = interact, shout, fly, fast
 # Spuštění serveru:
 /Applications/Luanti.app/Contents/MacOS/luanti \
   --server \
-  --world ~/luanti-worlds/aerowars-dev \
+  --world ~/luanti-worlds/doggiowars-dev \
   --config ~/luanti-dev.conf
 ```
 
@@ -174,7 +174,7 @@ default_privs = interact, shout, fly, fast
 
 ```
 # V Luanti chatu během hry:
-/reload aerowars
+/reload doggiowars
 
 # Lua kód se reloadne okamžitě.
 # Mapgen změny = přeleť do nenavštíveného chunku.
@@ -213,10 +213,10 @@ Luanti ContentDB (hotové mody k rozebrat):
 ### Soubory pro Fázi 1
 
 ```
-aerowars/assets/models/
+doggiowars/assets/models/
   fighter_01.obj          ← z Kenney Space Kit
 
-aerowars/assets/textures/
+doggiowars/assets/textures/
   fighter_01.png          ← 128×128
   particle_engine.png     ← výfukové částice
   node_grass.png          ← vlastní tráva (nebo default Luanti)
@@ -226,7 +226,7 @@ aerowars/assets/textures/
   node_sand.png
   node_dead_stone.png
 
-aerowars/assets/sounds/
+doggiowars/assets/sounds/
   engine_loop.ogg         ← motor (smyčka)
   whoosh.ogg              ← průlet vzduchomm
 ```
@@ -245,7 +245,7 @@ aerowars/assets/sounds/
 
 ```lua
 -- mod.conf
-name = aerowars
+name = doggiowars
 description = Voxel dogfight na vzdušných ostrovech
 depends = default
 min_minetest_version = 5.8
@@ -253,7 +253,7 @@ min_minetest_version = 5.8
 
 ```lua
 -- init.lua
-local MP = minetest.get_modpath("aerowars")
+local MP = minetest.get_modpath("doggiowars")
 dofile(MP .. "/nodes.lua")
 dofile(MP .. "/biomes.lua")
 dofile(MP .. "/mapgen.lua")
@@ -264,23 +264,23 @@ dofile(MP .. "/mapgen.lua")
 
 ```lua
 -- Registrace custom bloků pro biomy
-minetest.register_node("aerowars:spore_block", {
+minetest.register_node("doggiowars:spore_block", {
     description = "Spore Block",
-    tiles = {"aerowars_spore.png"},
+    tiles = {"doggiowars_spore.png"},
     groups = {crumbly = 2, soil = 1},
 })
 
-minetest.register_node("aerowars:magma_block", {
+minetest.register_node("doggiowars:magma_block", {
     description = "Magma Block",
-    tiles = {"aerowars_magma.png"},
+    tiles = {"doggiowars_magma.png"},
     light_source = 8,
     damage_per_second = 2,  -- damage aura
     groups = {cracky = 2},
 })
 
-minetest.register_node("aerowars:ice_crystal", {
+minetest.register_node("doggiowars:ice_crystal", {
     description = "Ice Crystal",
-    tiles = {"aerowars_ice_crystal.png"},
+    tiles = {"doggiowars_ice_crystal.png"},
     use_texture_alpha = "blend",
     groups = {cracky = 3},
     sunlight_propagates = true,
@@ -457,15 +457,15 @@ local function init_content_ids()
     c.obsidian     = minetest.get_content_id("default:obsidian")
     c.lava         = minetest.get_content_id("default:lava_source")
     c.sand         = minetest.get_content_id("default:sand")
-    c.mycelium     = minetest.get_content_id("aerowars:spore_block")
-    c.magma        = minetest.get_content_id("aerowars:magma_block")
+    c.mycelium     = minetest.get_content_id("doggiowars:spore_block")
+    c.magma        = minetest.get_content_id("doggiowars:magma_block")
     c.dead_stone   = minetest.get_content_id("default:stone")  -- later custom
 end
 
 minetest.after(0, init_content_ids)
 
-aerowars = aerowars or {}
-aerowars.biomes = {
+doggiowars = doggiowars or {}
+doggiowars.biomes = {
     [0] = { -- VERDANT
         name    = "verdant",
         shape   = "avatar",
@@ -512,7 +512,7 @@ aerowars.biomes = {
 local islands = get_islands_in_chunk(minp, maxp, seed)
 
 for _, isl in ipairs(islands) do
-    local biome = aerowars.biomes[isl.biome]
+    local biome = doggiowars.biomes[isl.biome]
     local y_top = isl.y + isl.radius * 0.6
     local y_bot = isl.y - isl.radius * 1.2
 
@@ -564,11 +564,11 @@ local LIFT_FACTOR  = 0.8
 local DRAG         = 0.05
 local TURN_SPEED   = 1.5  -- rad/s
 
-minetest.register_entity("aerowars:fighter", {
+minetest.register_entity("doggiowars:fighter", {
     initial_properties = {
         visual          = "mesh",
         mesh            = "fighter_01.obj",
-        textures        = {"aerowars_fighter_01.png"},
+        textures        = {"doggiowars_fighter_01.png"},
         physical        = true,
         collide_with_objects = false,
         weight          = 50,
@@ -660,7 +660,7 @@ minetest.register_chatcommand("spawn_fighter", {
         if not player then return false, "Hráč nenalezen" end
         local pos = player:get_pos()
         pos.y = pos.y + 2
-        minetest.add_entity(pos, "aerowars:fighter")
+        minetest.add_entity(pos, "doggiowars:fighter")
         return true, "Stíhačka spawnuta!"
     end,
 })
@@ -684,7 +684,7 @@ local function spawn_exhaust(pos, dir)
         maxexptime = 0.8,
         minsize  = 0.5,
         maxsize  = 1.5,
-        texture  = "aerowars_particle_engine.png",
+        texture  = "doggiowars_particle_engine.png",
         glow     = 8,
     })
 end
@@ -749,25 +749,25 @@ local function decorate_island(island, biome_name, seed)
             local tx    = island.x + math.cos(angle) * r
             local tz    = island.z + math.sin(angle) * r
             -- Najdi povrch a zasaď strom
-            aerowars.place_tree(tx, island.y, tz)
+            doggiowars.place_tree(tx, island.y, tz)
         end
 
     elseif biome_name == "glacial" then
         -- Rampouchy dolů z okraje
-        aerowars.place_icicles(island)
+        doggiowars.place_icicles(island)
 
     elseif biome_name == "volcanic" then
         -- Lava pool na vrcholu
-        aerowars.place_lava_pool(island)
+        doggiowars.place_lava_pool(island)
 
     elseif biome_name == "atoll" then
         -- Voda uprostřed prstence
-        aerowars.fill_atoll_center(island)
+        doggiowars.fill_atoll_center(island)
 
     elseif biome_name == "mycelial" then
         -- Giant mushrooms
         for i = 1, math.random(2, 6) do
-            aerowars.place_giant_mushroom(island)
+            doggiowars.place_giant_mushroom(island)
         end
     end
 end
@@ -863,5 +863,5 @@ Fáze 4 — Multiplayer balancing
 
 ---
 
-*AeroWars · Luanti Mod · Fáze 1 Development Plan*
+*DoggioWars · Luanti Mod · Fáze 1 Development Plan*
 *Generováno: 2026-03-18*

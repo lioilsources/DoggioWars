@@ -1,7 +1,7 @@
--- aerowars/weapons.lua
+-- doggiowars/weapons.lua
 -- Projectiles, voxel explosions, and damage system
 
-aerowars = aerowars or {}
+doggiowars = doggiowars or {}
 
 local BULLET_SPEED        = 120   -- m/s (3× max plane speed)
 local BULLET_TTL          = 2.5   -- seconds until auto-remove
@@ -26,7 +26,7 @@ local function node_tile(name)
     return t
 end
 
-minetest.register_entity("aerowars:debris", {
+minetest.register_entity("doggiowars:debris", {
     initial_properties = {
         visual            = "cube",
         visual_size       = {x = 0.8, y = 0.8, z = 0.8},
@@ -72,7 +72,7 @@ minetest.register_entity("aerowars:debris", {
                     acceleration   = {x = 0, y = -6, z = 0},
                     expirationtime = 0.4,
                     size           = 2.5,
-                    texture        = "aerowars_particle_engine.png",
+                    texture        = "doggiowars_particle_engine.png",
                     glow           = 3,
                 })
             end
@@ -93,7 +93,7 @@ minetest.register_entity("aerowars:debris", {
 -- Voxel explosion — vyhloubí kráter, odlomí sutinu, částice ohně
 ---------------------------------------------------------------------------
 
-function aerowars.explode_voxels(pos, radius)
+function doggiowars.explode_voxels(pos, radius)
     local ir = math.ceil(radius)
     local r2 = radius * radius
     local removed = {}
@@ -125,7 +125,7 @@ function aerowars.explode_voxels(pos, radius)
             local len = math.sqrt(dx*dx + dy*dy + dz*dz)
             if len < 0.1 then dx, dy, dz, len = 0, 1, 0, 1 end
             local sp = 3 + math.random() * 5
-            local obj = minetest.add_entity(pick.p, "aerowars:debris", node_tile(pick.n))
+            local obj = minetest.add_entity(pick.p, "doggiowars:debris", node_tile(pick.n))
             if obj then
                 obj:set_velocity({
                     x = dx / len * sp + (math.random() - 0.5) * 3,
@@ -153,7 +153,7 @@ function aerowars.explode_voxels(pos, radius)
         maxexptime = 1.5,
         minsize    = 1.5,
         maxsize    = 5.0,
-        texture    = "aerowars_particle_engine.png",
+        texture    = "doggiowars_particle_engine.png",
         glow       = 14,
     })
 end
@@ -162,10 +162,10 @@ end
 -- Bullet entity
 ---------------------------------------------------------------------------
 
-minetest.register_entity("aerowars:bullet", {
+minetest.register_entity("doggiowars:bullet", {
     initial_properties = {
         visual            = "sprite",
-        textures          = {"aerowars_particle_engine.png"},
+        textures          = {"doggiowars_particle_engine.png"},
         visual_size       = {x = 0.3, y = 0.3},
         physical          = true,
         collide_with_objects = false,
@@ -196,7 +196,7 @@ minetest.register_entity("aerowars:bullet", {
         if moveresult and moveresult.collides then
             for _, col in ipairs(moveresult.collisions or {}) do
                 if col.type == "node" then
-                    aerowars.explode_voxels(pos, EXPLODE_RADIUS)
+                    doggiowars.explode_voxels(pos, EXPLODE_RADIUS)
                     self.object:remove()
                     return
                 end
@@ -208,14 +208,14 @@ minetest.register_entity("aerowars:bullet", {
         for _, obj in ipairs(objects) do
             if obj ~= self.object then
                 local ent = obj:get_luaentity()
-                if ent and ent.name == "aerowars:fighter"
+                if ent and ent.name == "doggiowars:fighter"
                         and ent.hp and ent.hp > 0 and not ent.is_dead then
                     -- Don't hit the shooter's own plane
                     local is_own = self._shooter_name ~= nil
                         and ent.pilot_name == self._shooter_name
                     if not is_own then
                         ent:damage_fighter(BULLET_DAMAGE)
-                        aerowars.explode_voxels(pos, EXPLODE_RADIUS_HIT)
+                        doggiowars.explode_voxels(pos, EXPLODE_RADIUS_HIT)
                         self.object:remove()
                         return
                     end
@@ -230,7 +230,7 @@ minetest.register_entity("aerowars:bullet", {
             acceleration   = {x = 0, y = 0, z = 0},
             expirationtime = 0.1,
             size           = 0.8,
-            texture        = "aerowars_particle_engine.png",
+            texture        = "doggiowars_particle_engine.png",
             glow           = 12,
         })
     end,
@@ -240,7 +240,7 @@ minetest.register_entity("aerowars:bullet", {
 -- Shoot function — called from vehicle.lua on_step
 ---------------------------------------------------------------------------
 
-function aerowars.shoot_bullet(fighter_self)
+function doggiowars.shoot_bullet(fighter_self)
     local pos = fighter_self.object:get_pos()
     if not pos then return end
 
@@ -264,7 +264,7 @@ function aerowars.shoot_bullet(fighter_self)
         z = pos.z + dir.z * 6,
     }
 
-    local bullet = minetest.add_entity(muzzle, "aerowars:bullet")
+    local bullet = minetest.add_entity(muzzle, "doggiowars:bullet")
     if not bullet then return end
 
     -- Add plane velocity so bullet doesn't arc backward when diving
@@ -287,7 +287,7 @@ function aerowars.shoot_bullet(fighter_self)
         acceleration   = {x = 0, y = 0, z = 0},
         expirationtime = 0.08,
         size           = 2.0,
-        texture        = "aerowars_particle_engine.png",
+        texture        = "doggiowars_particle_engine.png",
         glow           = 15,
     })
 end

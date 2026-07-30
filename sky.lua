@@ -1,4 +1,4 @@
--- aerowars/sky.lua
+-- doggiowars/sky.lua
 -- Sky, clouds, and fog setup for the aerial world
 
 local SKY_COLOR     = "#2e3155"
@@ -9,7 +9,7 @@ local CLOUD_DENSITY = 0.2
 local CLOUD_SPEED   = {x = 2, z = 0}
 
 -- Spawn point in the sky
-local SPAWN_HEIGHT  = aerowars.const.SPAWN_HEIGHT
+local SPAWN_HEIGHT  = doggiowars.const.SPAWN_HEIGHT
 
 -- Check if set_fog is available (Luanti 5.16+)
 local has_set_fog = minetest.features and minetest.features.object_step_has_moveresult ~= nil
@@ -82,22 +82,22 @@ minetest.register_on_joinplayer(function(player)
         if p then p:set_properties({zoom_fov = 0}) end
     end)
     local meta = player:get_meta()
-    if meta:get_int("aerowars_spawned") == 0 then
-        meta:set_int("aerowars_spawned", 1)
-        local sp = aerowars.spawn_pos and aerowars.spawn_pos()
+    if meta:get_int("doggiowars_spawned") == 0 then
+        meta:set_int("doggiowars_spawned", 1)
+        local sp = doggiowars.spawn_pos and doggiowars.spawn_pos()
             or {x = 0, y = SPAWN_HEIGHT, z = 0}
         player:set_pos(sp)
         minetest.chat_send_player(name,
-            "Welcome to AeroWars! You ARE the fighter — fly!")
+            "Welcome to DoggioWars! You ARE the fighter — fly!")
     end
 
     -- Každý join: hráč rovnou letí (malé zpoždění, ať klient doinicializuje;
     -- selhání pokryje watchdog ve vehicle.lua)
     minetest.after(0.2, function()
         local p = minetest.get_player_by_name(name)
-        if not p or aerowars.get_player_fighter(p) then return end
+        if not p or doggiowars.get_player_fighter(p) then return end
         local pos = p:get_pos()
-        aerowars.mount_player(p, {
+        doggiowars.mount_player(p, {
             x = pos.x,
             y = math.max(pos.y + 2, 100),
             z = pos.z,

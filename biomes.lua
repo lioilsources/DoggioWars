@@ -1,10 +1,10 @@
--- aerowars/biomes.lua
+-- doggiowars/biomes.lua
 -- Definice biomů a jejich materiálů (12 typů)
 
-aerowars = aerowars or {}
-aerowars.biome_ids = {}  -- content ID cache
+doggiowars = doggiowars or {}
+doggiowars.biome_ids = {}  -- content ID cache
 
-local c = aerowars.biome_ids
+local c = doggiowars.biome_ids
 
 -- Bezpečné načtení content ID: když node neexistuje, spadne na fallback
 local function id(name, fallback)
@@ -43,15 +43,15 @@ local function init_content_ids()
     c.dry_dirt   = id("default:dry_dirt",              c.dirt)
 
     -- Vlastní bloky (nodes.lua)
-    c.mycelium   = id("aerowars:spore_block",  c.dirt)
-    c.magma      = id("aerowars:magma_block",  c.obsidian)
-    c.dead_stone = id("aerowars:dead_stone",   c.stone)
-    c.embers     = id("aerowars:embers",       c.magma)
-    c.ash        = id("aerowars:ash",          c.gravel)
-    c.mud        = id("aerowars:mud",          c.dirt)
-    c.crystal    = id("aerowars:crystal",      c.ice)
-    c.basalt     = id("aerowars:basalt",       c.obsidian)
-    c.mossy      = id("aerowars:mossy_stone",  c.stone)
+    c.mycelium   = id("doggiowars:spore_block",  c.dirt)
+    c.magma      = id("doggiowars:magma_block",  c.obsidian)
+    c.dead_stone = id("doggiowars:dead_stone",   c.stone)
+    c.embers     = id("doggiowars:embers",       c.magma)
+    c.ash        = id("doggiowars:ash",          c.gravel)
+    c.mud        = id("doggiowars:mud",          c.dirt)
+    c.crystal    = id("doggiowars:crystal",      c.ice)
+    c.basalt     = id("doggiowars:basalt",       c.obsidian)
+    c.mossy      = id("doggiowars:mossy_stone",  c.stone)
 end
 
 minetest.after(0, init_content_ids)
@@ -60,7 +60,7 @@ minetest.after(0, init_content_ids)
 -- shape: tvar pro island_profile (avatar/disc/cone/mesa/spire)
 -- surface(depth): materiál podle hloubky pod povrchem (0 = povrch)
 -- decor: klíč pro decorate.lua
-aerowars.biomes = {
+doggiowars.biomes = {
     [0] = { -- VERDANT — mírný les, řeky
         name = "verdant", shape = "avatar", decor = "verdant",
         surface = function(d)
@@ -164,4 +164,4 @@ aerowars.biomes = {
 }
 
 -- Počet biomů (mapgen bere modulo přes tuto hodnotu)
-aerowars.biome_count = 12
+doggiowars.biome_count = 12

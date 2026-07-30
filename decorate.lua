@@ -1,7 +1,7 @@
--- aerowars/decorate.lua
+-- doggiowars/decorate.lua
 -- Post-mapgen dekorace: lesy, houby, kaktusy, krystaly, řeky, oheň...
 
-aerowars = aerowars or {}
+doggiowars = doggiowars or {}
 
 ---------------------------------------------------------------------------
 -- Pomocníci
@@ -75,7 +75,7 @@ end
 -- Strom (obecný — kmen + koule listí)
 ---------------------------------------------------------------------------
 
-function aerowars.place_tree(x, surface_yv, z, trunk, leaf)
+function doggiowars.place_tree(x, surface_yv, z, trunk, leaf)
     trunk = has(trunk) and trunk or "default:tree"
     leaf  = has(leaf) and leaf or "default:leaves"
     local trunk_h = math.random(4, 7)
@@ -129,7 +129,7 @@ end
 
 -- Krystalový trs — svislé svítící krystaly
 local function place_crystal_cluster(x, y, z)
-    local name = has("aerowars:crystal") and "aerowars:crystal" or "default:ice"
+    local name = has("doggiowars:crystal") and "doggiowars:crystal" or "default:ice"
     place_column(x, y, z, name, math.random(2, 5))
     for _ = 1, math.random(1, 3) do
         local ox, oz = math.random(-1, 1), math.random(-1, 1)
@@ -141,7 +141,7 @@ end
 -- Obří houba (mycelium)
 ---------------------------------------------------------------------------
 
-function aerowars.place_giant_mushroom(island)
+function doggiowars.place_giant_mushroom(island)
     local angle = math.random() * math.pi * 2
     local r = math.random(0, math.floor(island.radius * 0.6))
     local mx = math.floor(island.x + math.cos(angle) * r)
@@ -160,7 +160,7 @@ function aerowars.place_giant_mushroom(island)
     for dx = -cap_r, cap_r do
         for dz = -cap_r, cap_r do
             if dx * dx + dz * dz <= cap_r * cap_r then
-                set_if_air({x = mx + dx, y = top, z = mz + dz}, "aerowars:spore_block")
+                set_if_air({x = mx + dx, y = top, z = mz + dz}, "doggiowars:spore_block")
             end
         end
     end
@@ -170,7 +170,7 @@ end
 -- Rampouchy (ledový biom) — visí z okrajů spodku ostrova
 ---------------------------------------------------------------------------
 
-function aerowars.place_icicles(island)
+function doggiowars.place_icicles(island)
     local count = math.random(6, 16)
     for _ = 1, count do
         local angle = math.random() * math.pi * 2
@@ -191,7 +191,7 @@ function aerowars.place_icicles(island)
 
         local icicle_len = math.random(3, 8)
         for dy = 1, icicle_len do
-            set_if_air({x = ix, y = bottom_y - dy, z = iz}, "aerowars:ice_crystal")
+            set_if_air({x = ix, y = bottom_y - dy, z = iz}, "doggiowars:ice_crystal")
         end
     end
 end
@@ -235,11 +235,11 @@ local function carve_pond(cx, y, cz, rad, liquid, mat)
 end
 
 local function lava_mat()
-    return has("aerowars:basalt") and "aerowars:basalt" or "default:stone"
+    return has("doggiowars:basalt") and "doggiowars:basalt" or "default:stone"
 end
 
 -- Lávové jezírko (kráter na vrcholu sopky)
-function aerowars.place_lava_pool(island)
+function doggiowars.place_lava_pool(island)
     local pool_r = math.random(2, math.max(3, math.floor(island.radius * 0.12)))
     local sy = surface_y(island.x, island.z, island)
     if not sy then return end
@@ -261,7 +261,7 @@ end
 
 local function finish_volcano(cx, cz, top_y, mr, crater_r, basalt)
     local lava  = "default:lava_source"
-    local magma = has("aerowars:magma_block") and "aerowars:magma_block" or basalt
+    local magma = has("doggiowars:magma_block") and "doggiowars:magma_block" or basalt
 
     -- Kráter na vrcholu: mísa (hladina lávy na top_y-1, dno top_y-3)
     for dx = -crater_r, crater_r do
@@ -316,13 +316,13 @@ local function finish_volcano(cx, cz, top_y, mr, crater_r, basalt)
     end
 end
 
-function aerowars.build_volcano(island)
+function doggiowars.build_volcano(island)
     local cx, cz = island.x, island.z
     local R = island.radius
     local mr = math.max(18, math.min(math.floor(R * 0.42), 34))  -- ŠIROKÁ základna
     local crater_r = math.max(4, math.floor(mr * 0.22))
     local mh = math.max(11, math.floor(mr * 0.5))               -- výška (skutečná homole)
-    local basalt = has("aerowars:basalt") and "aerowars:basalt" or "default:obsidian"
+    local basalt = has("doggiowars:basalt") and "doggiowars:basalt" or "default:obsidian"
 
     -- Robustní základní výška: medián povrchu na prstenci — ignoruje
     -- případnou úzkou šumovou špičku přesně ve středu ostrova.
@@ -381,7 +381,7 @@ end
 -- Zaplavení středu atolu vodou
 ---------------------------------------------------------------------------
 
-function aerowars.fill_atoll_center(island)
+function doggiowars.fill_atoll_center(island)
     local hole_r = math.max(3, math.floor(island.radius * 0.3))
     local sy = surface_y(island.x, island.z, island)
     if not sy then return end
@@ -407,7 +407,7 @@ local function waterfall_at(ix, iz, island, water)
     end
 end
 
-function aerowars.place_waterfall(island)
+function doggiowars.place_waterfall(island)
     local angle = math.random() * math.pi * 2
     local ex = math.floor(island.x + math.cos(angle) * (island.radius - 2))
     local ez = math.floor(island.z + math.sin(angle) * (island.radius - 2))
@@ -418,7 +418,7 @@ end
 -- Řeka — meandrující kanál od středu k okraji, zakončený vodopádem
 ---------------------------------------------------------------------------
 
-function aerowars.place_river(island)
+function doggiowars.place_river(island)
     local water = has("default:river_water_source")
         and "default:river_water_source" or "default:water_source"
     local flow = has("default:river_water_flowing")
@@ -529,7 +529,7 @@ local function place_feature(kind, x, y, z, name, island)
         elseif r <= 68 then plant_one(x, y, z, FLOWERS)
         elseif r <= 77 then
             local t = VERDANT_TREES[math.random(#VERDANT_TREES)]
-            aerowars.place_tree(x, y, z, t[1], t[2])
+            doggiowars.place_tree(x, y, z, t[1], t[2])
         elseif r <= 83 then place_bush(x, y, z, "default:bush_leaves")
         elseif r <= 87 then place_bush(x, y, z, "default:blueberry_bush_leaves_with_berries")
         elseif r <= 90 then plant_one(x, y, z, SWAMP_MUSH)
@@ -538,7 +538,7 @@ local function place_feature(kind, x, y, z, name, island)
     elseif kind == "jungle" then
         if r <= 38 then plant_one(x, y, z, JUNGLE_GROUND)
         elseif r <= 56 then
-            aerowars.place_tree(x, y, z, "default:jungletree", "default:jungleleaves")
+            doggiowars.place_tree(x, y, z, "default:jungletree", "default:jungleleaves")
         elseif r <= 68 then
             if name ~= "default:water_source" then
                 place_column(x, y, z, "default:papyrus", math.random(2, 4))
@@ -548,7 +548,7 @@ local function place_feature(kind, x, y, z, name, island)
         end
 
     elseif kind == "glacial" then
-        if r <= 30 then place_column(x, y, z, "aerowars:ice_crystal", math.random(1, 3))
+        if r <= 30 then place_column(x, y, z, "doggiowars:ice_crystal", math.random(1, 3))
         elseif r <= 46 then set_if_air({x = x, y = y + 1, z = z}, "default:snow")
         elseif r <= 58 then place_boulder(x, y, z, "default:ice", math.random(1, 2))
         elseif r <= 64 then place_boulder(x, y, z, "default:cave_ice", 1)
@@ -558,20 +558,20 @@ local function place_feature(kind, x, y, z, name, island)
         if r <= 34 then place_crystal_cluster(x, y, z)
         elseif r <= 46 then
             set_if_air({x = x, y = y + 1, z = z},
-                has("aerowars:crystal") and "aerowars:crystal" or "default:ice")
+                has("doggiowars:crystal") and "doggiowars:crystal" or "default:ice")
         elseif r <= 56 then place_boulder(x, y, z, "default:silver_sandstone", math.random(1, 2))
         end
 
     elseif kind == "volcanic" then
-        if r <= 22 then set_if_air({x = x, y = y + 1, z = z}, "aerowars:embers")
-        elseif r <= 34 then place_boulder(x, y, z, "aerowars:basalt", math.random(1, 2))
+        if r <= 22 then set_if_air({x = x, y = y + 1, z = z}, "doggiowars:embers")
+        elseif r <= 34 then place_boulder(x, y, z, "doggiowars:basalt", math.random(1, 2))
         elseif r <= 42 then set_if_air({x = x, y = y + 1, z = z}, "fire:basic_flame")
         elseif r <= 48 then carve_pond(x, y, z, math.random(1, 2), "default:lava_source", lava_mat())
         end
 
     elseif kind == "ashen" then
         if r <= 14 then place_dead_tree(x, y, z)
-        elseif r <= 40 then set_if_air({x = x, y = y + 1, z = z}, "aerowars:embers")
+        elseif r <= 40 then set_if_air({x = x, y = y + 1, z = z}, "doggiowars:embers")
         elseif r <= 52 then set_if_air({x = x, y = y + 1, z = z}, "fire:basic_flame")
         elseif r <= 58 then carve_pond(x, y, z, 1, "default:lava_source", lava_mat())
         elseif r <= 66 then set_if_air({x = x, y = y + 1, z = z}, "default:dry_shrub")
@@ -591,11 +591,11 @@ local function place_feature(kind, x, y, z, name, island)
             if r <= 55 then set_if_air({x = x, y = y + 1, z = z}, "flowers:waterlily") end
         elseif r <= 22 then
             carve_pond(x, y, z, math.random(1, 2), "default:water_source",
-                has("aerowars:mud") and "aerowars:mud" or "default:dirt")
+                has("doggiowars:mud") and "doggiowars:mud" or "default:dirt")
         elseif r <= 42 then place_column(x, y, z, "default:papyrus", math.random(2, 4))
         elseif r <= 56 then plant_one(x, y, z, SWAMP_MUSH)
         elseif r <= 66 then plant_one(x, y, z, FERNS)
-        elseif r <= 72 then place_boulder(x, y, z, "aerowars:mossy_stone", math.random(1, 2))
+        elseif r <= 72 then place_boulder(x, y, z, "doggiowars:mossy_stone", math.random(1, 2))
         end
 
     elseif kind == "desert" then
@@ -632,7 +632,7 @@ end
 -- Ostrovy, které už dostaly globální prvky (řeka, laguna, sopka...)
 local global_done = {}
 
-function aerowars.decorate_chunk(island, minp, maxp)
+function doggiowars.decorate_chunk(island, minp, maxp)
     local biome = island.biome
     if not biome then return end
     local kind = biome.decor or biome.name
@@ -654,11 +654,11 @@ function aerowars.decorate_chunk(island, minp, maxp)
     local function try_global()
         if island.x >= minp.x and island.x <= maxp.x
                 and island.z >= minp.z and island.z <= maxp.z then
-            local key = math.floor(island.x / aerowars.ISLAND_GRID) .. ":"
-                     .. math.floor(island.z / aerowars.ISLAND_GRID)
+            local key = math.floor(island.x / doggiowars.ISLAND_GRID) .. ":"
+                     .. math.floor(island.z / doggiowars.ISLAND_GRID)
             if not global_done[key] and surface_col(island.x, island.z, ytop, ybot) then
                 global_done[key] = true
-                aerowars.decorate_global(island)
+                doggiowars.decorate_global(island)
             end
         end
     end
@@ -693,37 +693,37 @@ end
 -- Globální prvky ukotvené ke středu ostrova (jednou za ostrov)
 ---------------------------------------------------------------------------
 
-function aerowars.decorate_global(island)
+function doggiowars.decorate_global(island)
     local biome = island.biome
     if not biome then return end
     local kind = biome.decor or biome.name
     local R = island.radius
 
     if kind == "verdant" then
-        if R > 90 and math.random() < 0.5 then aerowars.place_river(island) end
-        if math.random() < 0.3 then aerowars.place_waterfall(island) end
+        if R > 90 and math.random() < 0.5 then doggiowars.place_river(island) end
+        if math.random() < 0.3 then doggiowars.place_waterfall(island) end
     elseif kind == "jungle" then
-        if R > 90 and math.random() < 0.5 then aerowars.place_river(island) end
-        if math.random() < 0.25 then aerowars.place_waterfall(island) end
+        if R > 90 and math.random() < 0.5 then doggiowars.place_river(island) end
+        if math.random() < 0.25 then doggiowars.place_waterfall(island) end
     elseif kind == "volcanic" then
-        aerowars.build_volcano(island)
+        doggiowars.build_volcano(island)
     elseif kind == "atoll" then
-        aerowars.fill_atoll_center(island)
+        doggiowars.fill_atoll_center(island)
     elseif kind == "glacial" then
-        aerowars.place_icicles(island)
+        doggiowars.place_icicles(island)
     elseif kind == "mycelial" then
         for _ = 1, math.random(3, 8) do
-            aerowars.place_giant_mushroom(island)
+            doggiowars.place_giant_mushroom(island)
         end
     end
 end
 
 -- Kompletní dekorace celého ostrova naráz (pro testy / ruční použití)
-function aerowars.decorate_island(island)
+function doggiowars.decorate_island(island)
     local biome = island.biome
     if not biome then return end
     local kind = biome.decor or biome.name
-    aerowars.decorate_global(island)
+    doggiowars.decorate_global(island)
     local n = math.max(20, math.floor(island.radius * island.radius * 0.02))
     for _ = 1, n do
         local a = math.random() * math.pi * 2
@@ -742,18 +742,18 @@ end
 ---------------------------------------------------------------------------
 
 minetest.register_on_generated(function(minp, maxp, blockseed)
-    local lo = aerowars.CLOUD_FLOOR or -500
-    local hi = aerowars.CLOUD_CEIL or 1500
+    local lo = doggiowars.CLOUD_FLOOR or -500
+    local hi = doggiowars.CLOUD_CEIL or 1500
     if maxp.y < lo or minp.y > hi then return end
 
     local seed = tonumber(minetest.get_mapgen_setting("seed") or 42) or 42
-    local islands = aerowars.get_islands_for_chunk(minp, maxp, seed)
+    local islands = doggiowars.get_islands_for_chunk(minp, maxp, seed)
     if #islands == 0 then return end
 
     -- Chvilka po zapsání terénu, ať get_node vidí bloky tohoto chunku
     minetest.after(0.4, function()
         for _, island in ipairs(islands) do
-            aerowars.decorate_chunk(island, minp, maxp)
+            doggiowars.decorate_chunk(island, minp, maxp)
         end
     end)
 end)
