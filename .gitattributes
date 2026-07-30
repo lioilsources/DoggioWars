@@ -1,0 +1,5 @@
+# Development notes — not part of the mod, keep them out of packaged archives
+# (honoured by `git archive`, which is how release zips are built).
+Prompts/ export-ignore
+.gitattributes export-ignore
+.gitignore export-ignore
