@@ -1,8 +1,8 @@
 # Gamepad (Xbox 360 / PS4 DualShock) — nativní joystick
 
 DoggioWars používá **nativní podporu joysticku v Luanti** (přes SDL2) — žádný
-externí mapovač (AntiMicroX apod.) není potřeba. Funguje s Xbox 360 (drát)
-i PS4 DualShock (Bluetooth) na macOS.
+externí mapovač není potřeba. Funguje s Xbox 360 (drát) i PS4 DualShock
+(Bluetooth) na macOS.
 
 ## Zapnutí
 
@@ -79,6 +79,3 @@ akce dělá — takže to jde doladit bez externího nástroje).
 - **Kamera ujíždí sama** → zvyš `joystick_deadzone` (např. 3500).
 - **Otáčení moc rychlé/pomalé** → uprav `joystick_frustum_sensitivity`.
 - Přepínání ovladačů: `joystick_id` (0 = první).
-
-> Starý `profiles/doggiowars-xbox.amgp` (AntiMicroX) zůstává pro platformy, kde
-> nativní joystick nestačí — na macOS ale používej nativní cestu výše.
