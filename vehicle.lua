@@ -577,10 +577,12 @@ minetest.register_chatcommand("island", {
                 return false, "Unknown biome '" .. param .. "' (or none nearby). Biomes: "
                     .. table.concat(names, ", ")
             end
-            fly_player_to(player, doggiowars.island_spawn(isl))
+            fly_player_to(player, doggiowars.island_vantage(isl))
             return true, string.format(
-                "%s island, r=%d, %d blocks away - flying there. Give it a moment to generate.",
-                isl.biome.name, isl.radius, math.floor(dist or 0))
+                "%s island at (%d, %d, %d), r=%d, %d blocks away - hovering "
+                    .. "above it. Give it a moment to generate.",
+                isl.biome.name, isl.x, isl.y, isl.z, isl.radius,
+                math.floor(dist or 0))
         end
 
         local isl, dist = doggiowars.nearest_island(pos.x, pos.z)
@@ -592,6 +594,32 @@ minetest.register_chatcommand("island", {
                 isl.biome and isl.biome.name or "?", isl.radius, math.floor(dist or 0))
         end
         return true, "Moving to island."
+    end,
+})
+
+minetest.register_chatcommand("goto", {
+    description = "Fly above coordinates: /goto <x> <z> or /goto <x> <y> <z>",
+    params = "<x> [<y>] <z>",
+    privs = {interact = true},
+    func = function(name, param)
+        local player = minetest.get_player_by_name(name)
+        if not player then return false, "Player not found" end
+        local nums = {}
+        for n in (param or ""):gmatch("%-?%d+%.?%d*") do
+            nums[#nums + 1] = tonumber(n)
+        end
+        if #nums < 2 or #nums > 3 then
+            return false, "Usage: /goto <x> <z> or /goto <x> <y> <z>"
+        end
+        local x, z = nums[1], nums[#nums]
+        local y = (#nums == 3) and nums[2] or nil
+        if not y then
+            -- bez zadané výšky: vyhlídka nad nejbližším ostrovem u cíle
+            local isl = doggiowars.nearest_island(x, z)
+            y = isl and doggiowars.island_vantage(isl).y or 320
+        end
+        fly_player_to(player, {x = x, y = y, z = z})
+        return true, string.format("Flying to (%d, %d, %d).", x, y, z)
     end,
 })
 

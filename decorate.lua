@@ -746,7 +746,10 @@ minetest.register_on_generated(function(minp, maxp, blockseed)
     local hi = doggiowars.CLOUD_CEIL or 1500
     if maxp.y < lo or minp.y > hi then return end
 
-    local seed = tonumber(minetest.get_mapgen_setting("seed") or 42) or 42
+    -- POZOR: seed vždy přes get_world_seed() — skládá u64 seed bez ztráty
+    -- přesnosti. Lokální tonumber() by u velkých seedů našel JINÉ (fantomové)
+    -- ostrovy než mapgen a dekorace by minuly skutečný terén.
+    local seed = doggiowars.get_world_seed()
     local islands = doggiowars.get_islands_for_chunk(minp, maxp, seed)
     if #islands == 0 then return end
 

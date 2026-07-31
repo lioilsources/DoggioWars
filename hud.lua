@@ -147,10 +147,11 @@ function hud.init(player)
         size      = {x = 20, y = 20},
         direction = 0,
     })
+    -- vlevo nahoře — vpravo nahoře sedí minimapa (radar), překrývaly se
     hud.add(player, "score", {
         type      = "text",
-        position  = {x = 0.98, y = 0.06},
-        alignment = {x = -1, y = 0},
+        position  = {x = 0.02, y = 0.06},
+        alignment = {x = 1, y = 0},
         text      = "SKÓRE 0",
         number    = 0xFFD75E,
         size      = {x = 2},
