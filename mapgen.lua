@@ -295,8 +295,17 @@ local mapgen_seed = nil
 
 function doggiowars.get_world_seed()
     if not mapgen_seed then
-        mapgen_seed = minetest.get_mapgen_setting("seed") or 42
-        mapgen_seed = tonumber(mapgen_seed) or 42
+        -- Seed světa je u64 (až 20 cifer) — přes tonumber() by ztratil
+        -- přesnost a hash_2d by s hodnotou >= 2^53 degeneroval na konstantu
+        -- (h*LCG zaokrouhlené na násobky 2^38 dává % 2^31 == 0 vždy!).
+        -- Proto ho složíme z číslic modulárně do bezpečného rozsahu < 2^31.
+        local s = tostring(minetest.get_mapgen_setting("seed") or "42")
+        local n = 0
+        for d in s:gmatch("%d") do
+            n = (n * 10 + tonumber(d)) % 2147483648
+        end
+        if n == 0 then n = 42 end
+        mapgen_seed = n
     end
     return mapgen_seed
 end
@@ -490,6 +499,16 @@ end
 -- Spawn rámec (pozice nad okrajem ostrova) pro konkrétní ostrov
 function doggiowars.island_spawn(isl)
     return frame_spawn(isl)
+end
+
+-- Vyhlídka NAD středem ostrova (prohlídka shora). Výška podle tvaru:
+-- spire (krystalová věž) je nejvyšší, cone strmý, ostatní ploché;
+-- rezerva pokryje i sopečnou homoli (~17 bloků) na sopečném ostrově.
+function doggiowars.island_vantage(isl)
+    local fac = 0.75
+    if isl.shape == "spire" then fac = 2.6
+    elseif isl.shape == "cone" then fac = 1.7 end
+    return {x = isl.x, y = math.floor(isl.y + isl.radius * fac + 25), z = isl.z}
 end
 
 ---------------------------------------------------------------------------
