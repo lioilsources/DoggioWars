@@ -304,9 +304,13 @@ minetest.register_entity("doggiowars:fighter", {
                     C.SPEED_MAX * 1.5)
             else
                 if self.pitch > 0.3 then
+                    -- Stoupání ubírá rychlost, ale plyn proti tomu táhne:
+                    -- plný plyn vykryje 70 % ztráty (motor vs. gravitace),
+                    -- bez plynu se krvácí naplno. Páčka tak reaguje vždy.
+                    local bleed = 40 * (self.pitch - 0.3)
+                        * (1 - 0.7 * math.max(thr, 0))
                     self.speed = math.max(
-                        self.speed - 40 * dtime * (self.pitch - 0.3),
-                        C.SPEED_MIN)
+                        self.speed - bleed * dtime, C.SPEED_MIN)
                 end
                 -- overspeed z dive/boostu se po srovnání rychle vyčerpá
                 if self.speed > C.SPEED_MAX then
@@ -328,6 +332,23 @@ minetest.register_entity("doggiowars:fighter", {
             self.object:set_velocity(vel)
 
             doggiowars.tricks.check_triggers(self, events, pilot)
+        end
+
+        -- Eye-lean: kamera "sklouzne" do zatáčky podle bankování — engine
+        -- roll horizontu neumí (ověřeno v 5.15), tohle je pohybová náhrada.
+        -- Ve triku (barrel roll = plná otočka) se vrací k nule, ať nekmitá.
+        local lean = 0
+        if not self.trick then
+            lean = math.max(-1, math.min(1, (self.roll or 0) / 1.2))
+        end
+        local lx = lean * 1.6
+        local ly = -math.abs(lean) * 0.4
+        if math.abs(lx - (self.lean_x or 0)) > 0.03
+                or math.abs(ly - (self.lean_y or 0)) > 0.03 then
+            self.lean_x, self.lean_y = lx, ly
+            pilot:set_eye_offset(
+                {x = EYE_OFFSET.x + lx, y = EYE_OFFSET.y + ly, z = EYE_OFFSET.z},
+                EYE_OFFSET)
         end
 
         local hlen = math.sqrt(vel.x * vel.x + vel.z * vel.z)
