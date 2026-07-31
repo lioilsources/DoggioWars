@@ -270,7 +270,13 @@ end
 local function surf_limit(isl, y_rel, hill_shift, edge_boost)
     local prof_y = y_rel
     if y_rel >= 0 then prof_y = y_rel - hill_shift end
-    return island_profile(isl, prof_y) + edge_boost
+    local prof = island_profile(isl, prof_y)
+    -- Pobřežní šum smí jen zvlnit existující masiv. Bez tohohle se nad
+    -- vrcholem (profil = 0) přičetl kladný edge_boost a sloupce u středu
+    -- se plnily až po strop pásma — jehla z kamene trčící do nebe.
+    if prof <= 0 then return 0 end
+    local fade = math.min(1, prof / (isl.radius * 0.3))
+    return prof + edge_boost * fade
 end
 
 -- Hloubka pod povrchem (0 = povrch) — konzistentní s výplní sloupce
