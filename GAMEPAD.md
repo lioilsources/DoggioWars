@@ -6,17 +6,29 @@ externí mapovač není potřeba. Funguje s Xbox 360 (drát) i PS4 DualShock
 
 ## Zapnutí
 
-Už je nastaveno v `~/Library/Application Support/minetest/minetest.conf`:
+**V singleplayeru to mod zapne sám** při prvním spuštění (`enable_joysticks`
+je klientské nastavení, na všech platformách vypnuté z výroby) — pak stačí
+**jednou restartovat Luanti**. Ve hře se objeví hláška, že se to stalo.
+
+Ruční nastavení (jiné počítače, servery) — do `minetest.conf` přidej:
 
 ```
 enable_joysticks = true
-joystick_type = auto      # auto-detekce; případně "xbox" nebo "ps5"
-joystick_deadzone = 2600
+joystick_type = auto      # auto-detekce; DualShock (PS4/PS5) chce "ps5"
+joystick_deadzone = 4000
 joystick_frustum_sensitivity = 150.0   # rychlost otáčení pravou páčkou
 ```
 
-⚠️ `enable_joysticks` se projeví **až po restartu Luanti**. Ovladač připoj
-**před** spuštěním (Xbox drátem, DualShock spáruj přes Bluetooth).
+Kde `minetest.conf` bydlí:
+
+- macOS: `~/Library/Application Support/minetest/minetest.conf`
+- Windows: `%APPDATA%\Minetest\minetest.conf`
+- Linux: `~/.minetest/minetest.conf`
+
+⚠️ Config uprav, **když Luanti neběží** (při ukončení si ho přepisuje),
+a projeví se **až po restartu**. Ovladač připoj **před** spuštěním
+(Xbox drátem funguje s `auto`; DualShock spáruj přes Bluetooth a nastav
+`joystick_type = ps5` — auto ho nepozná a osy se pomíchají).
 
 ## Ovládání (ověřeno na PS4 DualShock, `joystick_type = ps5`)
 
