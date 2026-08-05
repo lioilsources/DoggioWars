@@ -73,7 +73,8 @@ world; a singlenode-style sky world is created automatically.
 
 ## License
 
-- Code: **MIT**
-- Media (textures): **CC BY-SA 4.0**
+- Code and documentation: **MIT**
+- Media (`textures/`, `models/`, screenshot): **CC BY-SA 4.0**
 
-See [LICENSE](LICENSE) for details.
+All media is original work — no third-party asset packs are bundled. See
+[LICENSE](LICENSE) for details.

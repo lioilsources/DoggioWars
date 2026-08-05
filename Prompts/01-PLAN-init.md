@@ -3,6 +3,14 @@
 
 ---
 
+> **Poznámka (historický dokument).** Tohle je plán napsaný *před* implementací,
+> ne popis výsledku. Návrh stáhnout model stíhačky a textury z Kenney.nl (CC0)
+> se **nerealizoval** — všechny assety v `models/` a `textures/` jsou vlastní
+> tvorba (ručně psaný `.obj`, generované 16×16 PNG). Mod neobsahuje žádný
+> materiál třetích stran; viz [LICENSE](../LICENSE).
+
+---
+
 ## Přehled fáze
 
 **Cíl:** Hráč sedí v letadle a prolétá nekonečným světem vzdušných ostrovů.

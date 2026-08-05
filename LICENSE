@@ -35,7 +35,7 @@ SOFTWARE.
 Media — CC BY-SA 4.0
 --------------------
 
-Applies to: everything under textures/ and models/.
+Applies to: everything under textures/ and models/, plus screenshot.png.
 
 Copyright (c) 2026 lioilsources
 
@@ -46,3 +46,32 @@ distribute your contributions under the same license.
 
 Full text: https://creativecommons.org/licenses/by-sa/4.0/legalcode
 Summary:   https://creativecommons.org/licenses/by-sa/4.0/
+
+
+Third-party material
+--------------------
+
+None. Every file in this repository is original work by the copyright holder
+above, and no asset packs, texture packs, model libraries or other external
+media were used. Specifically:
+
+  models/doggiowars_fighter_01.obj
+      Hand-written OBJ — a 17-vertex placeholder fuselage authored directly
+      as text for this mod.
+
+  textures/*.png
+      Generated 16x16 PNGs: flat colour fills and procedural per-pixel noise,
+      produced for this mod.
+
+  screenshot.png
+      In-game capture of this mod.
+
+The mod depends on Minetest Game (`default`, and optionally `flowers` and
+`fire`) at runtime and references some of its nodes and textures by name, but
+ships no copy of them; Minetest Game is licensed separately by its own
+authors and is not redistributed here.
+
+Historical note: the development plan kept in Prompts/ proposed sourcing a
+fighter model and terrain textures from Kenney.nl (CC0). That was a sketch
+written before implementation and was not followed — no Kenney material, and
+no other third-party material, was ever added to this repository.
