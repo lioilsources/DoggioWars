@@ -1,15 +1,17 @@
 -- doggiowars/nodes.lua
 -- Custom bloky pro biomy
 
+local S = minetest.get_translator("dw_core")
+
 minetest.register_node(":doggiowars:spore_block", {
-    description = "Spore Block",
+    description = S("Spore Block"),
     tiles = {"doggiowars_spore.png"},
     groups = {crumbly = 2, soil = 1},
     sounds = dw_nodes.node_sound_dirt_defaults(),
 })
 
 minetest.register_node(":doggiowars:magma_block", {
-    description = "Magma Block",
+    description = S("Magma Block"),
     tiles = {"doggiowars_magma.png"},
     light_source = 8,
     damage_per_second = 2,
@@ -18,7 +20,7 @@ minetest.register_node(":doggiowars:magma_block", {
 })
 
 minetest.register_node(":doggiowars:ice_crystal", {
-    description = "Ice Crystal",
+    description = S("Ice Crystal"),
     tiles = {"doggiowars_ice_crystal.png"},
     use_texture_alpha = "blend",
     drawtype = "glasslike",
@@ -29,7 +31,7 @@ minetest.register_node(":doggiowars:ice_crystal", {
 })
 
 minetest.register_node(":doggiowars:dead_stone", {
-    description = "Dead Stone",
+    description = S("Dead Stone"),
     tiles = {"doggiowars_dead_stone.png"},
     groups = {cracky = 2},
     sounds = dw_nodes.node_sound_stone_defaults(),
@@ -37,7 +39,7 @@ minetest.register_node(":doggiowars:dead_stone", {
 
 -- Žhavé uhlíky — svítí, lehce pálí (spálené / ohnivé ostrovy)
 minetest.register_node(":doggiowars:embers", {
-    description = "Embers",
+    description = S("Embers"),
     tiles = {"doggiowars_embers.png"},
     light_source = 10,
     damage_per_second = 1,
@@ -47,7 +49,7 @@ minetest.register_node(":doggiowars:embers", {
 
 -- Popel — sypká vrstva po požáru
 minetest.register_node(":doggiowars:ash", {
-    description = "Ash",
+    description = S("Ash"),
     tiles = {"doggiowars_ash.png"},
     groups = {crumbly = 3, falling_node = 1},
     sounds = dw_nodes.node_sound_sand_defaults(),
@@ -55,7 +57,7 @@ minetest.register_node(":doggiowars:ash", {
 
 -- Bahno — bažinné ostrovy
 minetest.register_node(":doggiowars:mud", {
-    description = "Mud",
+    description = S("Mud"),
     tiles = {"doggiowars_mud.png"},
     groups = {crumbly = 3, soil = 1},
     sounds = dw_nodes.node_sound_dirt_defaults(),
@@ -63,7 +65,7 @@ minetest.register_node(":doggiowars:mud", {
 
 -- Svítící krystal — krystalové ostrovy
 minetest.register_node(":doggiowars:crystal", {
-    description = "Glowing Crystal",
+    description = S("Glowing Crystal"),
     tiles = {"doggiowars_crystal.png"},
     light_source = 12,
     use_texture_alpha = "opaque",
@@ -74,7 +76,7 @@ minetest.register_node(":doggiowars:crystal", {
 
 -- Čedič — sopečné / spálené jádro
 minetest.register_node(":doggiowars:basalt", {
-    description = "Basalt",
+    description = S("Basalt"),
     tiles = {"doggiowars_basalt.png"},
     groups = {cracky = 2},
     sounds = dw_nodes.node_sound_stone_defaults(),
@@ -82,7 +84,7 @@ minetest.register_node(":doggiowars:basalt", {
 
 -- Mechový kámen — bažiny, vlhké oblasti
 minetest.register_node(":doggiowars:mossy_stone", {
-    description = "Mossy Stone",
+    description = S("Mossy Stone"),
     tiles = {"doggiowars_mossy_stone.png"},
     groups = {cracky = 2},
     sounds = dw_nodes.node_sound_stone_defaults(),

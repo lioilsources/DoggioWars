@@ -6,6 +6,7 @@
 doggiowars.tricks = {}
 local tricks = doggiowars.tricks
 local C = doggiowars.const
+local S = minetest.get_translator("dw_core")
 
 local DOUBLE_TAP   = 0.35  -- max rozestup double-tapu (s)
 local COMBO_WINDOW = 4.0   -- okno pro řetězení triků (s)
@@ -177,15 +178,15 @@ function tricks.step_active(self, dtime)
         self.trick = nil
         if trick.name == "barrel_roll" then
             self.roll = 0
-            tricks.award(self, "BARREL ROLL!", 100, 15)
+            tricks.award(self, S("BARREL ROLL!"), 100, 15)
         elseif trick.name == "loop" then
             self.pitch = 0
-            tricks.award(self, "LOOPING!", 200, 20)
+            tricks.award(self, S("LOOPING!"), 200, 20)
         elseif trick.name == "immelmann" then
             self.pitch = 0
             self.roll = 0
             self.speed = math.max(C.SPEED_MIN + 5, trick.speed * 0.6)
-            tricks.award(self, "IMMELMANN!", 150, 10)
+            tricks.award(self, S("IMMELMANN!"), 150, 10)
         end
     end
     return rot, vel
@@ -224,7 +225,7 @@ function tricks.check_triggers(self, events, pilot)
         self.boost_time = 2.0
         if pilot then
             pilot:set_fov(1.25, true, 0.15)
-            doggiowars.hud.flash(pilot, "BOOST!", 0x66CCFF)
+            doggiowars.hud.flash(pilot, S("BOOST!"), 0x66CCFF)
         end
         return
     end

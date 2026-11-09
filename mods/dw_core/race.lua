@@ -607,8 +607,8 @@ minetest.register_globalstep(function(dtime)
                             < CHECKPOINT_RADIUS then
                         st.cp_hit = st.cp_hit + 1
                         doggiowars.tricks.add_raw_score(fighter, 50)
-                        hud.flash(player, string.format("CHECKPOINT %d/%d",
-                            st.cp_hit, #st.cp_indices), 0x66FF88)
+                        hud.flash(player, S("CHECKPOINT @1/@2",
+                            tostring(st.cp_hit), tostring(#st.cp_indices)), 0x66FF88)
                         local nxt = st.cp_indices[st.cp_hit + 1]
                         hud.set(player, "race_wp", {
                             world_pos = st.route.points[nxt or #st.route.points],
