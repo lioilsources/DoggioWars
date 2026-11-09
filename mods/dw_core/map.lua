@@ -42,6 +42,9 @@ local function seed()
     return world_seed
 end
 
+-- S(player) below is per-player state; T is the translator
+local T = minetest.get_translator("dw_core")
+
 local function S(player)
     local name = player:get_player_name()
     local st = state[name]
@@ -226,11 +229,11 @@ minetest.register_globalstep(function(dtime)
 end)
 
 minetest.register_chatcommand("map", {
-    description = "Toggle the fullscreen world map",
+    description = T("Toggle the fullscreen world map"),
     privs = {interact = true},
     func = function(name)
         local p = minetest.get_player_by_name(name)
-        if not p then return false, "Player not found" end
+        if not p then return false, T("Player not found") end
         toggle_map(p)
         return true
     end,

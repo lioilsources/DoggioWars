@@ -538,7 +538,7 @@ minetest.register_entity(":doggiowars:fighter", {
             end
             respawn_pending[pilot_name] = true
             minetest.chat_send_player(pilot_name,
-                "Fighter destroyed! Respawning...")
+                S("Fighter destroyed! Respawning..."))
             minetest.after(3, function()
                 respawn_pending[pilot_name] = nil
                 local p = minetest.get_player_by_name(pilot_name)
@@ -627,12 +627,12 @@ end)
 ---------------------------------------------------------------------------
 
 minetest.register_chatcommand("respawn_fighter", {
-    description = "Debug: respawn your fighter at your position",
+    description = S("Debug: respawn your fighter at your position"),
     privs = {interact = true},
     func = function(name)
         local player = minetest.get_player_by_name(name)
         if not player then
-            return false, "Player not found"
+            return false, S("Player not found")
         end
         local fighter = doggiowars.get_player_fighter(player)
         if fighter then
@@ -641,7 +641,7 @@ minetest.register_chatcommand("respawn_fighter", {
         end
         local pos = player:get_pos()
         doggiowars.mount_player(player, {x = pos.x, y = pos.y + 2, z = pos.z})
-        return true, "Fighter respawned!"
+        return true, S("Fighter respawned!")
     end,
 })
 
@@ -692,12 +692,12 @@ local BIOME_ALIAS = {
 }
 
 minetest.register_chatcommand("island", {
-    description = "Fly to the nearest island; /island <biome> = nearest of that biome",
+    description = S("Fly to the nearest island; /island <biome> = nearest of that biome"),
     params = "[biome]",
     privs = {interact = true},
     func = function(name, param)
         local player = minetest.get_player_by_name(name)
-        if not player then return false, "Player not found" end
+        if not player then return false, S("Player not found") end
         local pos = player:get_pos()
         param = (param or ""):gsub("%s+", ""):lower()
 
@@ -709,43 +709,45 @@ minetest.register_chatcommand("island", {
                 for i = 0, (doggiowars.biome_count or 1) - 1 do
                     names[#names + 1] = doggiowars.biomes[i].name
                 end
-                return false, "Unknown biome '" .. param .. "' (or none nearby). Biomes: "
-                    .. table.concat(names, ", ")
+                return false, S("Unknown biome '@1' (or none nearby). Biomes: @2",
+                    param, table.concat(names, ", "))
             end
             fly_player_to(player,
                 doggiowars.island_approach(isl, pos.x, pos.z))
-            return true, string.format(
-                "%s island at (%d, %d, %d), r=%d, %d blocks away - it is "
+            return true, S("@1 island at (@2, @3, @4), r=@5, @6 blocks away - it is "
                     .. "right in front of you. Give it a moment to generate.",
-                isl.biome.name, isl.x, isl.y, isl.z, isl.radius,
-                math.floor(dist or 0))
+                isl.biome.name, string.format("%d", isl.x),
+                string.format("%d", isl.y), string.format("%d", isl.z),
+                string.format("%d", isl.radius),
+                string.format("%d", math.floor(dist or 0)))
         end
 
         local isl, dist = doggiowars.nearest_island(pos.x, pos.z)
         local sp, yaw = doggiowars.spawn_pos_near(pos.x, pos.z)
         fly_player_to(player, sp, yaw)
         if isl then
-            return true, string.format(
-                "%s island, r=%d, was %d blocks away - it is in front of you. Give it a moment to generate.",
-                isl.biome and isl.biome.name or "?", isl.radius, math.floor(dist or 0))
+            return true, S("@1 island, r=@2, was @3 blocks away - it is in front of you. Give it a moment to generate.",
+                isl.biome and isl.biome.name or "?",
+                string.format("%d", isl.radius),
+                string.format("%d", math.floor(dist or 0)))
         end
-        return true, "Moving to island."
+        return true, S("Moving to island.")
     end,
 })
 
 minetest.register_chatcommand("goto", {
-    description = "Fly above coordinates: /goto <x> <z> or /goto <x> <y> <z>",
+    description = S("Fly above coordinates: /goto <x> <z> or /goto <x> <y> <z>"),
     params = "<x> [<y>] <z>",
     privs = {interact = true},
     func = function(name, param)
         local player = minetest.get_player_by_name(name)
-        if not player then return false, "Player not found" end
+        if not player then return false, S("Player not found") end
         local nums = {}
         for n in (param or ""):gmatch("%-?%d+%.?%d*") do
             nums[#nums + 1] = tonumber(n)
         end
         if #nums < 2 or #nums > 3 then
-            return false, "Usage: /goto <x> <z> or /goto <x> <y> <z>"
+            return false, S("Usage: /goto <x> <z> or /goto <x> <y> <z>")
         end
         local x, z = nums[1], nums[#nums]
         local y = (#nums == 3) and nums[2] or nil
@@ -755,7 +757,8 @@ minetest.register_chatcommand("goto", {
             y = isl and doggiowars.island_vantage(isl).y or 320
         end
         fly_player_to(player, {x = x, y = y, z = z})
-        return true, string.format("Flying to (%d, %d, %d).", x, y, z)
+        return true, S("Flying to (@1, @2, @3).", string.format("%d", x),
+            string.format("%d", y), string.format("%d", z))
     end,
 })
 
@@ -763,15 +766,15 @@ minetest.register_chatcommand("goto", {
 -- (sethome) a přepsal by nás, kdybychom se registrovali dřív než on
 minetest.register_on_mods_loaded(function()
     minetest.register_chatcommand("home", {
-        description = "Fly to the home island at the world origin",
+        description = S("Fly to the home island at the world origin"),
         privs = {interact = true},
         func = function(name)
             local player = minetest.get_player_by_name(name)
-            if not player then return false, "Player not found" end
+            if not player then return false, S("Player not found") end
             local sp, yaw = doggiowars.spawn_pos()
             fly_player_to(player, sp, yaw)
-            return true, "Flying to the home island (0,0) - it will be "
-                .. "in front of you."
+            return true, S("Flying to the home island (0,0) - it will be "
+                .. "in front of you.")
         end,
     })
 end)

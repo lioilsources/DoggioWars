@@ -4,6 +4,8 @@
 
 doggiowars = {}
 
+local S = minetest.get_translator("dw_core")
+
 -- Sdílené letové konstanty (čtou je vehicle.lua, tricks.lua, rabbit.lua, race.lua)
 doggiowars.const = {
     SPEED_MAX    = 40,      -- m/s
@@ -61,8 +63,8 @@ minetest.register_on_joinplayer(function(player)
     local s = minetest.settings
     if s.has and s:has("joystick_type") then return end
     minetest.chat_send_player(player:get_player_name(),
-        "Gamepad: PS4/PS5 DualShock needs Settings -> Controls -> Gamepads "
-        .. "-> Joystick type = ps5. Xbox works on 'auto'. See GAMEPAD.md.")
+        S("Gamepad: PS4/PS5 DualShock needs Settings -> Controls -> Gamepads "
+        .. "-> Joystick type = ps5. Xbox works on 'auto'. See GAMEPAD.md."))
 end)
 
 minetest.log("action", "[doggiowars] Mod loaded successfully")

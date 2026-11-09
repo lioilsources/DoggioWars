@@ -1,6 +1,8 @@
 -- doggiowars/sky.lua
 -- Sky, clouds, and fog setup for the aerial world
 
+local S = minetest.get_translator("dw_core")
+
 local SKY_COLOR     = "#2e3155"
 -- Mraky jen jako řídká, vysoká clona NAD hracím pásmem (ostrovy jsou
 -- ve výšce ~ -400..1400). Hustá deka uprostřed vypadala jako hladina moře.
@@ -88,7 +90,7 @@ minetest.register_on_joinplayer(function(player)
             or {x = 0, y = SPAWN_HEIGHT, z = 0}
         player:set_pos(sp)
         minetest.chat_send_player(name,
-            "Welcome to DoggioWars! You ARE the fighter — fly!")
+            S("Welcome to DoggioWars! You ARE the fighter — fly!"))
     end
 
     -- Každý join: hráč rovnou letí (malé zpoždění, ať klient doinicializuje;
@@ -108,13 +110,13 @@ end)
 -- Radar (minimapu) zapíná/vypíná příkaz — tlačítko minimapy na gamepadu
 -- kvůli auto-repeatu klienta blikalo, tak je záměrně bez funkce
 minetest.register_chatcommand("radar", {
-    description = "Toggle the island radar (minimap)",
+    description = S("Toggle the island radar (minimap)"),
     privs = {interact = true},
     func = function(name)
         local p = minetest.get_player_by_name(name)
-        if not p then return false, "Player not found" end
+        if not p then return false, S("Player not found") end
         local on = p:hud_get_flags().minimap
         p:hud_set_flags({minimap = not on})
-        return true, on and "Radar OFF." or "Radar ON."
+        return true, on and S("Radar OFF.") or S("Radar ON.")
     end,
 })

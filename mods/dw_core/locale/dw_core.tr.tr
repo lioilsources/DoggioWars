@@ -1,0 +1,64 @@
+# textdomain: dw_core
+# Turkish translation of DoggioWars. English is the source language.
+
+SCORE @1=SKOR @1
+Gamepad: PS4/PS5 DualShock needs Settings -> Controls -> Gamepads -> Joystick type @= ps5. Xbox works on 'auto'. See GAMEPAD.md.=Kumanda: PS4/PS5 DualShock için Ayarlar -> Kontroller -> Oyun kumandaları -> Joystick türü @= ps5 gerekir. Xbox 'auto' ile çalışır. Bkz. GAMEPAD.md.
+Toggle the fullscreen world map=Tam ekran dünya haritasını aç/kapat
+Player not found=Oyuncu bulunamadı
+Spore Block=Spor bloğu
+Magma Block=Magma bloğu
+Ice Crystal=Buz kristali
+Dead Stone=Ölü taş
+Embers=Köz
+Ash=Kül
+Mud=Çamur
+Glowing Crystal=Parlayan kristal
+Basalt=Bazalt
+Mossy Stone=Yosunlu taş
+HARE WAITING — catch up!=TAVŞAN BEKLİYOR — yetiş!
+HARE AT THE FINISH — fly to it!=TAVŞAN BİTİŞTE — ona uç!
+SLALOM! Stay on the hare=SLALOM! Tavşanın peşinden ayrılma
+HARE: BARREL ROLL! (double-tap A/D)=TAVŞAN: BARREL ROLL! (A/D çift dokunuş)
+HARD TURN! S+A/D @= airbrake drift=KESKİN DÖNÜŞ! S+A/D @= hava frenli drift dönüşü
+TUNNEL! Slow down (S) and fly clean=TÜNEL! Yavaşla (S) ve temiz uç
+CLIMB + DIVE! Shift down for extra speed=TIRMANIŞ + DALIŞ! Ekstra hız için Shift aşağı
+FINISH — @1  |  SCORE @2=BİTİŞ — @1  |  SKOR @2
+Race finished in @1! Checkpoints @2/@3, score @4.=Yarış @1 sürede bitti! Kontrol noktaları @2/@3, skor @4.
+Race failed — fighter destroyed.=Yarış başarısız — savaş uçağı yok edildi.
+Greyhound race — chase the golden hare! /race stop cancels it=Tazı yarışı — altın tavşanı kovala! /race stop iptal eder
+Race cancelled.=Yarış iptal edildi.
+No race is running.=Devam eden yarış yok.
+A race is already running — end it with /race stop.=Zaten bir yarış devam ediyor — /race stop ile bitir.
+You are not in a fighter.=Bir savaş uçağında değilsin.
+Could not spawn the hare.=Tavşan oluşturulamadı.
+RACE! Follow the golden hare!=YARIŞ! Altın tavşanı takip et!
+Race started — follow the hare!=Yarış başladı — tavşanı takip et!
+HARE @1 m  ·  CP @2/@3=TAVŞAN @1 m  ·  CP @2/@3
+Welcome to DoggioWars! You ARE the fighter — fly!=DoggioWars'a hoş geldin! Savaş uçağı SENSİN — uç!
+Toggle the island radar (minimap)=Ada radarını (mini harita) aç/kapat
+Radar OFF.=Radar KAPALI.
+Radar ON.=Radar AÇIK.
+BARREL ROLL!=BARREL ROLL!
+LOOPING!=LOOPING!
+IMMELMANN!=IMMELMANN!
+BOOST!=BOOST!
+Fighter destroyed! Respawning...=Savaş uçağı yok edildi! Yeniden doğuluyor...
+Debug: respawn your fighter at your position=Debug: savaş uçağını bulunduğun yerde yeniden oluştur
+Fighter respawned!=Savaş uçağı yeniden oluşturuldu!
+Fly to the nearest island; /island <biome> @= nearest of that biome=En yakın adaya uç; /island <biyom> @= o biyomun en yakın adası
+Unknown biome '@1' (or none nearby). Biomes: @2=Bilinmeyen biyom '@1' (ya da yakında yok). Biyomlar: @2
+@1 island at (@2, @3, @4), r@=@5, @6 blocks away - it is right in front of you. Give it a moment to generate.=@1 adası (@2, @3, @4) konumunda, r@=@5, @6 blok uzakta — tam önünde. Oluşması için biraz bekle.
+@1 island, r@=@2, was @3 blocks away - it is in front of you. Give it a moment to generate.=@1 adası, r@=@2, @3 blok uzaktaydı — önünde. Oluşması için biraz bekle.
+Moving to island.=Adaya gidiliyor.
+Fly above coordinates: /goto <x> <z> or /goto <x> <y> <z>=Koordinatların üzerine uç: /goto <x> <z> veya /goto <x> <y> <z>
+Usage: /goto <x> <z> or /goto <x> <y> <z>=Kullanım: /goto <x> <z> veya /goto <x> <y> <z>
+Flying to (@1, @2, @3).=(@1, @2, @3) konumuna uçuluyor.
+Fly to the home island at the world origin=Dünyanın merkezindeki ev adasına uç
+Flying to the home island (0,0) - it will be in front of you.=Ev adasına (0,0) uçuluyor — önünde olacak.
+Gamepad diagnostics: live view of sticks and pressed buttons=Kumanda tanılama: çubukların ve basılı tuşların canlı görünümü
+Gamepad diagnostics ON — press buttons and move the sticks, and watch what lights up mid-screen.=Kumanda tanılama AÇIK — tuşlara bas, çubukları oynat ve ekranın ortasında neyin yandığına bak.
+Gamepad diagnostics OFF.=Kumanda tanılama KAPALI.
+Switch controls: fighter <-> submarine=Kontrolleri değiştir: savaş uçağı <-> denizaltı
+SUBMARINE: left stick @= thrust/strafe, look @= heading, X @= up, O @= down. Tricks and boost are off.=DENİZALTI: sol çubuk @= itki/yanal kayma, bakış @= yön, X @= yukarı, O @= aşağı. Manevralar ve boost kapalı.
+FIGHTER: classic flight controls.=SAVAŞ UÇAĞI: klasik uçuş kontrolleri.
+CHECKPOINT @1/@2=KONTROL NOKTASI @1/@2

@@ -1,0 +1,64 @@
+# textdomain: dw_core
+# Odia translation of DoggioWars. English is the source language.
+
+SCORE @1=ସ୍କୋର @1
+Gamepad: PS4/PS5 DualShock needs Settings -> Controls -> Gamepads -> Joystick type @= ps5. Xbox works on 'auto'. See GAMEPAD.md.=ଗେମପ୍ୟାଡ: PS4/PS5 DualShock ପାଇଁ ସେଟିଂସ -> ନିୟନ୍ତ୍ରଣ -> ଗେମପ୍ୟାଡ -> ଜୟଷ୍ଟିକ ପ୍ରକାର @= ps5 ଦରକାର। Xbox 'auto' ରେ ଚାଲେ। GAMEPAD.md ଦେଖନ୍ତୁ।
+Toggle the fullscreen world map=ପୂର୍ଣ୍ଣ-ସ୍କ୍ରିନ ବିଶ୍ୱ ମାନଚିତ୍ର ଚାଲୁ/ବନ୍ଦ କରନ୍ତୁ
+Player not found=ଖେଳାଳି ମିଳିଲେ ନାହିଁ
+Spore Block=ସ୍ପୋର ବ୍ଲକ
+Magma Block=ମ୍ୟାଗମା ବ୍ଲକ
+Ice Crystal=ବରଫ ସ୍ଫଟିକ
+Dead Stone=ମୃତ ପଥର
+Embers=ଅଙ୍ଗାର
+Ash=ପାଉଁଶ
+Mud=କାଦୁଅ
+Glowing Crystal=ଝଲସୁଥିବା ସ୍ଫଟିକ
+Basalt=ବେସାଲ୍ଟ
+Mossy Stone=ଶିଉଳିଆ ପଥର
+HARE WAITING — catch up!=ଠେକୁଆ ଅପେକ୍ଷା କରୁଛି — ଧରି ପକାନ୍ତୁ!
+HARE AT THE FINISH — fly to it!=ଠେକୁଆ ଫିନିଶରେ ଅଛି — ତା ପାଖକୁ ଉଡ଼ନ୍ତୁ!
+SLALOM! Stay on the hare=ସ୍ଲାଲମ! ଠେକୁଆ ପଛରେ ରୁହନ୍ତୁ
+HARE: BARREL ROLL! (double-tap A/D)=ଠେକୁଆ: ବ୍ୟାରେଲ ରୋଲ! (A/D ଦୁଇଥର ଦବାନ୍ତୁ)
+HARD TURN! S+A/D @= airbrake drift=ତୀକ୍ଷ୍ଣ ମୋଡ଼! S+A/D @= ଏୟାରବ୍ରେକ ଡ୍ରିଫ୍ଟ
+TUNNEL! Slow down (S) and fly clean=ସୁଡ଼ଙ୍ଗ! ଧୀର କରନ୍ତୁ (S) ଓ ସଫା ଉଡ଼ନ୍ତୁ
+CLIMB + DIVE! Shift down for extra speed=ଚଢ଼ାଇ + ଡାଇଭ! ଅଧିକ ବେଗ ପାଇଁ Shift ତଳକୁ
+FINISH — @1  |  SCORE @2=ଫିନିଶ — @1  |  ସ୍କୋର @2
+Race finished in @1! Checkpoints @2/@3, score @4.=ଦୌଡ଼ @1 ରେ ଶେଷ! ଚେକପଏଣ୍ଟ @2/@3, ସ୍କୋର @4।
+Race failed — fighter destroyed.=ଦୌଡ଼ ବିଫଳ — ଯୁଦ୍ଧବିମାନ ଧ୍ୱଂସ।
+Greyhound race — chase the golden hare! /race stop cancels it=ଗ୍ରେହାଉଣ୍ଡ ଦୌଡ଼ — ସୁନେଲି ଠେକୁଆକୁ ଗୋଡ଼ାନ୍ତୁ! /race stop ରେ ବାତିଲ
+Race cancelled.=ଦୌଡ଼ ବାତିଲ ହେଲା।
+No race is running.=କୌଣସି ଦୌଡ଼ ଚାଲିନାହିଁ।
+A race is already running — end it with /race stop.=ଗୋଟିଏ ଦୌଡ଼ ପୂର୍ବରୁ ଚାଲିଛି — /race stop ରେ ଶେଷ କରନ୍ତୁ।
+You are not in a fighter.=ଆପଣ ଯୁଦ୍ଧବିମାନରେ ନାହାନ୍ତି।
+Could not spawn the hare.=ଠେକୁଆ ତିଆରି କରିହେଲା ନାହିଁ।
+RACE! Follow the golden hare!=ଦୌଡ଼! ସୁନେଲି ଠେକୁଆକୁ ଅନୁସରଣ କରନ୍ତୁ!
+Race started — follow the hare!=ଦୌଡ଼ ଆରମ୍ଭ — ଠେକୁଆକୁ ଅନୁସରଣ କରନ୍ତୁ!
+HARE @1 m  ·  CP @2/@3=ଠେକୁଆ @1 ମି  ·  CP @2/@3
+Welcome to DoggioWars! You ARE the fighter — fly!=DoggioWars କୁ ସ୍ୱାଗତ! ଆପଣ ହିଁ ଯୁଦ୍ଧବିମାନ — ଉଡ଼ନ୍ତୁ!
+Toggle the island radar (minimap)=ଦ୍ୱୀପ ରାଡାର (ମିନିମ୍ୟାପ) ଚାଲୁ/ବନ୍ଦ କରନ୍ତୁ
+Radar OFF.=ରାଡାର ବନ୍ଦ।
+Radar ON.=ରାଡାର ଚାଲୁ।
+BARREL ROLL!=ବ୍ୟାରେଲ ରୋଲ!
+LOOPING!=ଲୁପ!
+IMMELMANN!=ଇମେଲମ୍ୟାନ!
+BOOST!=ବୁଷ୍ଟ!
+Fighter destroyed! Respawning...=ଯୁଦ୍ଧବିମାନ ଧ୍ୱଂସ! ପୁଣି ଦେଖାଦେଉଛି...
+Debug: respawn your fighter at your position=ଡିବଗ: ଆପଣଙ୍କ ସ୍ଥାନରେ ଯୁଦ୍ଧବିମାନ ପୁଣି ତିଆରି କରନ୍ତୁ
+Fighter respawned!=ଯୁଦ୍ଧବିମାନ ପୁଣି ତିଆରି ହେଲା!
+Fly to the nearest island; /island <biome> @= nearest of that biome=ନିକଟତମ ଦ୍ୱୀପକୁ ଉଡ଼ନ୍ତୁ; /island <biome> @= ସେହି ବାୟୋମର ନିକଟତମ ଦ୍ୱୀପ
+Unknown biome '@1' (or none nearby). Biomes: @2=ଅଜଣା ବାୟୋମ '@1' (କିମ୍ବା ପାଖରେ କିଛି ନାହିଁ)। ବାୟୋମ: @2
+@1 island at (@2, @3, @4), r@=@5, @6 blocks away - it is right in front of you. Give it a moment to generate.=@1 ଦ୍ୱୀପ (@2, @3, @4) ରେ, r@=@5, @6 ବ୍ଲକ ଦୂରରେ — ଠିକ୍ ଆପଣଙ୍କ ସାମ୍ନାରେ। ତିଆରି ହେବାକୁ ଟିକେ ସମୟ ଦିଅନ୍ତୁ।
+@1 island, r@=@2, was @3 blocks away - it is in front of you. Give it a moment to generate.=@1 ଦ୍ୱୀପ, r@=@2, @3 ବ୍ଲକ ଦୂରରେ ଥିଲା — ଆପଣଙ୍କ ସାମ୍ନାରେ। ତିଆରି ହେବାକୁ ଟିକେ ସମୟ ଦିଅନ୍ତୁ।
+Moving to island.=ଦ୍ୱୀପ ଆଡ଼କୁ ଯାଉଛୁ।
+Fly above coordinates: /goto <x> <z> or /goto <x> <y> <z>=ସ୍ଥାନାଙ୍କ ଉପରେ ଉଡ଼ନ୍ତୁ: /goto <x> <z> କିମ୍ବା /goto <x> <y> <z>
+Usage: /goto <x> <z> or /goto <x> <y> <z>=ବ୍ୟବହାର: /goto <x> <z> କିମ୍ବା /goto <x> <y> <z>
+Flying to (@1, @2, @3).=(@1, @2, @3) ଆଡ଼କୁ ଉଡ଼ାଣ।
+Fly to the home island at the world origin=ବିଶ୍ୱର ମୂଳ ବିନ୍ଦୁରେ ଥିବା ଘର ଦ୍ୱୀପକୁ ଉଡ଼ନ୍ତୁ
+Flying to the home island (0,0) - it will be in front of you.=ଘର ଦ୍ୱୀପ (0,0) ଆଡ଼କୁ ଉଡ଼ାଣ — ଏହା ଆପଣଙ୍କ ସାମ୍ନାରେ ରହିବ।
+Gamepad diagnostics: live view of sticks and pressed buttons=ଗେମପ୍ୟାଡ ଯାଞ୍ଚ: ଷ୍ଟିକ ଓ ଦବାଯାଇଥିବା ବଟନର ସିଧାସଳଖ ଦୃଶ୍ୟ
+Gamepad diagnostics ON — press buttons and move the sticks, and watch what lights up mid-screen.=ଗେମପ୍ୟାଡ ଯାଞ୍ଚ ଚାଲୁ — ବଟନ ଦବାନ୍ତୁ, ଷ୍ଟିକ ହଲାନ୍ତୁ ଓ ସ୍କ୍ରିନ ମଝିରେ କ'ଣ ଜଳୁଛି ଦେଖନ୍ତୁ।
+Gamepad diagnostics OFF.=ଗେମପ୍ୟାଡ ଯାଞ୍ଚ ବନ୍ଦ।
+Switch controls: fighter <-> submarine=ନିୟନ୍ତ୍ରଣ ବଦଳାନ୍ତୁ: ଯୁଦ୍ଧବିମାନ <-> ବୁଡ଼ାଜାହାଜ
+SUBMARINE: left stick @= thrust/strafe, look @= heading, X @= up, O @= down. Tricks and boost are off.=ବୁଡ଼ାଜାହାଜ: ବାମ ଷ୍ଟିକ @= ଠେଲା/ପାର୍ଶ୍ୱକୁ ଘୁଞ୍ଚିବା, ଦୃଷ୍ଟି @= ଦିଗ, X @= ଉପରକୁ, O @= ତଳକୁ। କସରତ ଓ ବୁଷ୍ଟ ବନ୍ଦ।
+FIGHTER: classic flight controls.=ଯୁଦ୍ଧବିମାନ: କ୍ଲାସିକ ଉଡ଼ାଣ ନିୟନ୍ତ୍ରଣ।
+CHECKPOINT @1/@2=ଚେକପଏଣ୍ଟ @1/@2

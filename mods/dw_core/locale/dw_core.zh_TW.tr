@@ -1,0 +1,64 @@
+# textdomain: dw_core
+# Traditional Chinese translation of DoggioWars. English is the source language.
+
+SCORE @1=分數 @1
+Gamepad: PS4/PS5 DualShock needs Settings -> Controls -> Gamepads -> Joystick type @= ps5. Xbox works on 'auto'. See GAMEPAD.md.=手把：PS4/PS5 DualShock 需要 設定 -> 控制 -> 手把 -> 搖桿類型 @= ps5。Xbox 使用「auto」即可。見 GAMEPAD.md。
+Toggle the fullscreen world map=切換全螢幕世界地圖
+Player not found=找不到玩家
+Spore Block=孢子方塊
+Magma Block=岩漿方塊
+Ice Crystal=冰晶
+Dead Stone=死石
+Embers=餘燼
+Ash=灰燼
+Mud=泥巴
+Glowing Crystal=發光水晶
+Basalt=玄武岩
+Mossy Stone=苔石
+HARE WAITING — catch up!=野兔在等你——追上去！
+HARE AT THE FINISH — fly to it!=野兔在終點——飛過去！
+SLALOM! Stay on the hare=繞樁！緊跟野兔
+HARE: BARREL ROLL! (double-tap A/D)=野兔：桶滾！（雙擊 A/D）
+HARD TURN! S+A/D @= airbrake drift=急轉彎！S+A/D @= 空氣煞車甩尾
+TUNNEL! Slow down (S) and fly clean=隧道！減速（S）並精準飛行
+CLIMB + DIVE! Shift down for extra speed=爬升 + 俯衝！按 Shift 向下獲得額外速度
+FINISH — @1  |  SCORE @2=終點——@1  |  分數 @2
+Race finished in @1! Checkpoints @2/@3, score @4.=比賽完成，用時 @1！檢查點 @2/@3，分數 @4。
+Race failed — fighter destroyed.=比賽失敗——戰鬥機被摧毀。
+Greyhound race — chase the golden hare! /race stop cancels it=靈緹賽跑——追逐金色野兔！/race stop 可取消
+Race cancelled.=比賽已取消。
+No race is running.=目前沒有比賽。
+A race is already running — end it with /race stop.=已有比賽在進行——用 /race stop 結束。
+You are not in a fighter.=你不在戰鬥機裡。
+Could not spawn the hare.=無法產生野兔。
+RACE! Follow the golden hare!=比賽開始！跟上金色野兔！
+Race started — follow the hare!=比賽開始——跟上野兔！
+HARE @1 m  ·  CP @2/@3=野兔 @1 公尺  ·  檢查點 @2/@3
+Welcome to DoggioWars! You ARE the fighter — fly!=歡迎來到 DoggioWars！你就是那架戰鬥機——起飛吧！
+Toggle the island radar (minimap)=切換島嶼雷達（小地圖）
+Radar OFF.=雷達已關閉。
+Radar ON.=雷達已開啟。
+BARREL ROLL!=桶滾！
+LOOPING!=筋斗！
+IMMELMANN!=殷麥曼迴旋！
+BOOST!=加速！
+Fighter destroyed! Respawning...=戰鬥機被摧毀！正在重生……
+Debug: respawn your fighter at your position=除錯：在你的位置重新產生戰鬥機
+Fighter respawned!=戰鬥機已重新產生！
+Fly to the nearest island; /island <biome> @= nearest of that biome=飛往最近的島嶼；/island <生態域> @= 該生態域最近的島嶼
+Unknown biome '@1' (or none nearby). Biomes: @2=未知的生態域「@1」（或附近沒有）。生態域：@2
+@1 island at (@2, @3, @4), r@=@5, @6 blocks away - it is right in front of you. Give it a moment to generate.=@1 島嶼位於 (@2, @3, @4)，r@=@5，距離 @6 格——就在你正前方。請稍候它生成。
+@1 island, r@=@2, was @3 blocks away - it is in front of you. Give it a moment to generate.=@1 島嶼，r@=@2，距離 @3 格——就在你前方。請稍候它生成。
+Moving to island.=正在前往島嶼。
+Fly above coordinates: /goto <x> <z> or /goto <x> <y> <z>=飛到座標上空：/goto <x> <z> 或 /goto <x> <y> <z>
+Usage: /goto <x> <z> or /goto <x> <y> <z>=用法：/goto <x> <z> 或 /goto <x> <y> <z>
+Flying to (@1, @2, @3).=正在飛往 (@1, @2, @3)。
+Fly to the home island at the world origin=飛往世界原點的家園島
+Flying to the home island (0,0) - it will be in front of you.=正在飛往家園島 (0,0)——它會出現在你前方。
+Gamepad diagnostics: live view of sticks and pressed buttons=手把診斷：即時顯示搖桿和按下的按鍵
+Gamepad diagnostics ON — press buttons and move the sticks, and watch what lights up mid-screen.=手把診斷已開啟——按下按鍵、移動搖桿，看看螢幕中央有什麼亮起。
+Gamepad diagnostics OFF.=手把診斷已關閉。
+Switch controls: fighter <-> submarine=切換操控：戰鬥機 <-> 潛艇
+SUBMARINE: left stick @= thrust/strafe, look @= heading, X @= up, O @= down. Tricks and boost are off.=潛艇：左搖桿 @= 推進/平移，視線 @= 航向，X @= 上升，O @= 下降。特技和加速已關閉。
+FIGHTER: classic flight controls.=戰鬥機：經典飛行操控。
+CHECKPOINT @1/@2=檢查點 @1/@2

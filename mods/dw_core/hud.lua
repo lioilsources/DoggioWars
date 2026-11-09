@@ -8,6 +8,9 @@ local hud = doggiowars.hud
 -- [player_name] = {ids = {key = hud_id}, flash_token = n}
 local state = {}
 
+-- S(player) below is per-player state; T is the translator
+local T = minetest.get_translator("dw_core")
+
 local function S(player)
     local name = player:get_player_name()
     local st = state[name]
@@ -265,7 +268,7 @@ function hud.init(player)
         type      = "text",
         position  = {x = 0.02, y = 0.06},
         alignment = {x = 1, y = 0},
-        text      = "SCORE 0",
+        text      = T("SCORE @1", "0"),
         number    = 0xFFD75E,
         size      = {x = 2},
     })
@@ -315,7 +318,7 @@ function hud.update_flight(player, f)
     hud.set(player, "hull", {number = math.max(0, math.ceil((f.hp or 100) / 5))})
     hud.set(player, "boost", {number = math.floor((f.boost_meter or 0) / 10 + 0.5)})
 
-    local score_text = string.format("SCORE %d", f.score or 0)
+    local score_text = T("SCORE @1", tostring(math.floor(f.score or 0)))
     local now = minetest.get_us_time() / 1e6
     if (f.combo or 1) > 1 and now - (f.combo_last or -math.huge) < 4.0 then
         score_text = score_text .. string.format("  ×%d", f.combo)

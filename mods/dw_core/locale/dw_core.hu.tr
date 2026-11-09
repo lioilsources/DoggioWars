@@ -1,0 +1,64 @@
+# textdomain: dw_core
+# Hungarian translation of DoggioWars. English is the source language.
+
+SCORE @1=PONT @1
+Gamepad: PS4/PS5 DualShock needs Settings -> Controls -> Gamepads -> Joystick type @= ps5. Xbox works on 'auto'. See GAMEPAD.md.=Kontroller: a PS4/PS5 DualShockhoz Beállítások -> Irányítás -> Kontrollerek -> Joystick típusa @= ps5 kell. Az Xbox „auto” módban működik. Lásd GAMEPAD.md.
+Toggle the fullscreen world map=Teljes képernyős világtérkép be/ki
+Player not found=A játékos nem található
+Spore Block=Spóratömb
+Magma Block=Magmatömb
+Ice Crystal=Jégkristály
+Dead Stone=Halott kő
+Embers=Parázs
+Ash=Hamu
+Mud=Sár
+Glowing Crystal=Izzó kristály
+Basalt=Bazalt
+Mossy Stone=Mohás kő
+HARE WAITING — catch up!=A NYÚL VÁR — érd utol!
+HARE AT THE FINISH — fly to it!=A NYÚL A CÉLBAN — repülj hozzá!
+SLALOM! Stay on the hare=SZLALOM! Maradj a nyúl nyomában
+HARE: BARREL ROLL! (double-tap A/D)=NYÚL: BARREL ROLL! (dupla A/D)
+HARD TURN! S+A/D @= airbrake drift=ÉLES FORDULÓ! S+A/D @= driftfordulás légfékkel
+TUNNEL! Slow down (S) and fly clean=ALAGÚT! Lassíts (S) és repülj pontosan
+CLIMB + DIVE! Shift down for extra speed=EMELKEDÉS + ZUHANÁS! Shift le a plusz sebességért
+FINISH — @1  |  SCORE @2=CÉL — @1  |  PONT @2
+Race finished in @1! Checkpoints @2/@3, score @4.=A verseny kész @1 alatt! Ellenőrzőpontok @2/@3, pontszám @4.
+Race failed — fighter destroyed.=A verseny elbukott — a vadászgép megsemmisült.
+Greyhound race — chase the golden hare! /race stop cancels it=Agárverseny — üldözd az aranynyulat! A /race stop megszakítja
+Race cancelled.=Verseny megszakítva.
+No race is running.=Nem fut verseny.
+A race is already running — end it with /race stop.=Már fut egy verseny — fejezd be a /race stop paranccsal.
+You are not in a fighter.=Nem ülsz vadászgépben.
+Could not spawn the hare.=Nem sikerült létrehozni a nyulat.
+RACE! Follow the golden hare!=VERSENY! Kövesd az aranynyulat!
+Race started — follow the hare!=A verseny elindult — kövesd a nyulat!
+HARE @1 m  ·  CP @2/@3=NYÚL @1 m  ·  CP @2/@3
+Welcome to DoggioWars! You ARE the fighter — fly!=Üdv a DoggioWarsban! TE VAGY a vadászgép — repülj!
+Toggle the island radar (minimap)=Szigetradar (minitérkép) be/ki
+Radar OFF.=Radar KI.
+Radar ON.=Radar BE.
+BARREL ROLL!=BARREL ROLL!
+LOOPING!=LOOPING!
+IMMELMANN!=IMMELMANN!
+BOOST!=BOOST!
+Fighter destroyed! Respawning...=A vadászgép megsemmisült! Újraéledés...
+Debug: respawn your fighter at your position=Debug: vadászgép újralétrehozása a helyzetedben
+Fighter respawned!=Vadászgép újralétrehozva!
+Fly to the nearest island; /island <biome> @= nearest of that biome=Repülés a legközelebbi szigetre; /island <biom> @= az adott biom legközelebbi szigete
+Unknown biome '@1' (or none nearby). Biomes: @2=Ismeretlen biom: „@1” (vagy nincs a közelben). Biomok: @2
+@1 island at (@2, @3, @4), r@=@5, @6 blocks away - it is right in front of you. Give it a moment to generate.=@1 sziget itt: (@2, @3, @4), r@=@5, @6 blokkra — közvetlenül előtted van. Adj neki egy kis időt a generálódásra.
+@1 island, r@=@2, was @3 blocks away - it is in front of you. Give it a moment to generate.=@1 sziget, r@=@2, @3 blokkra volt — előtted van. Adj neki egy kis időt a generálódásra.
+Moving to island.=Áthelyezés a szigetre.
+Fly above coordinates: /goto <x> <z> or /goto <x> <y> <z>=Repülés koordináták fölé: /goto <x> <z> vagy /goto <x> <y> <z>
+Usage: /goto <x> <z> or /goto <x> <y> <z>=Használat: /goto <x> <z> vagy /goto <x> <y> <z>
+Flying to (@1, @2, @3).=Repülés ide: (@1, @2, @3).
+Fly to the home island at the world origin=Repülés a kezdőszigetre a világ origójában
+Flying to the home island (0,0) - it will be in front of you.=Repülés a kezdőszigetre (0,0) — előtted lesz.
+Gamepad diagnostics: live view of sticks and pressed buttons=Kontroller-diagnosztika: a karok és lenyomott gombok élő nézete
+Gamepad diagnostics ON — press buttons and move the sticks, and watch what lights up mid-screen.=Kontroller-diagnosztika BE — nyomkodd a gombokat, mozgasd a karokat, és figyeld, mi világít a képernyő közepén.
+Gamepad diagnostics OFF.=Kontroller-diagnosztika KI.
+Switch controls: fighter <-> submarine=Irányítás váltása: vadászgép <-> tengeralattjáró
+SUBMARINE: left stick @= thrust/strafe, look @= heading, X @= up, O @= down. Tricks and boost are off.=TENGERALATTJÁRÓ: bal kar @= tolóerő/oldalazás, nézés @= irány, X @= fel, O @= le. A trükkök és a boost ki vannak kapcsolva.
+FIGHTER: classic flight controls.=VADÁSZGÉP: klasszikus repülésirányítás.
+CHECKPOINT @1/@2=ELLENŐRZŐPONT @1/@2
