@@ -128,10 +128,30 @@ The gamepad is enabled by default (the game ships its own `minetest.conf`
 defaults). PS4/PS5 DualShock owners still need to pick the joystick type
 once — see [GAMEPAD.md](https://github.com/lioilsources/DoggioWars/blob/main/GAMEPAD.md).
 
+## Languages
+
+English is the source language. The game text — HUD, race prompts, chat
+messages, command help and block names — is translated into 44 more
+languages via Luanti's `.tr` files: ar bn ca cs da de el es fi fr gu he hi hr
+hu id it ja kn ko ml mr ms nb nl or pa pl pt pt_BR ro ru sk sl sv ta te th tr
+uk ur vi zh_CN zh_TW. Luanti picks the language from its own **Language**
+setting, or from the system locale when that is left empty.
+
+- `mods/dw_core/locale/`, `mods/dw_nodes/locale/` — in-game strings
+- `locale/doggiowars.*.tr` — the game description, used by the Luanti main
+  menu and by ContentDB for its translated listing (`textdomain` in
+  `game.conf`)
+
+Most translations are machine-assisted; corrections from native speakers
+are welcome. Luanti draws text without complex-script shaping, so Arabic,
+Hebrew and Urdu show unjoined letters left-to-right, and Indic scripts and
+Thai need a fallback font with those glyphs.
+
 ## How the game is put together
 
 ```
 game.conf            game metadata; forces the singlenode mapgen
+locale/              translated game description (menu + ContentDB)
 minetest.conf        default settings for this game (gamepad on, view range)
 menu/                icon, header and background for the main menu
 mods/dw_core/        all the gameplay — mapgen, flight, weapons, races
