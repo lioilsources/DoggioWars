@@ -1,0 +1,64 @@
+# textdomain: dw_core
+# Russian translation of DoggioWars. English is the source language.
+
+SCORE @1=ОЧКИ @1
+Gamepad: PS4/PS5 DualShock needs Settings -> Controls -> Gamepads -> Joystick type @= ps5. Xbox works on 'auto'. See GAMEPAD.md.=Геймпад: для DualShock PS4/PS5 нужно Настройки -> Управление -> Геймпады -> Тип джойстика @= ps5. Xbox работает в режиме «auto». См. GAMEPAD.md.
+Toggle the fullscreen world map=Показать/скрыть полноэкранную карту мира
+Player not found=Игрок не найден
+Spore Block=Споровый блок
+Magma Block=Магмовый блок
+Ice Crystal=Ледяной кристалл
+Dead Stone=Мёртвый камень
+Embers=Тлеющие угли
+Ash=Пепел
+Mud=Грязь
+Glowing Crystal=Светящийся кристалл
+Basalt=Базальт
+Mossy Stone=Замшелый камень
+HARE WAITING — catch up!=ЗАЯЦ ЖДЁТ — догоняй!
+HARE AT THE FINISH — fly to it!=ЗАЯЦ НА ФИНИШЕ — лети к нему!
+SLALOM! Stay on the hare=СЛАЛОМ! Держись за зайцем
+HARE: BARREL ROLL! (double-tap A/D)=ЗАЯЦ: БОЧКА! (двойное нажатие A/D)
+HARD TURN! S+A/D @= airbrake drift=КРУТОЙ ВИРАЖ! S+A/D @= занос с воздушным тормозом
+TUNNEL! Slow down (S) and fly clean=ТУННЕЛЬ! Сбавь скорость (S) и лети аккуратно
+CLIMB + DIVE! Shift down for extra speed=НАБОР + ПИКЕ! Shift вниз — больше скорости
+FINISH — @1  |  SCORE @2=ФИНИШ — @1  |  ОЧКИ @2
+Race finished in @1! Checkpoints @2/@3, score @4.=Гонка завершена за @1! Контрольные точки @2/@3, очки @4.
+Race failed — fighter destroyed.=Гонка провалена — истребитель уничтожен.
+Greyhound race — chase the golden hare! /race stop cancels it=Собачьи бега — догони золотого зайца! /race stop отменяет
+Race cancelled.=Гонка отменена.
+No race is running.=Гонка не идёт.
+A race is already running — end it with /race stop.=Гонка уже идёт — заверши её командой /race stop.
+You are not in a fighter.=Ты не в истребителе.
+Could not spawn the hare.=Не удалось создать зайца.
+RACE! Follow the golden hare!=ГОНКА! Следуй за золотым зайцем!
+Race started — follow the hare!=Гонка началась — следуй за зайцем!
+HARE @1 m  ·  CP @2/@3=ЗАЯЦ @1 м  ·  КТ @2/@3
+Welcome to DoggioWars! You ARE the fighter — fly!=Добро пожаловать в DoggioWars! ТЫ И ЕСТЬ истребитель — лети!
+Toggle the island radar (minimap)=Включить/выключить радар островов (миникарту)
+Radar OFF.=Радар ВЫКЛ.
+Radar ON.=Радар ВКЛ.
+BARREL ROLL!=БОЧКА!
+LOOPING!=ПЕТЛЯ!
+IMMELMANN!=ИММЕЛЬМАН!
+BOOST!=ФОРСАЖ!
+Fighter destroyed! Respawning...=Истребитель уничтожен! Возрождение...
+Debug: respawn your fighter at your position=Отладка: заново создать истребитель на твоей позиции
+Fighter respawned!=Истребитель создан заново!
+Fly to the nearest island; /island <biome> @= nearest of that biome=Лететь к ближайшему острову; /island <биом> @= ближайший остров этого биома
+Unknown biome '@1' (or none nearby). Biomes: @2=Неизвестный биом «@1» (или нет поблизости). Биомы: @2
+@1 island at (@2, @3, @4), r@=@5, @6 blocks away - it is right in front of you. Give it a moment to generate.=Остров @1 в (@2, @3, @4), r@=@5, в @6 блоках — он прямо перед тобой. Подожди немного, пока он сгенерируется.
+@1 island, r@=@2, was @3 blocks away - it is in front of you. Give it a moment to generate.=Остров @1, r@=@2, был в @3 блоках — он перед тобой. Подожди немного, пока он сгенерируется.
+Moving to island.=Перелёт к острову.
+Fly above coordinates: /goto <x> <z> or /goto <x> <y> <z>=Лететь над координатами: /goto <x> <z> или /goto <x> <y> <z>
+Usage: /goto <x> <z> or /goto <x> <y> <z>=Использование: /goto <x> <z> или /goto <x> <y> <z>
+Flying to (@1, @2, @3).=Летим к (@1, @2, @3).
+Fly to the home island at the world origin=Лететь на домашний остров в начале координат мира
+Flying to the home island (0,0) - it will be in front of you.=Летим на домашний остров (0,0) — он будет перед тобой.
+Gamepad diagnostics: live view of sticks and pressed buttons=Диагностика геймпада: стики и нажатые кнопки в реальном времени
+Gamepad diagnostics ON — press buttons and move the sticks, and watch what lights up mid-screen.=Диагностика геймпада ВКЛ — нажимай кнопки, двигай стики и смотри, что загорается в центре экрана.
+Gamepad diagnostics OFF.=Диагностика геймпада ВЫКЛ.
+Switch controls: fighter <-> submarine=Сменить управление: истребитель <-> подлодка
+SUBMARINE: left stick @= thrust/strafe, look @= heading, X @= up, O @= down. Tricks and boost are off.=ПОДЛОДКА: левый стик @= тяга/смещение вбок, взгляд @= курс, X @= вверх, O @= вниз. Трюки и форсаж отключены.
+FIGHTER: classic flight controls.=ИСТРЕБИТЕЛЬ: классическое лётное управление.
+CHECKPOINT @1/@2=КОНТРОЛЬНАЯ ТОЧКА @1/@2

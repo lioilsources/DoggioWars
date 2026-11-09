@@ -1,0 +1,64 @@
+# textdomain: dw_core
+# Kannada translation of DoggioWars. English is the source language.
+
+SCORE @1=ಅಂಕ @1
+Gamepad: PS4/PS5 DualShock needs Settings -> Controls -> Gamepads -> Joystick type @= ps5. Xbox works on 'auto'. See GAMEPAD.md.=ಗೇಮ್‌ಪ್ಯಾಡ್: PS4/PS5 DualShock ಗೆ ಸೆಟ್ಟಿಂಗ್‌ಗಳು -> ನಿಯಂತ್ರಣಗಳು -> ಗೇಮ್‌ಪ್ಯಾಡ್‌ಗಳು -> ಜಾಯ್‌ಸ್ಟಿಕ್ ಪ್ರಕಾರ @= ps5 ಅಗತ್ಯ. Xbox 'auto' ನಲ್ಲಿ ಕೆಲಸ ಮಾಡುತ್ತದೆ. GAMEPAD.md ನೋಡಿ.
+Toggle the fullscreen world map=ಪೂರ್ಣ-ಪರದೆ ವಿಶ್ವ ನಕ್ಷೆಯನ್ನು ಆನ್/ಆಫ್ ಮಾಡಿ
+Player not found=ಆಟಗಾರ ಸಿಗಲಿಲ್ಲ
+Spore Block=ಬೀಜಕ ಬ್ಲಾಕ್
+Magma Block=ಮ್ಯಾಗ್ಮಾ ಬ್ಲಾಕ್
+Ice Crystal=ಹಿಮ ಸ್ಫಟಿಕ
+Dead Stone=ಸತ್ತ ಕಲ್ಲು
+Embers=ಕೆಂಡ
+Ash=ಬೂದಿ
+Mud=ಕೆಸರು
+Glowing Crystal=ಹೊಳೆಯುವ ಸ್ಫಟಿಕ
+Basalt=ಬಸಾಲ್ಟ್
+Mossy Stone=ಪಾಚಿ ಕಟ್ಟಿದ ಕಲ್ಲು
+HARE WAITING — catch up!=ಮೊಲ ಕಾಯುತ್ತಿದೆ — ಅದನ್ನು ಹಿಡಿಯಿರಿ!
+HARE AT THE FINISH — fly to it!=ಮೊಲ ಗುರಿಯಲ್ಲಿದೆ — ಅದರ ಬಳಿ ಹಾರಿ!
+SLALOM! Stay on the hare=ಸ್ಲಾಲಮ್! ಮೊಲದ ಹಿಂದೆಯೇ ಇರಿ
+HARE: BARREL ROLL! (double-tap A/D)=ಮೊಲ: ಬ್ಯಾರೆಲ್ ರೋಲ್! (A/D ಎರಡು ಬಾರಿ ಒತ್ತಿ)
+HARD TURN! S+A/D @= airbrake drift=ತೀಕ್ಷ್ಣ ತಿರುವು! S+A/D @= ಏರ್‌ಬ್ರೇಕ್ ಡ್ರಿಫ್ಟ್
+TUNNEL! Slow down (S) and fly clean=ಸುರಂಗ! ವೇಗ ಕಡಿಮೆ ಮಾಡಿ (S) ಮತ್ತು ನಿಖರವಾಗಿ ಹಾರಿ
+CLIMB + DIVE! Shift down for extra speed=ಏರುವಿಕೆ + ಧುಮುಕು! ಹೆಚ್ಚುವರಿ ವೇಗಕ್ಕೆ Shift ಕೆಳಗೆ
+FINISH — @1  |  SCORE @2=ಗುರಿ — @1  |  ಅಂಕ @2
+Race finished in @1! Checkpoints @2/@3, score @4.=ಓಟ @1 ರಲ್ಲಿ ಮುಗಿಯಿತು! ಚೆಕ್‌ಪಾಯಿಂಟ್‌ಗಳು @2/@3, ಅಂಕ @4.
+Race failed — fighter destroyed.=ಓಟ ವಿಫಲ — ಯುದ್ಧ ವಿಮಾನ ನಾಶವಾಯಿತು.
+Greyhound race — chase the golden hare! /race stop cancels it=ಗ್ರೇಹೌಂಡ್ ಓಟ — ಚಿನ್ನದ ಮೊಲವನ್ನು ಬೆನ್ನಟ್ಟಿ! /race stop ರದ್ದುಗೊಳಿಸುತ್ತದೆ
+Race cancelled.=ಓಟ ರದ್ದಾಯಿತು.
+No race is running.=ಯಾವುದೇ ಓಟ ನಡೆಯುತ್ತಿಲ್ಲ.
+A race is already running — end it with /race stop.=ಈಗಾಗಲೇ ಒಂದು ಓಟ ನಡೆಯುತ್ತಿದೆ — ಅದನ್ನು /race stop ಮೂಲಕ ಮುಗಿಸಿ.
+You are not in a fighter.=ನೀವು ಯುದ್ಧ ವಿಮಾನದಲ್ಲಿ ಇಲ್ಲ.
+Could not spawn the hare.=ಮೊಲವನ್ನು ರಚಿಸಲಾಗಲಿಲ್ಲ.
+RACE! Follow the golden hare!=ಓಟ! ಚಿನ್ನದ ಮೊಲವನ್ನು ಹಿಂಬಾಲಿಸಿ!
+Race started — follow the hare!=ಓಟ ಆರಂಭವಾಯಿತು — ಮೊಲವನ್ನು ಹಿಂಬಾಲಿಸಿ!
+HARE @1 m  ·  CP @2/@3=ಮೊಲ @1 ಮೀ  ·  CP @2/@3
+Welcome to DoggioWars! You ARE the fighter — fly!=DoggioWars ಗೆ ಸ್ವಾಗತ! ನೀವೇ ಯುದ್ಧ ವಿಮಾನ — ಹಾರಿ!
+Toggle the island radar (minimap)=ದ್ವೀಪ ರಾಡಾರ್ (ಮಿನಿಮ್ಯಾಪ್) ಆನ್/ಆಫ್ ಮಾಡಿ
+Radar OFF.=ರಾಡಾರ್ ಆಫ್.
+Radar ON.=ರಾಡಾರ್ ಆನ್.
+BARREL ROLL!=ಬ್ಯಾರೆಲ್ ರೋಲ್!
+LOOPING!=ಲೂಪ್!
+IMMELMANN!=ಇಮೆಲ್‌ಮನ್!
+BOOST!=ಬೂಸ್ಟ್!
+Fighter destroyed! Respawning...=ಯುದ್ಧ ವಿಮಾನ ನಾಶವಾಯಿತು! ಮತ್ತೆ ಕಾಣಿಸಿಕೊಳ್ಳುತ್ತಿದೆ...
+Debug: respawn your fighter at your position=ಡೀಬಗ್: ನಿಮ್ಮ ಸ್ಥಳದಲ್ಲಿ ಯುದ್ಧ ವಿಮಾನವನ್ನು ಮತ್ತೆ ರಚಿಸಿ
+Fighter respawned!=ಯುದ್ಧ ವಿಮಾನ ಮತ್ತೆ ರಚನೆಯಾಯಿತು!
+Fly to the nearest island; /island <biome> @= nearest of that biome=ಹತ್ತಿರದ ದ್ವೀಪಕ್ಕೆ ಹಾರಿ; /island <biome> @= ಆ ಬಯೋಮ್‌ನ ಹತ್ತಿರದ ದ್ವೀಪ
+Unknown biome '@1' (or none nearby). Biomes: @2=ಅಪರಿಚಿತ ಬಯೋಮ್ '@1' (ಅಥವಾ ಹತ್ತಿರ ಯಾವುದೂ ಇಲ್ಲ). ಬಯೋಮ್‌ಗಳು: @2
+@1 island at (@2, @3, @4), r@=@5, @6 blocks away - it is right in front of you. Give it a moment to generate.=@1 ದ್ವೀಪ (@2, @3, @4) ನಲ್ಲಿ, r@=@5, @6 ಬ್ಲಾಕ್ ದೂರ — ನಿಮ್ಮ ನೇರ ಮುಂದೆಯೇ ಇದೆ. ಅದು ರಚನೆಯಾಗಲು ಸ್ವಲ್ಪ ಸಮಯ ಕೊಡಿ.
+@1 island, r@=@2, was @3 blocks away - it is in front of you. Give it a moment to generate.=@1 ದ್ವೀಪ, r@=@2, @3 ಬ್ಲಾಕ್ ದೂರದಲ್ಲಿತ್ತು — ನಿಮ್ಮ ಮುಂದೆ ಇದೆ. ಅದು ರಚನೆಯಾಗಲು ಸ್ವಲ್ಪ ಸಮಯ ಕೊಡಿ.
+Moving to island.=ದ್ವೀಪಕ್ಕೆ ಹೋಗುತ್ತಿದೆ.
+Fly above coordinates: /goto <x> <z> or /goto <x> <y> <z>=ನಿರ್ದೇಶಾಂಕಗಳ ಮೇಲೆ ಹಾರಿ: /goto <x> <z> ಅಥವಾ /goto <x> <y> <z>
+Usage: /goto <x> <z> or /goto <x> <y> <z>=ಬಳಕೆ: /goto <x> <z> ಅಥವಾ /goto <x> <y> <z>
+Flying to (@1, @2, @3).=(@1, @2, @3) ಕಡೆಗೆ ಹಾರುತ್ತಿದೆ.
+Fly to the home island at the world origin=ವಿಶ್ವದ ಮೂಲಬಿಂದುವಿನಲ್ಲಿರುವ ಮನೆ ದ್ವೀಪಕ್ಕೆ ಹಾರಿ
+Flying to the home island (0,0) - it will be in front of you.=ಮನೆ ದ್ವೀಪಕ್ಕೆ (0,0) ಹಾರುತ್ತಿದೆ — ಅದು ನಿಮ್ಮ ಮುಂದೆ ಇರುತ್ತದೆ.
+Gamepad diagnostics: live view of sticks and pressed buttons=ಗೇಮ್‌ಪ್ಯಾಡ್ ಪರೀಕ್ಷೆ: ಸ್ಟಿಕ್‌ಗಳು ಮತ್ತು ಒತ್ತಿದ ಬಟನ್‌ಗಳ ನೇರ ನೋಟ
+Gamepad diagnostics ON — press buttons and move the sticks, and watch what lights up mid-screen.=ಗೇಮ್‌ಪ್ಯಾಡ್ ಪರೀಕ್ಷೆ ಆನ್ — ಬಟನ್‌ಗಳನ್ನು ಒತ್ತಿ, ಸ್ಟಿಕ್‌ಗಳನ್ನು ಸರಿಸಿ ಮತ್ತು ಪರದೆಯ ಮಧ್ಯದಲ್ಲಿ ಏನು ಬೆಳಗುತ್ತದೆ ನೋಡಿ.
+Gamepad diagnostics OFF.=ಗೇಮ್‌ಪ್ಯಾಡ್ ಪರೀಕ್ಷೆ ಆಫ್.
+Switch controls: fighter <-> submarine=ನಿಯಂತ್ರಣ ಬದಲಿಸಿ: ಯುದ್ಧ ವಿಮಾನ <-> ಜಲಾಂತರ್ಗಾಮಿ
+SUBMARINE: left stick @= thrust/strafe, look @= heading, X @= up, O @= down. Tricks and boost are off.=ಜಲಾಂತರ್ಗಾಮಿ: ಎಡ ಸ್ಟಿಕ್ @= ತಳ್ಳುವಿಕೆ/ಪಕ್ಕಕ್ಕೆ ಸರಿಯುವಿಕೆ, ನೋಟ @= ದಿಕ್ಕು, X @= ಮೇಲೆ, O @= ಕೆಳಗೆ. ಕಸರತ್ತುಗಳು ಮತ್ತು ಬೂಸ್ಟ್ ಆಫ್ ಆಗಿವೆ.
+FIGHTER: classic flight controls.=ಯುದ್ಧ ವಿಮಾನ: ಸಾಂಪ್ರದಾಯಿಕ ಹಾರಾಟ ನಿಯಂತ್ರಣಗಳು.
+CHECKPOINT @1/@2=ಚೆಕ್‌ಪಾಯಿಂಟ್ @1/@2

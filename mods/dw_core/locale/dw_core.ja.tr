@@ -1,0 +1,64 @@
+# textdomain: dw_core
+# Japanese translation of DoggioWars. English is the source language.
+
+SCORE @1=スコア @1
+Gamepad: PS4/PS5 DualShock needs Settings -> Controls -> Gamepads -> Joystick type @= ps5. Xbox works on 'auto'. See GAMEPAD.md.=ゲームパッド：PS4/PS5 DualShock は 設定 -> 操作 -> ゲームパッド -> ジョイスティックの種類 @= ps5 が必要です。Xbox は「auto」で動作します。GAMEPAD.md を参照。
+Toggle the fullscreen world map=全画面ワールドマップの切り替え
+Player not found=プレイヤーが見つかりません
+Spore Block=胞子ブロック
+Magma Block=マグマブロック
+Ice Crystal=氷の結晶
+Dead Stone=死んだ石
+Embers=残り火
+Ash=灰
+Mud=泥
+Glowing Crystal=光る結晶
+Basalt=玄武岩
+Mossy Stone=苔むした石
+HARE WAITING — catch up!=ウサギが待っている — 追いつけ！
+HARE AT THE FINISH — fly to it!=ウサギはゴールにいる — そこまで飛べ！
+SLALOM! Stay on the hare=スラローム！ウサギから離れるな
+HARE: BARREL ROLL! (double-tap A/D)=ウサギ：バレルロール！（A/D をダブルタップ）
+HARD TURN! S+A/D @= airbrake drift=急旋回！S+A/D @= エアブレーキでドリフト
+TUNNEL! Slow down (S) and fly clean=トンネル！減速（S）して正確に飛べ
+CLIMB + DIVE! Shift down for extra speed=上昇＋急降下！Shift で下げてスピードアップ
+FINISH — @1  |  SCORE @2=ゴール — @1  |  スコア @2
+Race finished in @1! Checkpoints @2/@3, score @4.=@1 でレース完走！チェックポイント @2/@3、スコア @4。
+Race failed — fighter destroyed.=レース失敗 — 戦闘機が破壊された。
+Greyhound race — chase the golden hare! /race stop cancels it=グレイハウンドレース — 金色のウサギを追え！ /race stop で中止
+Race cancelled.=レースを中止しました。
+No race is running.=進行中のレースはありません。
+A race is already running — end it with /race stop.=すでにレースが進行中です — /race stop で終了してください。
+You are not in a fighter.=戦闘機に乗っていません。
+Could not spawn the hare.=ウサギを出現させられませんでした。
+RACE! Follow the golden hare!=レース開始！金色のウサギを追え！
+Race started — follow the hare!=レースが始まった — ウサギを追え！
+HARE @1 m  ·  CP @2/@3=ウサギ @1 m  ·  CP @2/@3
+Welcome to DoggioWars! You ARE the fighter — fly!=DoggioWars へようこそ！キミが戦闘機だ — 飛べ！
+Toggle the island radar (minimap)=島レーダー（ミニマップ）の切り替え
+Radar OFF.=レーダー オフ。
+Radar ON.=レーダー オン。
+BARREL ROLL!=バレルロール！
+LOOPING!=ループ！
+IMMELMANN!=インメルマン！
+BOOST!=ブースト！
+Fighter destroyed! Respawning...=戦闘機が破壊された！リスポーン中...
+Debug: respawn your fighter at your position=デバッグ：現在位置に戦闘機を再出現させる
+Fighter respawned!=戦闘機が再出現しました！
+Fly to the nearest island; /island <biome> @= nearest of that biome=最寄りの島へ飛ぶ。/island <バイオーム> @= そのバイオームの最寄りの島
+Unknown biome '@1' (or none nearby). Biomes: @2=不明なバイオーム「@1」（または近くにありません）。バイオーム：@2
+@1 island at (@2, @3, @4), r@=@5, @6 blocks away - it is right in front of you. Give it a moment to generate.=@1 の島 (@2, @3, @4)、r@=@5、@6 ブロック先 — すぐ目の前です。生成されるまで少し待ってください。
+@1 island, r@=@2, was @3 blocks away - it is in front of you. Give it a moment to generate.=@1 の島、r@=@2、@3 ブロック先でした — 目の前にあります。生成されるまで少し待ってください。
+Moving to island.=島へ移動中。
+Fly above coordinates: /goto <x> <z> or /goto <x> <y> <z>=座標の上空へ飛ぶ：/goto <x> <z> または /goto <x> <y> <z>
+Usage: /goto <x> <z> or /goto <x> <y> <z>=使い方：/goto <x> <z> または /goto <x> <y> <z>
+Flying to (@1, @2, @3).=(@1, @2, @3) へ飛行中。
+Fly to the home island at the world origin=ワールド原点のホーム島へ飛ぶ
+Flying to the home island (0,0) - it will be in front of you.=ホーム島 (0,0) へ飛行中 — 目の前に現れます。
+Gamepad diagnostics: live view of sticks and pressed buttons=ゲームパッド診断：スティックと押されたボタンをリアルタイム表示
+Gamepad diagnostics ON — press buttons and move the sticks, and watch what lights up mid-screen.=ゲームパッド診断 オン — ボタンを押し、スティックを動かして、画面中央で何が光るか見てください。
+Gamepad diagnostics OFF.=ゲームパッド診断 オフ。
+Switch controls: fighter <-> submarine=操作の切り替え：戦闘機 <-> 潜水艦
+SUBMARINE: left stick @= thrust/strafe, look @= heading, X @= up, O @= down. Tricks and boost are off.=潜水艦：左スティック @= 推進/横移動、視線 @= 針路、X @= 上昇、O @= 下降。トリックとブーストは無効です。
+FIGHTER: classic flight controls.=戦闘機：クラシックな飛行操作。
+CHECKPOINT @1/@2=チェックポイント @1/@2
