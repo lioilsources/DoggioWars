@@ -59,7 +59,7 @@ function hud.flash(player, text, color)
             alignment = {x = 0, y = 0},
             text      = text,
             number    = color or 0xFFD75E,
-            size      = {x = 3},
+            size      = {x = 3, y = 0},
             z_index   = 100,
         })
     end
@@ -223,7 +223,7 @@ function hud.init(player)
         alignment = {x = 0, y = 1},
         text      = "",
         number    = 0xFFFFFF,
-        size      = {x = 2},
+        size      = {x = 2, y = 0},
         style     = 4,   -- mono, ať páska neposkakuje
         z_index   = 50,
     })
@@ -233,7 +233,7 @@ function hud.init(player)
         alignment = {x = 0, y = 1},
         text      = "",
         number    = 0x9FD8FF,
-        size      = {x = 1},
+        size      = {x = 1, y = 0},
         style     = 4,
     })
     hud.add(player, "speed", {
@@ -242,7 +242,7 @@ function hud.init(player)
         alignment = {x = 1, y = 0},
         text      = "SPD 0",
         number    = 0x9FD8FF,
-        size      = {x = 2},
+        size      = {x = 2, y = 0},
     })
     hud.add(player, "hull", {
         type      = "statbar",
@@ -267,7 +267,7 @@ function hud.init(player)
         alignment = {x = 1, y = 0},
         text      = "SCORE 0",
         number    = 0xFFD75E,
-        size      = {x = 2},
+        size      = {x = 2, y = 0},
     })
     hud.add(player, "bank", {
         type      = "text",
@@ -275,7 +275,7 @@ function hud.init(player)
         alignment = {x = 0, y = 0},
         text      = "",
         number    = 0xFFFFFF,
-        size      = {x = 1},
+        size      = {x = 1, y = 0},
     })
     -- Gamepad diagnostika (zap/vyp přes /gp) — jinak prázdné
     hud.add(player, "gpdebug", {
@@ -284,7 +284,7 @@ function hud.init(player)
         alignment = {x = 0, y = 0},
         text      = "",
         number    = 0x66FF99,
-        size      = {x = 1},
+        size      = {x = 1, y = 0},
         style     = 4,
         z_index   = 60,
     })

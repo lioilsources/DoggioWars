@@ -48,6 +48,17 @@ jobs:
           esac
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
+      - name: Tag sedí s verzí ve hře
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          # Hra ukazuje hráči doggiowars.VERSION (chat po připojení, /version).
+          # Vydání s jiným číslem by hlásilo špatnou verzi.
+          VER=$(sed -nE 's/^doggiowars\.VERSION = "([^"]+)".*/\1/p' mods/dw_core/version.lua)
+          if [ "v$VER" != "$TAG" ]; then
+            echo "::error::Tag $TAG nesedí s doggiowars.VERSION = $VER (mods/dw_core/version.lua)"; exit 1
+          fi
+
       - name: Popis vydání ze zprávy tagu
         env:
           TAG: ${{ steps.tag.outputs.tag }}

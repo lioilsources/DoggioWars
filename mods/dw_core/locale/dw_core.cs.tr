@@ -42,3 +42,13 @@ Music on.=Hudba zapnuta.
 Music off.=Hudba vypnuta.
 SUBMARINE=PONORKA
 FIGHTER=STÍHAČKA
+
+# Version
+Fixed a crash on Android right after spawning (Invalid vector coordinate y).=Opraven pád na Androidu hned po spawnu (Invalid vector coordinate y).
+Music: every island biome has its own theme, creatures have their own sounds.=Hudba: každý biom ostrova má své téma, bytosti mají vlastní zvuky.
+Shot and impact sounds that depend on the material you hit.=Zvuk výstřelu a zásahů podle materiálu, do kterého se trefíš.
+Shots bore tunnels; a headlight lights them (/headlight).=Střely provrtávají tunely, světlomet je osvítí (/headlight).
+Bigger creatures, more of them, no longer flying through islands.=Větší bytosti, víc jich a už nelétají skrz ostrovy.
+R1/L1 (RB/LB, mouse wheel) switch fighter and submarine.=R1/L1 (RB/LB, kolečko myši) přepíná stíhačku a ponorku.
+All changes: /version=Všechny změny: /version
+Show the game version and what changed=Ukáže verzi hry a co se změnilo

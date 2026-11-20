@@ -36,6 +36,7 @@ doggiowars.const = {
 local MP = minetest.get_modpath("dw_core")
 
 -- Load modules in dependency order
+dofile(MP .. "/version.lua")    -- Verze + co je nového (chat po připojení, /version)
 dofile(MP .. "/nodes.lua")      -- Custom blocks (must be first for content IDs)
 dofile(MP .. "/biomes.lua")     -- Biome definitions
 dofile(MP .. "/mapgen.lua")     -- Island generator
