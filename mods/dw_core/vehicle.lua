@@ -528,7 +528,7 @@ minetest.register_entity(":doggiowars:fighter", {
 
         -- Big explosion at crash site
         if pos then
-            doggiowars.explode_voxels(pos, 5)
+            doggiowars.explode_voxels(pos, 5, "crash")
         end
 
         if pilot_name then
@@ -794,6 +794,30 @@ minetest.register_chatcommand("gp", {
     end,
 })
 
+-- Přepne řídicí režim; vrací hlášku pro hráče. Volá /mode i R1/L1.
+function doggiowars.set_mode(name, new)
+    new = new or (doggiowars.get_mode(name) == "sub" and "fighter" or "sub")
+    doggiowars.mode[name] = new
+    local p = minetest.get_player_by_name(name)
+    local f = p and doggiowars.get_player_fighter(p)
+    if f then
+        -- Čistý přechod za letu: zrušit trik i boost a srovnat vstupní
+        -- hrany, ať držené klávesy nespustí hold-trik ve druhém režimu.
+        -- Záměrně NE tricks.init — ten by smazal boost_meter/combo/skóre.
+        f.trick = nil
+        f.boost_time = 0
+        f.input = {prev = {}, last_tap = {}, held_since = {}}
+        f.sub_vel = nil
+        if new == "fighter" then f.speed = 15 end
+        p:set_fov(0)
+    end
+    if new == "sub" then
+        return S("SUBMARINE: left stick = thrust/strafe, look = "
+            .. "heading, X = up, O = down. Tricks and boost are off.")
+    end
+    return S("FIGHTER: classic flight controls.")
+end
+
 minetest.register_chatcommand("mode", {
     description = S("Switch controls: fighter <-> submarine"),
     params = "[fighter|sub]",
@@ -805,27 +829,42 @@ minetest.register_chatcommand("mode", {
             new = "sub"
         elseif param == "fighter" or param == "plane" then
             new = "fighter"
-        else
-            new = doggiowars.get_mode(name) == "sub" and "fighter" or "sub"
         end
-        doggiowars.mode[name] = new
-        local p = minetest.get_player_by_name(name)
-        local f = p and doggiowars.get_player_fighter(p)
-        if f then
-            -- Čistý přechod za letu: zrušit trik i boost a srovnat vstupní
-            -- hrany, ať držené klávesy nespustí hold-trik ve druhém režimu.
-            -- Záměrně NE tricks.init — ten by smazal boost_meter/combo/skóre.
-            f.trick = nil
-            f.boost_time = 0
-            f.input = {prev = {}, last_tap = {}, held_since = {}}
-            f.sub_vel = nil
-            if new == "fighter" then f.speed = 15 end
-            p:set_fov(0)
-        end
-        if new == "sub" then
-            return true, S("SUBMARINE: left stick = thrust/strafe, look = "
-                .. "heading, X = up, O = down. Tricks and boost are off.")
-        end
-        return true, S("FIGHTER: classic flight controls.")
+        return true, doggiowars.set_mode(name, new)
     end,
 })
+
+-- R1/L1 (a kolečko myši) přepínají režim. Luanti tahle tlačítka modu
+-- neposílá jako ovládání — v liště ale posouvají vybraný slot, a změnu
+-- slotu server vidí. Lišta je ve stíhačce skrytá, takže slot nic jiného
+-- neznamená. 0,4 s zámek: držené tlačítko klient opakuje po 0,17 s.
+local wield_last = {}
+local mode_lock = {}
+local wield_timer = 0
+minetest.register_globalstep(function(dtime)
+    wield_timer = wield_timer + dtime
+    if wield_timer < 0.05 then return end
+    wield_timer = 0
+    local now = minetest.get_us_time() / 1e6
+    for _, player in ipairs(minetest.get_connected_players()) do
+        local name = player:get_player_name()
+        local idx = player:get_wield_index()
+        local last = wield_last[name]
+        wield_last[name] = idx
+        if last and idx ~= last and doggiowars.get_player_fighter(player)
+                and now - (mode_lock[name] or 0) > 0.4 then
+            mode_lock[name] = now
+            local msg = doggiowars.set_mode(name)
+            local sub = doggiowars.get_mode(name) == "sub"
+            if doggiowars.hud and doggiowars.hud.flash then
+                doggiowars.hud.flash(player, sub and S("SUBMARINE") or S("FIGHTER"),
+                    sub and 0x5ECBFF or 0xFFD75E)
+            end
+            minetest.chat_send_player(name, msg)
+        end
+    end
+end)
+
+minetest.register_on_leaveplayer(function(player)
+    wield_last[player:get_player_name()] = nil
+end)

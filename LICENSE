@@ -37,8 +37,8 @@ SOFTWARE.
 Media — CC BY-SA 4.0
 --------------------
 
-Applies to: everything under mods/*/textures/ and mods/*/models/, plus
-screenshot.png and the images under menu/.
+Applies to: everything under mods/*/textures/, mods/*/models/ and
+mods/*/sounds/, plus screenshot.png and the images under menu/.
 
 Copyright (c) 2026 lioilsources
 
@@ -55,7 +55,7 @@ Third-party material
 --------------------
 
 None. Every file in this repository is original work by the copyright holder
-above, and no asset packs, texture packs, model libraries or other external
+above (the sounds are AI-generated for this game, see below), and no asset packs, texture packs, model libraries or other external
 media were used. Specifically:
 
   mods/dw_core/models/doggiowars_fighter_01.obj
@@ -77,6 +77,15 @@ media were used. Specifically:
   menu/icon.png
       Drawn from scratch by tools/gen_icon.py — flat shapes and a gradient,
       no photographic or third-party source.
+
+  mods/dw_core/sounds/*.ogg
+      AI-generated for this game. Music (dw_music_*) was generated with
+      ACE-Step 1.5 (MIT licence); creature loops, shots and impacts
+      (dw_creature_*, dw_shot*, dw_impact_*) with MOSS-SoundEffect v2.0
+      (Apache-2.0). Neither model licence places restrictions on the
+      generated audio; it is released here under CC BY-SA 4.0 like the other
+      media. Prompts and post-processing (looping, trimming, Vorbis
+      encoding) are in tools/gen_audio.py.
 
   menu/header.png, menu/background.png
       Crops and downscales of screenshot.png (see above), made with sips.

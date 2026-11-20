@@ -74,8 +74,10 @@ myšítko** nebo dvojité W.
 
 ## Režim ponorky — příkaz `/mode` (VÝCHOZÍ REŽIM)
 
-Ponorka je **výchozí** ovládání. Příkaz **`/mode`** přepíná na stíhačku a
-zpět (`/mode sub`, `/mode fighter` nastaví režim napřímo). Ponorka je
+Ponorka je **výchozí** ovládání. **R1 nebo L1** (Xbox: RB/LB, na
+klávesnici kolečko myši) přepíná mezi ponorkou a stíhačkou, nahoře
+problikne PONORKA / STÍHAČKA. Totéž umí příkaz **`/mode`**
+(`/mode sub`, `/mode fighter` nastaví režim napřímo). Ponorka je
 „hover": puštěné ovládání plynule zastaví a loď visí na místě. Režim
 přežívá respawn.
 
@@ -103,7 +105,10 @@ na jiném ovladači vyšlo mapování opačně, je to jeden řádek ve
 
 Co ovladač NEUMÍ namapovat (klientské zkratky Luanti, mod je nezmění):
 
-- **Trojúhelník / čtverec, R1 / L1** — nic (Luanti je nemapuje vůbec).
+- **Trojúhelník / čtverec** — nic (Luanti je nemapuje vůbec).
+- **R1 / L1** — Luanti je modu jako ovládání neposílá, jen jimi posouvá
+  vybraný slot v liště. Hra tu změnu slotu chytá a přepíná na ni režim
+  stíhačka ↔ ponorka (lišta je ve stíhačce skrytá, nic jiného nedělá).
 - **D-pad vlevo** (minimapa) — záměrně bez funkce. Klient opakuje držená
   joystick tlačítka po 0,17 s (`repeat_joystick_button_time`), takže
   tlačítko minimapy blikalo — radar je proto trvale zapnutý s jediným

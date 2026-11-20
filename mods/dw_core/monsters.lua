@@ -530,6 +530,10 @@ local function register_species(name, def)
         end,
 
         on_deactivate = function(self)
+            if self.sound then
+                minetest.sound_stop(self.sound)
+                self.sound = nil
+            end
             for _, o in ipairs(self.segs or {}) do
                 if o and o:get_luaentity() then
                     o:remove()
@@ -575,6 +579,16 @@ local function register_species(name, def)
                     self.segs[def.seg_count]:set_properties({
                         visual_size = {x = 2.4 * SCALE, y = 0.5 * SCALE, z = 1.2 * SCALE},
                     })
+                end
+            end
+
+            -- vlastní smyčka bytosti (music.lua); až v prvním stepu, kdy
+            -- už je jasné, že entita zůstane (bez ostrova se smaže výš)
+            if not self.sound_started then
+                self.sound_started = true
+                if doggiowars.creature_sound then
+                    self.sound = doggiowars.creature_sound(self.object, name,
+                        def.hear)
                 end
             end
 

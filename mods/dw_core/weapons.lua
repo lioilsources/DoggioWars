@@ -270,11 +270,67 @@ local function fire_burst(pos)
     })
 end
 
--- Kulový kráter (zničená stíhačka, zásah letadla)
-function doggiowars.explode_voxels(pos, radius)
+---------------------------------------------------------------------------
+-- Zvuk zásahu podle materiálu — co rána vyvrtala nejvíc, to zní.
+-- Soubory dw_impact_<materiál>.N.ogg (Luanti z variant N vybírá náhodně);
+-- chybějící soubor = ticho.
+---------------------------------------------------------------------------
+
+local material_cache = {}
+
+local function material_of(name)
+    local m = material_cache[name]
+    if m then return m end
+    local def = minetest.registered_nodes[name] or {}
+    local g = def.groups or {}
+    if name:find("magma") or name:find("ember") or name:find("lava") then
+        m = "magma"
+    elseif name:find("crystal") or name:find("glass") then
+        m = "crystal"
+    elseif name:find("ice") or name:find("snow") or name:find("permafrost") then
+        m = "ice"
+    elseif (g.tree or 0) > 0 or (g.choppy or 0) > 0 then
+        m = "wood"
+    elseif (g.leaves or 0) > 0 or (g.snappy or 0) > 0 then
+        m = "leaves"
+    elseif (g.falling_node or 0) > 0 then
+        m = "sand"            -- písek, štěrk, popel
+    elseif (g.crumbly or 0) > 0 then
+        m = "dirt"            -- hlína, tráva, bahno, spóry
+    else
+        m = "stone"
+    end
+    material_cache[name] = m
+    return m
+end
+
+local function dominant_material(removed)
+    local count, best, bestn = {}, nil, 0
+    for _, r in ipairs(removed) do
+        local m = material_of(r.n)
+        count[m] = (count[m] or 0) + 1
+        if count[m] > bestn then best, bestn = m, count[m] end
+    end
+    return best
+end
+
+local function impact_sound(pos, material, gain)
+    minetest.sound_play("dw_impact_" .. (material or "generic"), {
+        pos               = pos,
+        gain              = gain or 1.0,
+        pitch             = 0.9 + math.random() * 0.2,
+        max_hear_distance = 250,
+    }, true)
+end
+
+-- Kulový kráter (zničená stíhačka, zásah letadla). material přebije
+-- zvuk terénu — "metal" pro zásah stíhačky.
+function doggiowars.explode_voxels(pos, radius, material)
     local removed = carve_capsule(pos, pos, radius)
     spawn_debris(removed, pos, 3 + math.floor(radius * 2))
     fire_burst(pos)
+    impact_sound(pos, material or dominant_material(removed),
+        math.min(1, 0.5 + radius * 0.1))
 end
 
 -- Průstřel terénem ve směru dir (jednotkový vektor)
@@ -283,6 +339,7 @@ function doggiowars.bore_tunnel(pos, dir, radius, length)
     local b = vector.add(pos, vector.multiply(dir, length))
     local removed = carve_capsule(a, b, radius)
     spawn_debris(removed, pos, 3 + math.floor(radius * 2), dir)
+    impact_sound(pos, dominant_material(removed))
     fire_burst(pos)
 end
 
@@ -349,7 +406,7 @@ minetest.register_entity(":doggiowars:bullet", {
                         and ent.pilot_name == self._shooter_name
                     if not is_own then
                         ent:damage_fighter(BULLET_DAMAGE)
-                        doggiowars.explode_voxels(pos, EXPLODE_RADIUS_HIT)
+                        doggiowars.explode_voxels(pos, EXPLODE_RADIUS_HIT, "metal")
                         self.object:remove()
                         return
                     end
@@ -400,6 +457,14 @@ function doggiowars.shoot_bullet(fighter_self)
 
     local bullet = minetest.add_entity(muzzle, "doggiowars:bullet")
     if not bullet then return end
+
+    -- výstřel: připnutý ke stíhačce, ať zní z ní i při plné rychlosti
+    minetest.sound_play("dw_shot", {
+        object            = fighter_self.object,
+        gain              = 0.5,
+        pitch             = 0.95 + math.random() * 0.1,
+        max_hear_distance = 120,
+    }, true)
 
     -- Add plane velocity so bullet doesn't arc backward when diving
     local plane_vel = fighter_self.object:get_velocity() or {x = 0, y = 0, z = 0}

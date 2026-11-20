@@ -47,6 +47,7 @@ dofile(MP .. "/weapons.lua")    -- Projectiles, explosions, damage
 dofile(MP .. "/headlight.lua")  -- Světlomet: kužel světla v tunelech
 dofile(MP .. "/rabbit.lua")     -- Zajíc — AI loď pro chrtí závod
 dofile(MP .. "/monsters.lua")   -- Dekorativní monstra (draci, velryba, ...)
+dofile(MP .. "/music.lua")      -- Témata ostrovů + smyčky bytostí
 dofile(MP .. "/map.lua")        -- Celoobrazovková mapa světa (Z / /map)
 dofile(MP .. "/race.lua")       -- Chrtí závod: trať, tunely, checkpointy
 dofile(MP .. "/sky.lua")        -- Sky, clouds, fog
