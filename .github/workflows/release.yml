@@ -15,7 +15,13 @@ on:
   push:
     tags:
       - 'v*'
+  # Ruční spuštění pro už existující tag (např. když ContentDB napoprvé
+  # selže): gh workflow run release.yml -f tag=v2.5.0
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag k vydání (vX.Y.Z)'
+        required: true
 
 permissions:
   contents: write
@@ -30,11 +36,12 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0      # potřeba pro objekt tagu (zpráva anotovaného tagu)
+          ref: ${{ inputs.tag || github.ref }}
 
       - name: Zjistit tag
         id: tag
         run: |
-          TAG="${GITHUB_REF_NAME}"
+          TAG="${{ inputs.tag || github.ref_name }}"
           case "$TAG" in
             v*) ;;
             *) echo "::error::'$TAG' není verze — workflow čeká tag ve tvaru vX.Y.Z"; exit 1 ;;
@@ -42,29 +49,33 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
       - name: Popis vydání ze zprávy tagu
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
         run: |
           # Jen anotovaný tag má vlastní zprávu. U lehkého tagu by
           # %(contents) vrátilo zprávu commitu i s trailery (Co-authored-by
           # a spol.), což do popisu vydání nepatří — tam se nechá prázdno a
           # GitHub si popis vygeneruje z commitů.
-          TYPE=$(git for-each-ref "refs/tags/${GITHUB_REF_NAME}" --format='%(objecttype)')
+          TYPE=$(git for-each-ref "refs/tags/${TAG}" --format='%(objecttype)')
           if [ "$TYPE" = "tag" ]; then
-            git for-each-ref "refs/tags/${GITHUB_REF_NAME}" --format='%(contents)' > notes.md
+            git for-each-ref "refs/tags/${TAG}" --format='%(contents)' > notes.md
             echo "Popis vydání ze zprávy tagu ($(wc -c < notes.md) B)"
           else
             : > notes.md
-            echo "::notice::${GITHUB_REF_NAME} je lehký tag — popis vygeneruje GitHub z commitů"
+            echo "::notice::${TAG} je lehký tag — popis vygeneruje GitHub z commitů"
           fi
 
       - name: Zabalit hru
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
         run: |
           # Prefix je to, co dělá rozbalenou složku nezaměnitelnou: Luanti
           # bere gameid z názvu složky. git archive respektuje export-ignore
           # z .gitattributes, takže Prompts/ a play.sh se do zipu nedostanou.
           git archive --format=zip \
             --prefix=doggiowars_game/ \
-            HEAD -o "doggiowars-${GITHUB_REF_NAME}.zip"
-          unzip -l "doggiowars-${GITHUB_REF_NAME}.zip" | tail -1
+            HEAD -o "doggiowars-${TAG}.zip"
+          unzip -l "doggiowars-${TAG}.zip" | tail -1
 
       - name: GitHub Release
         uses: softprops/action-gh-release@v2
@@ -91,14 +102,17 @@ jobs:
           fi
 
           API=https://content.luanti.org/api/packages/lioilsources/doggiowars_game
-          NOTES=$(head -c 2000 notes.md | jq -Rs .)
+          head -c 2000 notes.md > notes-short.md
 
-          # ContentDB si zip staví sám z gitu, proto method=git a ref=tag.
-          # min/max verze Luanti si bere z game.conf, tady se neposílají.
+          # Nahráváme stejný zip jako na GitHub Release. Vydání z gitu
+          # (method=git) ContentDB občas vypne („temporarily disabled“), zip
+          # projde vždy. min/max verze Luanti si bere z game.conf.
           CODE=$(curl -sS -o resp.json -w '%{http_code}' -X POST "$API/releases/new/" \
             -H "Authorization: Bearer $TOKEN" \
-            -H "Content-Type: application/json" \
-            -d "{\"method\":\"git\",\"title\":\"$TAG\",\"ref\":\"$TAG\",\"release_notes\":$NOTES}")
+            --form-string "title=$TAG" \
+            --form-string "commit=$(git rev-parse HEAD)" \
+            -F "release_notes=<notes-short.md" \
+            -F "file=@doggiowars-$TAG.zip;type=application/zip")
           cat resp.json; echo
           if [ "$CODE" != "200" ]; then
             echo "::error::ContentDB odmítl vydání (HTTP $CODE)"; exit 1
@@ -112,8 +126,9 @@ jobs:
             LINE=$(curl -sS "$API/releases/" \
               | jq -r --arg t "$TAG" '.[] | select(.title == $t) | "\(.commit // "null") \(.size)"' | head -1)
             COMMIT=${LINE%% *}; SIZE=${LINE##* }
-            if [ -n "$LINE" ] && [ "$COMMIT" != "null" ] && [ "${SIZE:-0}" -gt 0 ]; then
-              echo "ContentDB má $TAG: commit ${COMMIT:0:7}, $((SIZE / 1024)) KB"
+            # U nahraného zipu zůstává commit null, rozhoduje velikost.
+            if [ -n "$LINE" ] && [ "${SIZE:-0}" -gt 0 ]; then
+              echo "ContentDB má $TAG: $((SIZE / 1024)) KB"
               exit 0
             fi
             echo "  čekám na import… ($i/30)"
