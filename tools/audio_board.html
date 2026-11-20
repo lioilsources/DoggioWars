@@ -1,0 +1,289 @@
+<title>DoggioWars Zvuky</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one column of biome "islands" (theme rows), then creatures and hits
+   as denser grids; a sticky transport bar shows what is playing. */
+:root {
+  --sky: #eef3f8;          /* page ground — high-altitude haze */
+  --cloud: #ffffff;        /* row surface */
+  --ink: #17212c;          /* text */
+  --mist: #5d6b7a;         /* secondary text */
+  --rule: #d6dfe8;         /* hairlines */
+  --beam: #e8a33a;         /* accent: headlight amber */
+  --beam-ink: #1b1204;     /* text on accent */
+  --ok: #2f8f5b;
+  --font-display: "Chakra Petch", "Avenir Next Condensed", "Arial Narrow", sans-serif;
+  --font-body: "IBM Plex Sans", -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --step--1: 0.8rem; --step-0: 0.95rem; --step-1: 1.15rem; --step-2: 1.6rem; --step-3: 2.3rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sky: #0e141b; --cloud: #161e27; --ink: #e6edf4; --mist: #93a2b2;
+    --rule: #27323e; --beam: #f0b24c; --beam-ink: #1b1204; --ok: #5cc48c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --sky: #0e141b; --cloud: #161e27; --ink: #e6edf4; --mist: #93a2b2;
+  --rule: #27323e; --beam: #f0b24c; --beam-ink: #1b1204; --ok: #5cc48c;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--sky); color: var(--ink);
+  font: 400 var(--step-0)/1.5 var(--font-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--sky);
+}
+.wrap { max-width: 980px; margin: 0 auto; display: flex; flex-direction: column; gap: 36px; }
+header.top { padding-top: 28px; display: flex; flex-direction: column; gap: 10px; }
+h1 {
+  font: 700 var(--step-3)/1.05 var(--font-display); margin: 0;
+  letter-spacing: 0.01em; text-wrap: balance;
+}
+.lede { color: var(--mist); max-width: 62ch; margin: 0; }
+.progress { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  font: 500 var(--step--1)/1 var(--font-mono); padding: 6px 10px;
+  border: 1px solid var(--rule); border-radius: 999px; background: var(--cloud);
+  font-variant-numeric: tabular-nums;
+}
+.chip.done { border-color: var(--ok); color: var(--ok); }
+h2 {
+  font: 700 var(--step-2)/1.1 var(--font-display); margin: 0 0 4px;
+  display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+}
+h2 small { font: 400 var(--step--1)/1.4 var(--font-body); color: var(--mist); }
+section { display: flex; flex-direction: column; gap: 10px; }
+
+/* Theme row: a strip of biome colour on the left, like the island's own ground */
+.row {
+  display: grid; grid-template-columns: 6px minmax(0, 1fr); background: var(--cloud);
+  border: 1px solid var(--rule); border-radius: 10px; overflow: hidden;
+}
+.strip { background: var(--biome, var(--rule)); }
+.body { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; }
+.name { font: 700 var(--step-1)/1.2 var(--font-display); letter-spacing: 0.02em; }
+.slug { font: 400 var(--step--1)/1 var(--font-mono); color: var(--mist); }
+.meta { font: 400 var(--step--1)/1.3 var(--font-mono); color: var(--mist); margin-left: auto; }
+.prompt { color: var(--mist); font-size: var(--step--1); margin: 0; }
+.vars { display: flex; flex-wrap: wrap; gap: 8px; }
+.pending { color: var(--mist); font-style: italic; font-size: var(--step--1); }
+
+button.play {
+  font: 500 var(--step--1)/1 var(--font-mono); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 12px; border-radius: 8px; border: 1px solid var(--rule);
+  background: var(--sky); color: var(--ink); min-height: 38px;
+}
+button.play:hover { border-color: var(--beam); }
+button.play:focus-visible, button.copy:focus-visible { outline: 2px solid var(--beam); outline-offset: 2px; }
+button.play .ico { width: 0; height: 0; border-left: 8px solid currentColor;
+  border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+button.play.on { background: var(--beam); color: var(--beam-ink); border-color: var(--beam); }
+button.play.on .ico { border: 0; width: 8px; height: 10px;
+  background: linear-gradient(90deg, currentColor 0 3px, transparent 3px 5px, currentColor 5px 8px); }
+.ingame { font: 600 0.68rem/1 var(--font-body); letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 3px 6px; border-radius: 4px; background: var(--ok); color: var(--cloud); }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+
+.pick { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pick code {
+  font: 400 0.75rem/1.3 var(--font-mono); color: var(--mist); user-select: all;
+  overflow-wrap: anywhere; min-width: 0;
+}
+button.copy {
+  font: 500 0.72rem/1 var(--font-body); cursor: pointer; padding: 5px 8px;
+  border: 1px solid var(--rule); border-radius: 6px; background: transparent; color: var(--mist);
+}
+
+.transport {
+  position: sticky; bottom: 0; margin-top: 8px;
+  padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px));
+  background: var(--cloud); border: 1px solid var(--rule); border-radius: 10px;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.transport .now { font: 500 var(--step--1)/1.3 var(--font-mono); min-width: 0; overflow-wrap: anywhere; flex: 1; }
+.transport label { font-size: var(--step--1); color: var(--mist); display: flex; gap: 6px; align-items: center; }
+.bar { height: 4px; background: var(--rule); border-radius: 2px; flex-basis: 100%; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--beam); }
+@media (prefers-reduced-motion: no-preference) { .bar i { transition: width 0.2s linear; } }
+footer { color: var(--mist); font-size: var(--step--1); }
+footer code { font-family: var(--font-mono); }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <h1>DoggioWars Zvuky</h1>
+    <p class="lede">Všechny vygenerované zvuky ostrovů, bytostí a střelby. Smyčky hrají
+      dokola, ať je slyšet šev. Zelený štítek značí variantu, kterou hra teď používá; příkaz
+      pod ní nasadí jinou.</p>
+    <div class="progress" id="progress"></div>
+  </header>
+
+  <section id="music"></section>
+  <section id="creatures"></section>
+  <section id="hits"></section>
+
+  <div class="transport" role="region" aria-label="Přehrávač">
+    <div class="now" id="now">Nic nehraje. Vyber stopu.</div>
+    <label for="loop"><input type="checkbox" id="loop" checked> smyčka</label>
+    <div class="bar"><i id="pos"></i></div>
+  </div>
+
+  <footer id="foot"></footer>
+</div>
+
+<audio id="audio" preload="none"></audio>
+<script>
+const DATA = /*DATA*/null;
+
+const $ = (s) => document.querySelector(s);
+const audio = $("#audio");
+let current = null;
+
+function el(tag, attrs = {}, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") n.className = v;
+    else if (k === "style") n.style.cssText = v;
+    else n.setAttribute(k, v);
+  }
+  for (const k of kids) if (k != null) n.append(k);
+  return n;
+}
+
+function playBtn(src, label, title, loop) {
+  const b = el("button", { class: "play", type: "button", "data-src": src },
+    el("span", { class: "ico" }), label);
+  b.addEventListener("click", () => {
+    if (current === b && !audio.paused) { audio.pause(); return; }
+    document.querySelectorAll("button.play.on").forEach((x) => x.classList.remove("on"));
+    current = b;
+    audio.src = src;
+    audio.loop = loop && $("#loop").checked;
+    audio.dataset.loopable = loop ? "1" : "";
+    audio.play().catch(() => {});
+    b.classList.add("on");
+    $("#now").textContent = title;
+  });
+  return b;
+}
+
+audio.addEventListener("pause", () => current && current.classList.remove("on"));
+audio.addEventListener("ended", () => current && current.classList.remove("on"));
+audio.addEventListener("play", () => current && current.classList.add("on"));
+audio.addEventListener("timeupdate", () => {
+  const p = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+  $("#pos").style.width = p + "%";
+});
+$("#loop").addEventListener("change", () => {
+  audio.loop = $("#loop").checked && audio.dataset.loopable === "1";
+});
+
+function copyBtn(text) {
+  const b = el("button", { class: "copy", type: "button" }, "Kopírovat");
+  b.addEventListener("click", () => {
+    const done = () => { b.textContent = "Zkopírováno"; setTimeout(() => (b.textContent = "Kopírovat"), 1500); };
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(done, () => select(b.previousSibling));
+    } else select(b.previousSibling);
+  });
+  return b;
+}
+function select(node) {
+  const r = document.createRange(); r.selectNodeContents(node);
+  const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+}
+
+function header(sec, title, note) {
+  sec.append(el("h2", {}, title, el("small", {}, note)));
+}
+
+function themeRow(item, loop) {
+  const vars = el("div", { class: "vars" });
+  const picks = el("div", { class: "pick" });
+  if (!item.variants.length) {
+    vars.append(el("span", { class: "pending" }, "Ještě se generuje…"));
+  }
+  item.variants.forEach((src, i) => {
+    const b = playBtn(src, "varianta " + i, item.label + " · varianta " + i, loop);
+    if (i === item.pick) b.append(el("span", { class: "ingame" }, "ve hře"));
+    vars.append(b);
+  });
+  const others = item.variants.map((_, i) => i).filter((i) => i !== item.pick);
+  if (others.length) {
+    const cmd = "python3 tools/gen_audio.py pick " + item.name + " " + others[0];
+    const code = el("code", {}, cmd);
+    picks.append(code, copyBtn(cmd));
+  }
+  const meta = item.bpm ? item.bpm + " bpm · " + item.key : null;
+  return el("div", { class: "row", style: "--biome:" + (item.color || "var(--rule)") },
+    el("div", { class: "strip" }),
+    el("div", { class: "body" },
+      el("div", { class: "head" },
+        el("span", { class: "name" }, item.label),
+        el("span", { class: "slug" }, item.name),
+        meta && el("span", { class: "meta" }, meta)),
+      el("p", { class: "prompt" }, item.prompt),
+      vars,
+      others.length ? picks : null));
+}
+
+function hitRow(item) {
+  const vars = el("div", { class: "vars" });
+  if (!item.variants.length) vars.append(el("span", { class: "pending" }, "Ještě se generuje…"));
+  item.variants.forEach((src, i) =>
+    vars.append(playBtn(src, "záběr " + (i + 1), item.label + " · záběr " + (i + 1), false)));
+  return el("div", { class: "row", style: "--biome:" + (item.color || "var(--rule)") },
+    el("div", { class: "strip" }),
+    el("div", { class: "body" },
+      el("div", { class: "head" },
+        el("span", { class: "name" }, item.label),
+        el("span", { class: "slug" }, item.name)),
+      el("p", { class: "prompt" }, item.when),
+      vars));
+}
+
+function render() {
+  const d = DATA;
+  const count = (list) => list.filter((x) => x.variants.length).length + "/" + list.length;
+  const chip = (label, list) => {
+    const done = list.every((x) => x.variants.length);
+    return el("span", { class: "chip" + (done ? " done" : "") }, label + " " + count(list));
+  };
+  $("#progress").append(chip("témata", d.music), chip("bytosti", d.creatures),
+    chip("střelba a zásahy", d.hits));
+
+  const m = $("#music");
+  header(m, "Témata ostrovů", "Stereo smyčky. Při přeletu k jinému ostrovu se 6 s prolínají.");
+  d.music.forEach((x) => m.append(themeRow(x, true)));
+
+  const c = $("#creatures");
+  header(c, "Bytosti", "Mono smyčky připnuté k bytosti; čím blíž letíš, tím víc je slyšíš.");
+  const cg = el("div", { class: "grid" });
+  d.creatures.forEach((x) => cg.append(themeRow(x, true)));
+  c.append(cg);
+
+  const h = $("#hits");
+  header(h, "Střelba a zásahy", "Jednorázové zvuky. Hra pokaždé vybere náhodný záběr.");
+  const hg = el("div", { class: "grid" });
+  d.hits.forEach((x) => hg.append(hitRow(x)));
+  h.append(hg);
+
+  $("#foot").append("Sestaveno " + d.built + ". Hudba: ACE-Step 1.5 (MIT). Zvuky: "
+    + "MOSS-SoundEffect v2.0 (Apache-2.0). Ukázky jsou ve stejné kvalitě (Vorbis q3), jakou hra balí.");
+}
+render();
+</script>

@@ -30,3 +30,15 @@ Gamepad diagnostics OFF.=Diagnostika gamepadu VYP.
 Switch controls: fighter <-> submarine=Přepnutí ovládání: stíhačka <-> ponorka
 SUBMARINE: left stick @= thrust/strafe, look @= heading, X @= up, O @= down. Tricks and boost are off.=PONORKA: levá páčka @= tah/úkrok, pohled @= kurz, X @= nahoru, ○ @= dolů. Triky a boost vypnuty.
 FIGHTER: classic flight controls.=STÍHAČKA: klasické letecké ovládání.
+
+# Headlight
+Toggle the fighter's headlight=Zapne/vypne světlomet stíhačky
+Headlight on.=Světlomet zapnut.
+Headlight off.=Světlomet vypnut.
+
+# Music
+Toggle island music=Zapne/vypne hudbu ostrovů
+Music on.=Hudba zapnuta.
+Music off.=Hudba vypnuta.
+SUBMARINE=PONORKA
+FIGHTER=STÍHAČKA

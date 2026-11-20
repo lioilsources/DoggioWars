@@ -185,7 +185,8 @@ for setup and details.
 ## License
 
 - Code and documentation: **MIT**
-- Media (`textures/`, `models/`, screenshot): **CC BY-SA 4.0**
+- Media (`textures/`, `models/`, `sounds/`, screenshot): **CC BY-SA 4.0**
+- Music and sound effects are AI-generated (ACE-Step 1.5, MIT; MOSS-SoundEffect v2.0, Apache-2.0)
 
 All media is original work — no third-party asset packs are bundled. See
 [LICENSE](https://github.com/lioilsources/DoggioWars/blob/main/LICENSE) for details.

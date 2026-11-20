@@ -15,9 +15,12 @@
 local SPAWN_DIST    = 200   -- 3D vzdálenost hráč–střed ostrova pro spawn
 local CELL_SCAN     = 2     -- Čebyšev okolí buněk mřížky kolem hráče
 local SCAN_INTERVAL = 3     -- s mezi průchody spawneru
-local WHALE_CHANCE  = 40    -- 1/N šance na velrybu za tick spawneru
+local WHALE_CHANCE  = 20    -- 1/N šance na velrybu za tick spawneru
 local SEG_PULL      = 6     -- pružina řetězu: rychlost ~ přetažení × k
 local SEG_MAX_SPEED = 60
+-- Měřítko všech tvorů (hlava, články, rozestupy). 1 = původní velikost.
+local SCALE         = 2
+local DRAGON_CLEARANCE = 8 + 6 * SCALE -- m nad terénem (vlnění ±6 + tělo)
 
 ---------------------------------------------------------------------------
 -- Letové primitivy — port z rabbit.lua BEZ mesh quirku (+pi): cube nemá
@@ -181,6 +184,40 @@ local FX = {
 }
 
 ---------------------------------------------------------------------------
+-- Povrch ostrova — výšky letu se nesmí odvozovat jen od poloměru: kužel
+-- a jehla trčí až 1,5–2,2 × r nad střed, takže pevná výška vedla tvory
+-- skrz skálu. Paprsek shora dolů najde první pevný node.
+---------------------------------------------------------------------------
+
+-- Nejvyšší možný vrchol ostrova (spire: 1,6 r × height_scale ≤ 1,4)
+local function island_ceiling(isl)
+    return isl.y + isl.radius * 2.4 + 20
+end
+
+-- Výška povrchu v (x, z), nebo nil, když tam ostrov není / není načtený
+function doggiowars.island_surface_y(isl, x, z)
+    local from = {x = x, y = island_ceiling(isl), z = z}
+    local to = {x = x, y = isl.y - isl.radius, z = z}
+    for pointed in minetest.raycast(from, to, false, false) do
+        if pointed.type == "node" then
+            return pointed.under.y + 1
+        end
+    end
+    return nil
+end
+local surface_y = doggiowars.island_surface_y
+
+-- Nejvyšší povrch z několika bodů (nil = nikde nic)
+local function max_surface(isl, points)
+    local best
+    for _, p in ipairs(points) do
+        local y = surface_y(isl, p.x, p.z)
+        if y and (not best or y > best) then best = y end
+    end
+    return best
+end
+
+---------------------------------------------------------------------------
 -- Chování hlav
 ---------------------------------------------------------------------------
 
@@ -190,8 +227,11 @@ local function orbit_island(self, def, dtime)
     local isl = self.island
     -- strop 110 m: spawn (200) + orbit (110) musí zůstat pod aktivním
     -- rozsahem bloků (320 m), jinak engine maže draky na odvrácené straně
+    -- víc draků na jednom ostrově: každý svůj poloměr a patro (spawner)
     local orbit_r = math.min(math.max(isl.radius * 0.8, 30), 110)
+        * (self.orbit_k or 1)
     local alt = isl.y + isl.radius * (def.alt_frac or 0.35) + (def.alt or 10)
+        + (self.alt_off or 0)
 
     if self.stunt then
         -- looping: rychlost rotuje ve svislé rovině dané tečnou
@@ -212,9 +252,28 @@ local function orbit_island(self, def, dtime)
     end
 
     self.phase = (self.phase or 0) + dtime * def.speed / orbit_r
+
+    -- podlaha letu: nejvyšší povrch pod drakem a kus dráhy před ním
+    -- (stoupat musí s předstihem, tělo se táhne za hlavou)
+    self.floor_t = (self.floor_t or 1) + dtime
+    if self.floor_t >= 0.5 then
+        self.floor_t = 0
+        local pts = {}
+        local ahead = 40 / orbit_r   -- ~40 m dráhy dopředu
+        for k = 0, 4 do
+            local ph = self.phase + ahead * k / 4
+            pts[#pts + 1] = {x = isl.x + math.cos(ph) * orbit_r,
+                             z = isl.z + math.sin(ph) * orbit_r}
+        end
+        local pos = self.object:get_pos()
+        if pos then pts[#pts + 1] = pos end
+        local top = max_surface(isl, pts)
+        self.floor_y = top and (top + DRAGON_CLEARANCE + (self.alt_off or 0)) or nil
+    end
+
     local target = {
         x = isl.x + math.cos(self.phase) * orbit_r,
-        y = alt + math.sin(self.phase * 2) * 6,
+        y = math.max(alt, self.floor_y or alt) + math.sin(self.phase * 2) * 6,
         z = isl.z + math.sin(self.phase) * orbit_r,
     }
     fly_toward(self, target, def.speed, dtime)
@@ -236,7 +295,7 @@ end
 -- pod povrch a zpět. Povrch sonduje get_node sloupcem (throttle 1 s).
 local function worm_arcs(self, def, dtime)
     local isl = self.island
-    local orbit_r = math.max(isl.radius * 0.45, 18)
+    local orbit_r = math.max(isl.radius * 0.45, 18) * (self.orbit_k or 1)
     self.phase = (self.phase or 0) + dtime * def.speed / orbit_r
     local tx = isl.x + math.cos(self.phase) * orbit_r
     local tz = isl.z + math.sin(self.phase) * orbit_r
@@ -249,7 +308,8 @@ local function worm_arcs(self, def, dtime)
         local surf = nil
         for i = 0, 80 do
             local node = minetest.get_node({x = tx, y = y - i, z = tz})
-            if node.name ~= "air" and node.name ~= "ignore" then
+            if node.name ~= "air" and node.name ~= "ignore"
+                    and node.name ~= doggiowars.HEADLIGHT_NODE then
                 surf = y - i + 1
                 break
             end
@@ -277,11 +337,11 @@ local function drift_swarm(self, def, dtime)
             or (self.wp_t or 0) > 20 then
         local ang = math.random() * 2 * math.pi
         local r = math.random() * isl.radius * 0.6
-        self.wp = {
-            x = isl.x + math.cos(ang) * r,
-            y = isl.y + isl.radius * (0.3 + math.random() * 0.35),
-            z = isl.z + math.sin(ang) * r,
-        }
+        local wx, wz = isl.x + math.cos(ang) * r, isl.z + math.sin(ang) * r
+        local y = isl.y + isl.radius * (0.3 + math.random() * 0.35)
+        local surf = surface_y(isl, wx, wz)
+        if surf then y = math.max(y, surf + 3 * SCALE + math.random() * 10) end
+        self.wp = {x = wx, y = y, z = wz}
         self.wp_t = 0
     end
     self.wp_t = (self.wp_t or 0) + dtime
@@ -294,9 +354,18 @@ end
 -- nejbližším hráčem do 100 m — jen sleduje, nic víc (zatím).
 local function face_player_hover(self, def, dtime)
     local isl = self.island
+    -- vrchol jednou změřit; dokud oblast není načtená, zkoušet po 1 s
+    if not self.anchor_y then
+        self.anchor_t = (self.anchor_t or 1) + dtime
+        if self.anchor_t >= 1 then
+            self.anchor_t = 0
+            local top = surface_y(isl, isl.x, isl.z)
+            if top then self.anchor_y = top + 4 + 2 * SCALE end
+        end
+    end
     local anchor = {
         x = isl.x,
-        y = isl.y + isl.radius * 0.55 + 8,
+        y = self.anchor_y or (isl.y + isl.radius * 0.55 + 8),
         z = isl.z,
     }
     local pos = self.object:get_pos()
@@ -348,6 +417,33 @@ local function roam(self, def, dtime)
             z = pos.z + math.sin(ang) * dist,
         }
     end
+    -- ostrov v cestě (paprsek ~60 m dopředu, i trochu pod břichem):
+    -- stoupat, dokud není volno; cíl zvednout nad překážku
+    self.look_t = (self.look_t or 1) + dtime
+    if self.look_t >= 0.5 then
+        self.look_t = 0
+        local dir = vector.direction(pos, self.wp)
+        self.blocked = false
+        for _, dy in ipairs({0, -6}) do
+            local from = vector.offset(pos, 0, dy, 0)
+            for pointed in minetest.raycast(from,
+                    vector.add(from, vector.multiply(dir, 60)), false, false) do
+                if pointed.type == "node" then
+                    self.blocked = true
+                    self.wp.y = math.max(self.wp.y, pointed.above.y + 30)
+                end
+                break
+            end
+        end
+    end
+    if self.blocked then
+        -- strmé stoupání, ale s dopřednou složkou, ať se netočí kolmo
+        local h = vector.direction(pos, {x = self.wp.x, y = pos.y, z = self.wp.z})
+        fly_toward(self, vector.add(pos, vector.new(h.x * 0.5, 1, h.z * 0.5)),
+            def.speed, dtime)
+        return
+    end
+
     self.bob = (self.bob or 0) + dtime * 0.5
     local target = vector.offset(self.wp, 0, math.sin(self.bob) * 4, 0)
     fly_toward(self, target, def.speed, dtime)
@@ -369,6 +465,11 @@ local function tinted(tex, tint)
 end
 
 local function register_species(name, def)
+    def.head_size = (def.head_size or 1) * SCALE
+    if def.spacing then def.spacing = def.spacing * SCALE end
+    if def.seg_sizes then
+        for i, v in ipairs(def.seg_sizes) do def.seg_sizes[i] = v * SCALE end
+    end
     local seg_name = "doggiowars:" .. name .. "_seg"
     local body = tinted(def.body_tex or "doggiowars_monster_body.png", def.tint)
     local face = tinted(def.face_tex or "doggiowars_monster_head.png", def.tint)
@@ -429,6 +530,10 @@ local function register_species(name, def)
         end,
 
         on_deactivate = function(self)
+            if self.sound then
+                minetest.sound_stop(self.sound)
+                self.sound = nil
+            end
             for _, o in ipairs(self.segs or {}) do
                 if o and o:get_luaentity() then
                     o:remove()
@@ -460,8 +565,8 @@ local function register_species(name, def)
                         if def.seg_sizes then
                             sc = def.seg_sizes[i] or def.seg_sizes[#def.seg_sizes]
                         else
-                            sc = math.max(0.35,
-                                (def.head_size or 1) * (0.85 - 0.07 * i))
+                            sc = math.max(0.35 * SCALE,
+                                def.head_size * (0.85 - 0.07 * i))
                         end
                         o:set_properties({
                             visual_size = {x = sc, y = sc, z = sc},
@@ -472,8 +577,18 @@ local function register_species(name, def)
                 -- velrybí ocasní ploutev: poslední článek zploštit a rozšířit
                 if def.fluke and self.segs[def.seg_count] then
                     self.segs[def.seg_count]:set_properties({
-                        visual_size = {x = 2.4, y = 0.5, z = 1.2},
+                        visual_size = {x = 2.4 * SCALE, y = 0.5 * SCALE, z = 1.2 * SCALE},
                     })
+                end
+            end
+
+            -- vlastní smyčka bytosti (music.lua); až v prvním stepu, kdy
+            -- už je jasné, že entita zůstane (bez ostrova se smaže výš)
+            if not self.sound_started then
+                self.sound_started = true
+                if doggiowars.creature_sound then
+                    self.sound = doggiowars.creature_sound(self.object, name,
+                        def.hear)
                 end
             end
 
@@ -574,18 +689,21 @@ end
 ---------------------------------------------------------------------------
 
 local BIOME_CREW = {
-    volcanic = {"dragon_fire"},
-    ashen    = {"dragon_fire"},
-    glacial  = {"dragon_ice"},
-    atoll    = {"dragon_water"},
-    swamp    = {"dragon_mud"},
-    crystal  = {"dragon_electric"},
-    desert   = {"worm"},
-    savanna  = {"worm"},
-    barren   = {"guardian"},
-    verdant  = {"jelly", "jelly", "jelly"},
-    jungle   = {"jelly", "jelly"},
-    mycelial = {"jelly_glow", "jelly_glow", "jelly_glow"},
+    volcanic = {"dragon_fire", "dragon_fire", "dragon_fire"},
+    ashen    = {"dragon_fire", "dragon_fire", "worm"},
+    glacial  = {"dragon_ice", "dragon_ice", "dragon_ice"},
+    atoll    = {"dragon_water", "dragon_water", "jelly", "jelly", "jelly"},
+    swamp    = {"dragon_mud", "dragon_mud", "jelly_glow", "jelly_glow"},
+    crystal  = {"dragon_electric", "dragon_electric", "dragon_electric",
+                "jelly_glow", "jelly_glow"},
+    desert   = {"worm", "worm", "worm"},
+    savanna  = {"worm", "worm", "jelly", "jelly"},
+    barren   = {"guardian", "dragon_electric", "worm"},
+    verdant  = {"jelly", "jelly", "jelly", "jelly", "jelly", "jelly",
+                "dragon_water"},
+    jungle   = {"jelly", "jelly", "jelly", "jelly", "dragon_mud"},
+    mycelial = {"jelly_glow", "jelly_glow", "jelly_glow", "jelly_glow",
+                "jelly_glow", "jelly_glow"},
 }
 
 local spawned = {}   -- cellkey -> {objs = {ObjectRef...}}
@@ -606,10 +724,17 @@ local function spawn_crew(isl, key)
             y = isl.y + isl.radius * 0.5 + i * 4,
             z = isl.z + math.sin(ang) * isl.radius * 0.6,
         }
+        -- nenarodit se ve skále (červ se zanoří sám)
+        local surf = surface_y(isl, pos.x, pos.z)
+        if surf then pos.y = math.max(pos.y, surf + 6 + i * 4) end
         local obj = minetest.add_entity(pos, "doggiowars:" .. sp)
         if obj then
             local ent = obj:get_luaentity()
             ent.island = isl
+            -- stejný druh vícekrát: rozprostřít do pater a poloměrů
+            local n = #objs
+            ent.alt_off = (n % 3) * 6 * SCALE
+            ent.orbit_k = 0.7 + math.random() * 0.35
             objs[#objs + 1] = obj
         end
     end

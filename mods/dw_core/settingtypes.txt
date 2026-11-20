@@ -1,0 +1,5 @@
+# Island music volume (0 = silent, 1 = full)
+dw_music_volume (Island music volume) float 0.6 0 1
+
+# Volume of creature loops (dragons, whale, jellyfish, ...)
+dw_creature_volume (Creature sound volume) float 0.8 0 1

@@ -253,7 +253,8 @@ function tricks.update_passive(self, dtime)
         local node = minetest.get_node({
             x = pos.x + off.x, y = pos.y + off.y, z = pos.z + off.z,
         })
-        if node.name ~= "air" and node.name ~= "ignore" then
+        if node.name ~= "air" and node.name ~= "ignore"
+                and node.name ~= doggiowars.HEADLIGHT_NODE then
             self.boost_meter = math.min((self.boost_meter or 0) + 8 * 0.2, 100)
             tricks.add_raw_score(self, 10 * 0.2)
             return
