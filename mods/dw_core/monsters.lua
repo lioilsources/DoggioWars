@@ -249,7 +249,8 @@ local function worm_arcs(self, def, dtime)
         local surf = nil
         for i = 0, 80 do
             local node = minetest.get_node({x = tx, y = y - i, z = tz})
-            if node.name ~= "air" and node.name ~= "ignore" then
+            if node.name ~= "air" and node.name ~= "ignore"
+                    and node.name ~= doggiowars.HEADLIGHT_NODE then
                 surf = y - i + 1
                 break
             end

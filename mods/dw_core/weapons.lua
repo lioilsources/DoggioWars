@@ -141,6 +141,9 @@ local function carve_capsule(a, b, radius)
     local ys, zs = area.ystride, area.zstride
 
     local c_air, c_ignore = minetest.CONTENT_AIR, minetest.CONTENT_IGNORE
+    -- světlomet je vzduch, který svítí — nevrtat, nedělat z něj sutinu
+    local c_beam = doggiowars.HEADLIGHT_NODE
+        and minetest.get_content_id(doggiowars.HEADLIGHT_NODE) or c_air
     local abx, aby, abz = b.x - a.x, b.y - a.y, b.z - a.z
     local ab2 = abx * abx + aby * aby + abz * abz
     local r2 = radius * radius
@@ -161,7 +164,8 @@ local function carve_capsule(a, b, radius)
                 local ex, ey, ez = px - t * abx, py - t * aby, pz - t * abz
                 if ex * ex + ey * ey + ez * ez <= r2 then
                     local cid = data[vi]
-                    if cid ~= c_air and cid ~= c_ignore and not cid_liquid[cid] then
+                    if cid ~= c_air and cid ~= c_ignore and cid ~= c_beam
+                            and not cid_liquid[cid] then
                         if cid_liquid[data[vi - 1]] or cid_liquid[data[vi + 1]]
                                 or cid_liquid[data[vi - ys]] or cid_liquid[data[vi + ys]]
                                 or cid_liquid[data[vi - zs]] or cid_liquid[data[vi + zs]] then
