@@ -7,10 +7,14 @@
 
 local S = minetest.get_translator("dw_core")
 
-doggiowars.VERSION = "2.5.1"
+doggiowars.VERSION = "2.5.2"
 
 -- Nejnovější první. Texty jsou anglicky (zdrojový jazyk), čeština v locale.
 local CHANGES = {
+    {"2.5.2", {
+        S("Touchscreen: dedicated shoot and boost buttons that aim at the crosshair."),
+        S("Touch players get a controls hint instead of the gamepad one."),
+    }},
     {"2.5.1", {
         S("Fixed a crash on Android right after spawning (Invalid vector coordinate y)."),
     }},

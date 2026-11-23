@@ -58,14 +58,33 @@ dofile(MP .. "/sky.lua")        -- Sky, clouds, fog
 -- tady už nemusí být žádný zápis do hráčova configu. Zbývá jen připomenout
 -- DualShock, protože joystick_type je vlastnost hardwaru a uhodnout ho
 -- nejde (viz GAMEPAD.md).
-minetest.register_on_joinplayer(function(player)
+local S = minetest.get_translator("dw_core")
+
+local function controls_hint(name)
+    local info = minetest.get_player_window_information(name)
+    if info and info.touch_controls then
+        -- Dotyk: tlačítka střelby/boostu dává minetest.conf hry
+        -- (touch_interaction_style = buttons_crosshair)
+        minetest.chat_send_player(name, S("Touch: left joystick = thrust and bank, "
+            .. "drag = aim, dig button = shoot (hold), place button = boost, "
+            .. "jump/sneak = up/down, tap a hotbar slot = fighter/submarine."))
+        return
+    end
     -- has(), ne get() — get() vrací i enginový default ("auto"), takže by
     -- podmínka platila vždycky a hláška by nevyskočila nikdy
     local s = minetest.settings
     if s.has and s:has("joystick_type") then return end
-    minetest.chat_send_player(player:get_player_name(),
+    minetest.chat_send_player(name,
         "Gamepad: PS4/PS5 DualShock needs Settings -> Controls -> Gamepads "
         .. "-> Joystick type = ps5. Xbox works on 'auto'. See GAMEPAD.md.")
+end
+
+minetest.register_on_joinplayer(function(player)
+    -- Okno klienta (a s ním touch_controls) chodí až chvíli po připojení
+    local name = player:get_player_name()
+    minetest.after(2, function()
+        if minetest.get_player_by_name(name) then controls_hint(name) end
+    end)
 end)
 
 minetest.log("action", "[doggiowars] Mod loaded successfully")

@@ -83,6 +83,20 @@ in the HUD as well.
 Steep dives build overspeed, climbing bleeds it off. Skimming close to
 terrain charges your boost meter, and tricks score points.
 
+**Touchscreen (Android)**: the game switches Luanti to *Buttons with
+crosshair*, so there are dedicated buttons that aim at the crosshair.
+
+| Input | Action |
+|---|---|
+| Left joystick | thrust / bank (fighter), thrust / strafe (submarine) |
+| Drag on screen | aim |
+| Dig button (hold) | **shoot** |
+| Place button | **boost** (fighter) |
+| Jump / sneak buttons | nose up / down (fighter), rise / sink (submarine) |
+| Tap a hotbar slot | switch fighter ⇄ submarine |
+
+You can change the interaction style in Settings → Touchscreen.
+
 **Gamepad**: native Luanti joystick support (Xbox 360, PS4 DualShock) —
 see [GAMEPAD.md](https://github.com/lioilsources/DoggioWars/blob/main/GAMEPAD.md) for setup, the button map and
 troubleshooting (in Czech).

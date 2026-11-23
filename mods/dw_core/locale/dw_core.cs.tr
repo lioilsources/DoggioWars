@@ -52,3 +52,8 @@ Bigger creatures, more of them, no longer flying through islands.=Větší bytos
 R1/L1 (RB/LB, mouse wheel) switch fighter and submarine.=R1/L1 (RB/LB, kolečko myši) přepíná stíhačku a ponorku.
 All changes: /version=Všechny změny: /version
 Show the game version and what changed=Ukáže verzi hry a co se změnilo
+
+# Touch
+Touch: left joystick @= thrust and bank, drag @= aim, dig button @= shoot (hold), place button @= boost, jump/sneak @= up/down, tap a hotbar slot @= fighter/submarine.=Dotyk: levý joystick @= tah a náklon, tažení prstem @= míření, tlačítko těžit @= střelba (držet), tlačítko pokládat @= boost, skok/plížení @= nahoru/dolů, klepnutí na slot hotbaru @= stíhačka/ponorka.
+Touchscreen: dedicated shoot and boost buttons that aim at the crosshair.=Dotyk: samostatná tlačítka pro střelbu a boost, která míří na zaměřovač.
+Touch players get a controls hint instead of the gamepad one.=Na dotyku se po připojení ukáže nápověda k dotykovému ovládání místo gamepadu.
